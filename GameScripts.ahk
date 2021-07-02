@@ -20,6 +20,7 @@ AppFolder = %A_AppData%\%AppFolderName%
 AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
+version = 0.1
 ;//////////////[Global variables]///////////////
 global ScriptName
 global AppFolderName
@@ -147,7 +148,7 @@ IfExist, %AppSettingsIni%
 }
 Gui Font
 Gui Font, s14
-Gui Add, Text, x706 y387 w120 h23 +0x200, Version: 0.1
+Gui Add, Text, x706 y387 w120 h23 +0x200, Version = %version%
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, CheckBox, x10 y30 w147 h23 +Disabled, Keep this always on top
@@ -173,7 +174,7 @@ Gui Add, Text, x276 y156 w450 h185 +0x200, Nothing to show yet
 Gui Font
 Gui Tab
 
-Gui Show, w835 h517, GamingScriptsByVeskeli THIS IS ONLY GUI VERSION PLEASE DOWNLOAD NEW VERSION FROM GITHUB
+Gui Show, w835 h517, GamingScriptsByVeskeli
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
 IfExist, %AppSettingsIni%
@@ -216,10 +217,8 @@ GuiClose:
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
-MsgBox, Please Download new version from github. This is only Gui version!
-return
 whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-;whr.Open("GET", "version text", False)
+whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/version.txt", False)
 whr.Send()
 whr.WaitForResponse()
 newversion := whr.ResponseText
@@ -239,7 +238,7 @@ if(newversion != "")
             FileCreateDir, %AppFolder%\temp
             FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
             sleep 1000
-            ;UrlDownloadToFile, link, %A_ScriptFullPath%
+            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
             Sleep 1000
             loop
             {
