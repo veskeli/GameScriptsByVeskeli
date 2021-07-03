@@ -21,7 +21,10 @@ AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
-version = 0.12
+version = 0.2
+;//////////////[Action variables]///////////////
+AutoRunToggle = 0
+AutoRunUseShift = 1
 ;//////////////[Global variables]///////////////
 global ScriptName
 global AppFolderName
@@ -66,14 +69,18 @@ Gui Add, Text, x383 y134 w62 h23 +0x200 +Disabled, Timer: (ms)
 Gui Add, Edit, x449 y136 w120 h21 +Number +Disabled, 50
 Gui Font
 Gui Font, s11
-Gui Add, GroupBox, x375 y168 w450 h78, Auto run/walk
+;//////////////[Auto Run/Walk]///////////////
+Gui Add, GroupBox, x375 y168 w450 h78, Auto Run/Walk
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, Text, x385 y185 w47 h23 +0x200, Hotkey:
-Gui Add, Hotkey, x438 y185 w120 h21 +Disabled
-Gui Add, Button, x737 y185 w80 h23 +Disabled, Save Settings
-Gui Add, CheckBox, x385 y212 w93 h23 +Checked +Disabled, Run (Use shift)
+Gui Add, Hotkey, x438 y185 w120 h21 gGuiSubmit vToggleRunHotkey
+Gui Add, Button, x737 y185 w80 h23 gSaveToggleRun, Save Settings
+Gui Add, CheckBox, x385 y212 w93 h23 +Checked gAutoRunUseShiftButton, Run (Use shift)
 Gui Add, CheckBox, x564 y183 w171 h23 +Disabled, Turn off by any movement
+Gui Font
+Gui Font, s11
+Gui Add, CheckBox, x745 y214 w70 h23 gEnableAutoRun vAutoRunCheckbox, Enabled
 Gui Font
 Gui Font, s11
 Gui Add, GroupBox, x375 y257 w450 h143, Capture only in game
@@ -118,9 +125,6 @@ Gui Font, s11
 Gui Add, CheckBox, x743 y132 w70 h23 +Disabled, Enabled
 Gui Font
 Gui Font, s9, Segoe UI
-Gui Font
-Gui Font, s11
-Gui Add, CheckBox, x745 y214 w70 h23 +Disabled, Enabled
 Gui Font
 Gui Font, s9, Segoe UI
 ;//////////////[Disable buttons]///////////////
@@ -189,6 +193,11 @@ IfExist, %AppHotkeysIni% ;Always on top hotkey
 {
     IniRead, Temp_AlwayOnTopHotkey, %AppHotkeysIni%, GameMode, AlwaysOnTopHotkey
 	GuiControl,,AlwaysOnTopHotkey,%Temp_AlwayOnTopHotkey%
+}
+IfExist, %AppHotkeysIni% ;Auto Run/Walk
+{
+    IniRead, Temp_AutoRunHotkey, %AppHotkeysIni%, GameMode, AutoRun
+	GuiControl,,ToggleRunHotkey,%Temp_AutoRunHotkey%
 }
 Gui, Submit, Nohide
 ;____________________________________________________________
@@ -266,7 +275,7 @@ return
 ;//////////////[SaveAlwaysOnTopHotkey]///////////////
 SaveAlwaysOnTopHotkey:
     SaveHotkey(AlwaysOnTopHotkey, "AlwaysOnTopHotkey")
-    run, %AppHotkeysIni%
+    goto EnableAlwaysOnTop
 return
 AlwaysOnTopHotkeyPress:
     Winset, Alwaysontop, , A
@@ -324,8 +333,56 @@ ClearGameModeHotkeys:
 Gui, Submit, Nohide
 ;always on top
 GuiControl,, AlwaysOnTopHotkey, ""
-SaveHotkey(AlwaysOnTopHotkey, "AlwaysOnTopHotkey")
+SaveHotkey("", "AlwaysOnTopHotkey")
 return
+;____________________________________________________________
+;//////////////[Auto Run/Walk]///////////////
+SaveToggleRun:
+SaveHotkey(ToggleRunHotkey, "AutoRun")
+goto EnableAutoRun
+return
+EnableAutoRun:
+Gui, Submit, Nohide
+if (AutoRunCheckbox)
+{
+    Hotkey, %ToggleRunHotkey%,ToggleAutoRun, ON
+    Hotkey, *%ToggleRunHotkey%,ToggleAutoRun, ON
+} 
+else
+{
+    Hotkey, %ToggleRunHotkey%,ToggleAutoRun, OFF
+}
+return
+ToggleAutoRun:
+AutoRunToggle := !AutoRunToggle
+if (AutoRunToggle)
+{
+    if (AutoRunUseShift)
+    {
+        Send, {lshift Down}
+        Send, {Blind}{w Down}
+    }
+    else
+    {
+        Send, {w Down}
+    }
+}
+else
+{
+    if (AutoRunUseShift)
+    {
+        Send, {lshift Up}
+        Send, {Blind}{w Up}
+    }
+    else
+    {
+        Send, {w Up}
+    }
+}
+return
+AutoRunUseShiftButton:
+AutoRunUseShift := !AutoRunUseShift
+Return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
