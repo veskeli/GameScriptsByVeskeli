@@ -21,7 +21,7 @@ AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
-version = 0.11
+version = 0.12
 ;//////////////[Global variables]///////////////
 global ScriptName
 global AppFolderName
@@ -165,7 +165,7 @@ Gui Add, Button, x642 y43 w180 h23 +Disabled, Delete all GameMode settings
 Gui Add, Button, x643 y121 w175 h38 gDeleteAllFiles, Delete all files
 Gui Add, Button, x644 y95 w80 h23 +Disabled, Delete Scripts
 Gui Add, GroupBox, x633 y172 w196 h80, Clear
-Gui Add, Button, x658 y196 w139 h39 +Disabled, Clear GameMode Hotkeys
+Gui Add, Button, x658 y196 w139 h39 gClearGameModeHotkeys, Clear GameMode Hotkeys
 Gui Add, Button, x723 y360 w103 h23 +Disabled, Show Changelog
 Gui Add, Button, x720 y255 w108 h34 gShortcut_to_desktop, Shortcut to Desktop
 Gui Tab, 4
@@ -319,6 +319,14 @@ return
 DisableHotkeyLabel:
 return
 ;____________________________________________________________
+;//////////////[Clear hotkeys]///////////////
+ClearGameModeHotkeys:
+Gui, Submit, Nohide
+;always on top
+GuiControl,, AlwaysOnTopHotkey, ""
+SaveHotkey(AlwaysOnTopHotkey, "AlwaysOnTopHotkey")
+return
+;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
@@ -350,6 +358,7 @@ if(newversion != "")
                 IfExist %A_ScriptFullPath%
                 {
                     Run, %A_ScriptFullPath%
+                    ExitApp
                 }
             }
 			ExitApp
