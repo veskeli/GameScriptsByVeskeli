@@ -19,14 +19,16 @@ AppFolderName = AHKGameScriptsByVeskeli
 AppFolder = %A_AppData%\%AppFolderName%
 AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
+AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
-version = 0.1
+version = 0.11
 ;//////////////[Global variables]///////////////
 global ScriptName
 global AppFolderName
 global AppFolder
 global AppSettingsFolder
 global AppSettingsIni
+global AppHotkeysIni
 global AppUpdateFile
 ;//////////////[Startup checks]///////////////
 IfExist %AppUpdateFile% 
@@ -94,15 +96,16 @@ Gui Add, Radio, x792 y338 w19 h23 +Disabled
 Gui Add, Radio, x792 y364 w19 h23 +Disabled
 Gui Font
 Gui Font, s11
+;//////////////[Always on top]///////////////
 Gui Add, GroupBox, x2 y27 w367 h55, Toggle any application to Always on top by hotkey
 Gui Font
 Gui Font, s9, Segoe UI
-Gui Add, Text, x9 y50 w47 h23 +0x200 +Disabled, Hotkey:
-Gui Add, Hotkey, x59 y50 w120 h21 +Disabled
-Gui Add, Button, x281 y49 w80 h23 +Disabled, Save settings
+Gui Add, Text, x9 y50 w47 h23 +0x200, Hotkey:
+Gui Add, Hotkey, x59 y50 w120 h21 vAlwaysOnTopHotkey gGuiSubmit
+Gui Add, Button, x281 y49 w80 h23 gSaveAlwaysOnTopHotkey, Save settings
 Gui Font
 Gui Font, s11
-Gui Add, CheckBox, x201 y51 w70 h23 +Disabled, Enabled
+Gui Add, CheckBox, x201 y51 w70 h23 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, Enabled
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Font
@@ -120,16 +123,18 @@ Gui Font, s11
 Gui Add, CheckBox, x745 y214 w70 h23 +Disabled, Enabled
 Gui Font
 Gui Font, s9, Segoe UI
+;//////////////[Disable buttons]///////////////
 Gui Add, GroupBox, x375 y400 w450 h111, Disable buttons
-Gui Add, CheckBox, x383 y426 w156 h23 +Disabled, Disable Windows button
-Gui Add, CheckBox, x383 y450 w120 h23 +Disabled, Disable Caps Lock
+Gui Add, CheckBox, x383 y426 w156 h23 gDisableWindowsButton vDisableWindowsCheckbox, Disable Windows button
+Gui Add, CheckBox, x383 y450 w120 h23 gDisableCapsLockButton vDisableCapsLockCheckbox, Disable Caps Lock
 Gui Add, CheckBox, x542 y426 w74 h23 +Disabled, Rebind to:
-Gui Add, Hotkey, x622 y427 w120 h21 +Disabled
+Gui Add, Hotkey, x622 y427 w120 h21 +Disabled ;Windows
 Gui Add, CheckBox, x542 y450 w77 h23 +Disabled, Rebind to:
-Gui Add, Hotkey, x622 y451 w120 h21 +Disabled
-Gui Add, Button, x732 y478 w80 h23 +Disabled, Save settings
-Gui Add, CheckBox, x385 y479 w120 h23 +Disabled, Disable Alt + Tab
+Gui Add, Hotkey, x622 y451 w120 h21 +Disabled ;capslock
+Gui Add, Button, x732 y478 w80 h23 +Disabled, Save Hotkeys
+Gui Add, CheckBox, x385 y479 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
 Gui Tab, 2
+;____________________________________________________________
 ;//////////////[Game scripts]///////////////
 Gui Font
 Gui Font, s20
@@ -137,15 +142,11 @@ Gui Add, Text, x276 y156 w450 h185 +0x200, Nothing to show yet
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Tab, 3
+;____________________________________________________________
 ;//////////////[Settings]///////////////
 Gui Add, GroupBox, x633 y416 w199 h95, Check for updates
 Gui Add, CheckBox, x646 y442 w172 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui Add, Button, x666 y473 w126 h23 +Disabled, Check updates
-IfExist, %AppSettingsIni%
-{
-    IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
-	GuiControl,,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
-}
 Gui Font
 Gui Font, s14
 Gui Add, Text, x706 y387 w120 h23 +0x200, Version = %version%
@@ -158,15 +159,17 @@ Gui Add, Button, x467 y470 w163 h40 +Disabled, Save all settings
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, GroupBox, x633 y27 w196 h145, Delete stuff
-Gui Add, Button, x643 y70 w107 h23 +Disabled, Delete all settings
+Gui Add, Button, x643 y70 w107 h23 gDeleteAppSettings, Delete all settings
 Gui Add, Button, x642 y43 w180 h23 +Disabled, Delete all GameMode settings
-Gui Add, Button, x643 y121 w175 h38 +Disabled, Uninstall(Delete all including this script)
+;Gui Add, Button, x643 y121 w175 h38 gDeleteAllFiles, Uninstall(Delete all including this script)
+Gui Add, Button, x643 y121 w175 h38 gDeleteAllFiles, Delete all files
 Gui Add, Button, x644 y95 w80 h23 +Disabled, Delete Scripts
 Gui Add, GroupBox, x633 y172 w196 h80, Clear
 Gui Add, Button, x658 y196 w139 h39 +Disabled, Clear GameMode Hotkeys
 Gui Add, Button, x723 y360 w103 h23 +Disabled, Show Changelog
 Gui Add, Button, x720 y255 w108 h34 gShortcut_to_desktop, Shortcut to Desktop
 Gui Tab, 4
+;____________________________________________________________
 ;//////////////[Other scripts]///////////////
 Gui Font
 Gui Font, s20
@@ -175,6 +178,19 @@ Gui Font
 Gui Tab
 
 Gui Show, w835 h517, GamingScriptsByVeskeli
+;____________________________________________________________
+;//////////////[Check for Settings]///////////////
+IfExist, %AppSettingsIni% ;Check for updates checkbox
+{
+    IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
+	GuiControl,,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
+}
+IfExist, %AppHotkeysIni% ;Always on top hotkey
+{
+    IniRead, Temp_AlwayOnTopHotkey, %AppHotkeysIni%, GameMode, AlwaysOnTopHotkey
+	GuiControl,,AlwaysOnTopHotkey,%Temp_AlwayOnTopHotkey%
+}
+Gui, Submit, Nohide
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
 IfExist, %AppSettingsIni%
@@ -212,7 +228,96 @@ Return
 GuiEscape:
 GuiClose:
     ExitApp
-
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Actions]///////////////
+GuiSubmit:
+    Gui, Submit, Nohide
+return
+;____________________________________________________________
+;//////////////[Delete files]///////////////
+DeleteAllFiles: ;uninstall
+MsgBox, 1,Are you sure?,All files will be deleted!, 15
+IfMsgBox, Cancel
+{
+	return
+}
+else
+{
+    FileRemoveDir, %AppFolder%,1
+    ;Reset all settings when settings files are removed
+    GuiControl,,CheckUpdatesOnStartup,0
+}
+return
+DeleteAppSettings:
+MsgBox, 1,Are you sure?,All Settings will be deleted!, 15
+IfMsgBox, Cancel
+{
+	return
+}
+else
+{
+    FileRemoveDir, %AppSettingsFolder%,1
+    ;Reset all settings when settings files are removed
+    GuiControl,,CheckUpdatesOnStartup,0
+}
+return
+;____________________________________________________________
+;//////////////[SaveAlwaysOnTopHotkey]///////////////
+SaveAlwaysOnTopHotkey:
+    SaveHotkey(AlwaysOnTopHotkey, "AlwaysOnTopHotkey")
+    run, %AppHotkeysIni%
+return
+AlwaysOnTopHotkeyPress:
+    Winset, Alwaysontop, , A
+return
+EnableAlwaysOnTop:
+Gui, Submit, Nohide
+if (AlwaysOnTopCheckbox)
+{
+    Hotkey, %AlwaysOnTopHotkey%,AlwaysOnTopHotkeyPress, ON
+} 
+else
+{
+    Hotkey, %AlwaysOnTopHotkey%,AlwaysOnTopHotkeyPress, OFF
+}
+return
+;____________________________________________________________
+;//////////////[Disable buttons]///////////////
+DisableWindowsButton:
+Gui, Submit, Nohide
+if (DisableWindowsCheckbox)
+{
+    Hotkey, LWin,DisableHotkeyLabel, ON
+} 
+else
+{
+    Hotkey, LWin,DisableHotkeyLabel, OFF
+}
+DisableCapsLockButton:
+Gui, Submit, Nohide
+if (DisableCapsLockCheckbox)
+{
+    Hotkey, CapsLock,DisableHotkeyLabel, ON
+} 
+else
+{
+    Hotkey, CapsLock,DisableHotkeyLabel, OFF
+}
+return
+DisableAltTabButton:
+Gui, Submit, Nohide
+if (DisableAltTabCheckbox)
+{
+    Hotkey, !Tab,DisableHotkeyLabel, ON
+} 
+else
+{
+    Hotkey, !Tab,DisableHotkeyLabel, OFF
+}
+return
+DisableHotkeyLabel:
+return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
@@ -263,3 +368,11 @@ return
 Shortcut_to_desktop:
 FileCreateShortcut,"%A_ScriptFullPath%", %A_Desktop%\%ScriptName%.lnk
 return
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Functions]///////////////
+SaveHotkey(tHotkey, tKey)
+{
+    Gui, Submit, Nohide
+    IniWrite, %tHotkey%, %AppHotkeysIni%, GameMode, %tKey%
+}
