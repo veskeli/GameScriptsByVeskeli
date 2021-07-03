@@ -1,6 +1,6 @@
 # GameScriptsByVeskeli
 
-!!! [Download GameScriptAhk](https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.11/GameScripts.ahk) !!!
+!!! [Download GameScriptAhk](https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.12/GameScripts.ahk) !!!
 
 + Basic scripts in one app
 + All my scripts in one app
