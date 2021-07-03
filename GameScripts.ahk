@@ -21,10 +21,12 @@ AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
-version = 0.2
+version = 0.21
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
+WindowsButtonRebindEnabled = 0
+CapsLockButtonRebindEnabled = 0
 ;//////////////[Global variables]///////////////
 global ScriptName
 global AppFolderName
@@ -75,9 +77,9 @@ Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, Text, x385 y185 w47 h23 +0x200, Hotkey:
 Gui Add, Hotkey, x438 y185 w120 h21 gGuiSubmit vToggleRunHotkey
-Gui Add, Button, x737 y185 w80 h23 gSaveToggleRun, Save Settings
+Gui Add, Button, x737 y185 w80 h23 gSaveToggleRun, Save Hotkey
 Gui Add, CheckBox, x385 y212 w93 h23 +Checked gAutoRunUseShiftButton, Run (Use shift)
-Gui Add, CheckBox, x564 y183 w171 h23 +Disabled, Turn off by any movement
+;Gui Add, CheckBox, x564 y183 w171 h23 gGuiSubmit vTurnOffAutoRunByMovement, Turn off by any movement
 Gui Font
 Gui Font, s11
 Gui Add, CheckBox, x745 y214 w70 h23 gEnableAutoRun vAutoRunCheckbox, Enabled
@@ -109,7 +111,7 @@ Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, Text, x9 y50 w47 h23 +0x200, Hotkey:
 Gui Add, Hotkey, x59 y50 w120 h21 vAlwaysOnTopHotkey gGuiSubmit
-Gui Add, Button, x281 y49 w80 h23 gSaveAlwaysOnTopHotkey, Save settings
+Gui Add, Button, x281 y49 w80 h23 gSaveAlwaysOnTopHotkey, Save Hotkey
 Gui Font
 Gui Font, s11
 Gui Add, CheckBox, x201 y51 w70 h23 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, Enabled
@@ -131,11 +133,11 @@ Gui Font, s9, Segoe UI
 Gui Add, GroupBox, x375 y400 w450 h111, Disable buttons
 Gui Add, CheckBox, x383 y426 w156 h23 gDisableWindowsButton vDisableWindowsCheckbox, Disable Windows button
 Gui Add, CheckBox, x383 y450 w120 h23 gDisableCapsLockButton vDisableCapsLockCheckbox, Disable Caps Lock
-Gui Add, CheckBox, x542 y426 w74 h23 +Disabled, Rebind to:
-Gui Add, Hotkey, x622 y427 w120 h21 +Disabled ;Windows
-Gui Add, CheckBox, x542 y450 w77 h23 +Disabled, Rebind to:
-Gui Add, Hotkey, x622 y451 w120 h21 +Disabled ;capslock
-Gui Add, Button, x732 y478 w80 h23 +Disabled, Save Hotkeys
+Gui Add, CheckBox, x542 y426 w74 h23 gEnableWindowsRebind vRebindWindowsCheckbox, Rebind to:
+Gui Add, Hotkey, x622 y427 w120 h21 gGuiSubmit vRebindWindowsButton ;Windows
+Gui Add, CheckBox, x542 y450 w77 h23 gEnableCapsLockRebind vRebindCapsLockCheckbox, Rebind to:
+Gui Add, Hotkey, x622 y451 w120 h21 gGuiSubmit vRebindCapsLockButton ;capslock
+Gui Add, Button, x732 y478 w80 h23 gSaveRebindHotkeys, Save Hotkeys
 Gui Add, CheckBox, x385 y479 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
 Gui Tab, 2
 ;____________________________________________________________
@@ -170,7 +172,7 @@ Gui Add, Button, x643 y121 w175 h38 gDeleteAllFiles, Delete all files
 Gui Add, Button, x644 y95 w80 h23 +Disabled, Delete Scripts
 Gui Add, GroupBox, x633 y172 w196 h80, Clear
 Gui Add, Button, x658 y196 w139 h39 gClearGameModeHotkeys, Clear GameMode Hotkeys
-Gui Add, Button, x723 y360 w103 h23 +Disabled, Show Changelog
+;Gui Add, Button, x723 y360 w103 h23 +Disabled, Show Changelog
 Gui Add, Button, x720 y255 w108 h34 gShortcut_to_desktop, Shortcut to Desktop
 Gui Tab, 4
 ;____________________________________________________________
@@ -180,8 +182,6 @@ Gui Font, s20
 Gui Add, Text, x276 y156 w450 h185 +0x200, Nothing to show yet
 Gui Font
 Gui Tab
-
-Gui Show, w835 h517, GamingScriptsByVeskeli
 ;____________________________________________________________
 ;//////////////[Check for Settings]///////////////
 IfExist, %AppSettingsIni% ;Check for updates checkbox
@@ -199,7 +199,19 @@ IfExist, %AppHotkeysIni% ;Auto Run/Walk
     IniRead, Temp_AutoRunHotkey, %AppHotkeysIni%, GameMode, AutoRun
 	GuiControl,,ToggleRunHotkey,%Temp_AutoRunHotkey%
 }
-Gui, Submit, Nohide
+IfExist, %AppHotkeysIni% ;Rebind Windows button
+{
+    IniRead, Temp_RebindWindowsHotkey, %AppHotkeysIni%, GameMode, RebindWindowsButton
+	GuiControl,,RebindWindowsButton,%Temp_RebindWindowsHotkey%
+}
+IfExist, %AppHotkeysIni% ;Rebind Caps lock button
+{
+    IniRead, Temp_RebindCapsLockHotkey, %AppHotkeysIni%, GameMode, RebindCapsLockButton
+	GuiControl,,RebindCapsLockButton,%Temp_RebindCapsLockHotkey%
+}
+;____________________________________________________________
+;//////////////[Show Gui After setting all saved settings]///////////////
+Gui Show, w835 h517, GamingScriptsByVeskeli
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
 IfExist, %AppSettingsIni%
@@ -295,6 +307,20 @@ return
 ;//////////////[Disable buttons]///////////////
 DisableWindowsButton:
 Gui, Submit, Nohide
+if (RebindWindowsCheckbox) ;Check if rebind is enabled. Cant rebind and disable same key
+{
+    MsgBox, 1, Rebind is enabled, Rebind windows button is enabled `nDo you want to Disable it insted.
+    IfMsgBox, Cancel
+    {
+        GuiControl,,DisableWindowsCheckbox,0
+        return
+    }
+    else
+    {
+        GuiControl,,RebindWindowsCheckbox,0
+        Hotkey, LWin, WindowsButtonRebinded, Off
+    }
+}
 if (DisableWindowsCheckbox)
 {
     Hotkey, LWin,DisableHotkeyLabel, ON
@@ -305,6 +331,20 @@ else
 }
 DisableCapsLockButton:
 Gui, Submit, Nohide
+if (RebindCapsLockCheckbox) ;Check if rebind is enabled. Cant rebind and disable same key
+{
+    MsgBox, 1, Rebind is enabled, Rebind CapsLock button is enabled `nDo you want to Disable it insted.
+    IfMsgBox, Cancel
+    {
+        GuiControl,,DisableCapsLockCheckbox,0
+        return
+    }
+    else
+    {
+        GuiControl,,RebindCapsLockCheckbox,0
+        Hotkey, CapsLock, CapsLockButtonRebinded, Off
+    }
+}
 if (DisableCapsLockCheckbox)
 {
     Hotkey, CapsLock,DisableHotkeyLabel, ON
@@ -325,7 +365,72 @@ else
     Hotkey, !Tab,DisableHotkeyLabel, OFF
 }
 return
-DisableHotkeyLabel:
+DisableHotkeyLabel: ;Disable button
+return
+EnableWindowsRebind:
+Gui, Submit, Nohide
+if (DisableWindowsCheckbox) ;Check if disable is also enabled. cant rebind and disable same key
+{
+    MsgBox, 1, Disable is enabled, Disable windows button is enabled `nDo you want to Rebind it insted.
+    IfMsgBox, Cancel
+    {
+        GuiControl,,RebindWindowsCheckbox,0
+        return
+    }
+    else
+    {
+        GuiControl,,DisableWindowsCheckbox,0
+        Hotkey, LWin,DisableHotkeyLabel, OFF
+    }
+}
+WindowsButtonRebindEnabled := !WindowsButtonRebindEnabled
+if (WindowsButtonRebindEnabled)
+{
+    Hotkey, LWin, WindowsButtonRebinded, On
+}
+else
+{
+    Hotkey, LWin, WindowsButtonRebinded, Off
+}
+return
+WindowsButtonRebinded:
+Gui, Submit, Nohide
+send %RebindWindowsButton%
+return
+EnableCapsLockRebind:
+Gui, Submit, Nohide
+if (DisableCapsLockCheckbox) ;Check if disable is also enabled. cant rebind and disable same key
+{
+    MsgBox, 1, Disable is enabled, Disable CapsLock button is enabled `nDo you want to Rebind it insted.
+    IfMsgBox, Cancel
+    {
+        GuiControl,,RebindCapsLockCheckbox,0
+        return
+    }
+    else
+    {
+        GuiControl,,DisableCapsLockCheckbox,0
+        Hotkey, CapsLock,DisableHotkeyLabel, OFF
+    }
+}
+CapsLockButtonRebindEnabled := !CapsLockButtonRebindEnabled
+if (CapsLockButtonRebindEnabled)
+{
+    Hotkey, CapsLock, CapsLockButtonRebinded, On
+}
+else
+{
+    Hotkey, CapsLock, CapsLockButtonRebinded, Off
+}
+return
+CapsLockButtonRebinded:
+Gui, Submit, Nohide
+send %RebindCapsLockButton%
+return
+SaveRebindHotkeys:
+Gui, Submit, Nohide
+SaveHotkey(RebindWindowsButton,"RebindWindowsButton")
+SaveHotkey(RebindCapsLockButton, "RebindCapsLockButton")
 return
 ;____________________________________________________________
 ;//////////////[Clear hotkeys]///////////////
