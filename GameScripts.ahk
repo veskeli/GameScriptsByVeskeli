@@ -6,7 +6,7 @@ SendMode Input ; Forces Send and SendRaw to use SendInput buffering for speed.
 SetTitleMatchMode, 3 ; A window's title must exactly match WinTitle to be a match.
 SetWorkingDir, %A_ScriptDir%
 SplitPath, A_ScriptName, , , , GameScripts
-#MaxThreadsPerHotkey, 1 ; no re-entrant hotkey handling
+#MaxThreadsPerHotkey, 4 ; no re-entrant hotkey handling
 ; DetectHiddenWindows, On
 SetWinDelay, -1 ; Remove short delay done automatically after every windowing command except IfWinActive and IfWinExist
 SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystroke sent by Send or ControlSend
@@ -21,12 +21,14 @@ AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
-version = 0.21
+version = 0.22
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
 WindowsButtonRebindEnabled = 0
 CapsLockButtonRebindEnabled = 0
+MouseHoldToggle = 0
+MouseClickerToggle = 0
 ;//////////////[Global variables]///////////////
 global ScriptName
 global AppFolderName
@@ -49,26 +51,34 @@ Gui Add, Tab3, x-1 y-1 w840 h521, GameMode|GamingScripts|Settings|Other scripts
 Gui Tab, 1
 Gui Font
 Gui Font, s11
+;//////////////[Mouse Hold]///////////////
 Gui Add, GroupBox, x375 y27 w450 h56, Mouse Hold
 Gui Font
 Gui Font, s9, Segoe UI
-Gui Add, Text, x381 y48 w83 h23 +0x200 +Disabled, Mouse button:
-Gui Add, DropDownList, x471 y48 w88 +Disabled, Left||Middle|Right
-Gui Add, Text, x562 y48 w47 h23 +0x200 +Disabled, Hotkey:
-Gui Add, Hotkey, x614 y48 w120 h21 +Disabled
-Gui Add, Button, x737 y37 w80 h23 +Disabled, Save Settings
+Gui Add, Text, x381 y48 w83 h23 +0x200, Mouse button:
+Gui Add, DropDownList, x471 y48 w88 gGuiSubmit vMouseHoldList, Left||Middle|Right
+Gui Add, Text, x562 y48 w47 h23 +0x200, Hotkey:
+Gui Add, Hotkey, x614 y48 w120 h21 gGuiSubmit vMouseHoldHotkey
+Gui Add, Button, x737 y37 w80 h23 gSaveMouseHoldSettings, Save Hotkey
 Gui Font
 Gui Font, s11
+Gui Add, CheckBox, x740 y61 w70 h18 gMouseHoldEnabled vMouseHoldCheckbox, Enabled
+Gui Font
+Gui Font, s11
+;//////////////[Mouse Clicker]///////////////
 Gui Add, GroupBox, x375 y86 w450 h80, Mouse Clicker
 Gui Font
 Gui Font, s9, Segoe UI
-Gui Add, Text, x381 y104 w83 h23 +0x200 +Disabled, Mouse button:
-Gui Add, DropDownList, x471 y104 w88 +Disabled, Left||Middle|Right
-Gui Add, Text, x562 y104 w47 h23 +0x200 +Disabled, Hotkey:
-Gui Add, Hotkey, x614 y104 w120 h21 +Disabled
-Gui Add, Button, x737 y104 w80 h23 +Disabled, Save Settings
-Gui Add, Text, x383 y134 w62 h23 +0x200 +Disabled, Timer: (ms)
-Gui Add, Edit, x449 y136 w120 h21 +Number +Disabled, 50
+Gui Add, Text, x381 y104 w83 h23 +0x200 , Mouse button:
+Gui Add, DropDownList, x471 y104 w88 gGuiSubmit vMouseClickerList, Left||Middle|Right
+Gui Add, Text, x562 y104 w47 h23 +0x200 , Hotkey:
+Gui Add, Hotkey, x614 y104 w120 h21 gGuiSubmit vMouseClickerHotkey
+Gui Add, Button, x737 y104 w80 h23 gSaveMouseClickerSettings, Save Settings
+Gui Add, Text, x383 y134 w62 h23 +0x200 , Timer: (ms)
+Gui Add, Edit, x449 y136 w120 h21 +Number gGuiSubmit vMouseClickerDelay, 150
+Gui Font
+Gui Font, s11
+Gui Add, CheckBox, x743 y132 w70 h23 gMouseClickerEnabled vMouseClickerCheckbox, Enabled
 Gui Font
 Gui Font, s11
 ;//////////////[Auto Run/Walk]///////////////
@@ -118,13 +128,7 @@ Gui Add, CheckBox, x201 y51 w70 h23 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, Ena
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Font
-Gui Font, s11
-Gui Add, CheckBox, x740 y61 w70 h18 +Disabled, Enabled
-Gui Font
 Gui Font, s9, Segoe UI
-Gui Font
-Gui Font, s11
-Gui Add, CheckBox, x743 y132 w70 h23 +Disabled, Enabled
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Font
@@ -208,6 +212,24 @@ IfExist, %AppHotkeysIni% ;Rebind Caps lock button
 {
     IniRead, Temp_RebindCapsLockHotkey, %AppHotkeysIni%, GameMode, RebindCapsLockButton
 	GuiControl,,RebindCapsLockButton,%Temp_RebindCapsLockHotkey%
+}
+IfExist, %AppHotkeysIni% ;Mouse Hold
+{
+    IniRead, Temp_MouseHoldHotkey, %AppHotkeysIni%, GameMode, MouseHoldHotkey
+    ;IniRead, Temp_MouseHoldButton, %AppHotkeysIni%, GameMode, MouseHoldButton
+    GuiControl,,MouseHoldHotkey,%Temp_MouseHoldHotkey%
+    ;GuiControl,,MouseHoldList,%Temp_MouseHoldButton%
+}
+IfExist, %AppHotkeysIni% ;Mouse Clicker
+{
+    IniRead, Temp_MouseClickerHotkey, %AppHotkeysIni%, GameMode, MouseClickerHotkey
+    IniRead, Temp_MouseClickerDelay, %AppHotkeysIni%, GameMode, MouseClickerDelay
+	GuiControl,,MouseClickerHotkey,%Temp_MouseClickerHotkey%
+    GuiControl,,MouseClickerDelay,%Temp_MouseClickerDelay%
+    if (Temp_MouseClickerDelay == "ERROR")
+    {
+        GuiControl,,MouseClickerDelay, 150
+    }
 }
 ;____________________________________________________________
 ;//////////////[Show Gui After setting all saved settings]///////////////
@@ -439,6 +461,22 @@ Gui, Submit, Nohide
 ;always on top
 GuiControl,, AlwaysOnTopHotkey, ""
 SaveHotkey("", "AlwaysOnTopHotkey")
+;AutoRun
+GuiControl,,ToggleRunHotkey, ""
+SaveHotkey("", "AutoRun")
+;Mouse Hold
+GuiControl,,MouseHoldHotkey,""
+SaveHotkey("", "MouseHoldHotkey")
+;Mouse Clicker
+GuiControl,,MouseClickerHotkey,""
+GuiControl,,MouseClickerDelay,150
+SaveHotkey("", "MouseClickerHotkey")
+SaveHotkey(150, "MouseClickerDelay")
+;Rebind buttons
+GuiControl,,RebindWindowsButton,""
+GuiControl,,RebindCapsLockButton,""
+SaveHotkey("","RebindWindowsButton")
+SaveHotkey("", "RebindCapsLockButton")
 return
 ;____________________________________________________________
 ;//////////////[Auto Run/Walk]///////////////
@@ -448,6 +486,12 @@ goto EnableAutoRun
 return
 EnableAutoRun:
 Gui, Submit, Nohide
+if (ToggleRunHotkey == "")
+{
+    MsgBox,,Hotkey Empty, Hotkey Is Empty,15
+    GuiControl,,AutoRunCheckbox,0
+    return
+}
 if (AutoRunCheckbox)
 {
     Hotkey, %ToggleRunHotkey%,ToggleAutoRun, ON
@@ -488,6 +532,93 @@ return
 AutoRunUseShiftButton:
 AutoRunUseShift := !AutoRunUseShift
 Return
+;____________________________________________________________
+;//////////////[Mouse hold]///////////////
+MouseHoldEnabled:
+Gui, Submit, Nohide
+if (MouseHoldHotkey == "")
+{
+    MsgBox,,Hotkey Empty, Hotkey Is Empty,15
+    GuiControl,,MouseHoldCheckbox,0
+    return
+}
+if (MouseHoldCheckbox)
+{
+    Hotkey, %MouseHoldHotkey%,MouseHoldAction, ON
+}
+else
+{
+    Hotkey, %MouseHoldHotkey%,MouseHoldAction, Off
+}
+return
+MouseHoldAction:
+MouseHoldToggle := !MouseHoldToggle
+if (MouseHoldToggle)
+{
+    if (MouseHoldList == "Left")
+    {
+        send {lbutton down}
+    }
+    else if (MouseHoldList == "Middle")
+    {
+        send {mbutton down}
+    }
+    else if (MouseHoldList == "Right")
+    {
+        send {rbutton down}
+    }
+}
+else
+{
+    if (MouseHoldList == "Left")
+    {
+        send {lbutton up}
+    }
+    else if (MouseHoldList == "Middle")
+    {
+        send {mbutton up}
+    }
+    else if (MouseHoldList == "Right")
+    {
+        send {rbutton up}
+    }
+}
+return
+SaveMouseHoldSettings:
+SaveHotkey(MouseHoldHotkey, "MouseHoldHotkey")
+;SaveHotkey(MouseHoldList,"MouseHoldButton") ;Save to gamemode. Same as hotkey
+return
+;____________________________________________________________
+;//////////////[Mouse Clicker]///////////////
+MouseClickerEnabled:
+Gui, Submit, Nohide
+if (MouseClickerHotkey == "")
+{
+    MsgBox,,Hotkey Empty, Hotkey Is Empty,15
+    GuiControl,,MouseClickerCheckbox,0
+    return
+}
+if (MouseClickerCheckbox)
+{
+    Hotkey, %MouseClickerHotkey%,MouseClickerAction, ON
+}
+else
+{
+    Hotkey, %MouseClickerHotkey%,MouseClickerAction, Off
+}
+return
+MouseClickerAction:
+MouseClickerToggle := !MouseClickerToggle
+While (MouseClickerToggle)
+{
+    MouseClick, %MouseClickerList%
+    sleep %MouseClickerDelay%
+}
+return
+SaveMouseClickerSettings:
+SaveHotkey(MouseClickerHotkey, "MouseClickerHotkey")
+SaveHotkey(MouseClickerDelay, "MouseClickerDelay")
+return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
