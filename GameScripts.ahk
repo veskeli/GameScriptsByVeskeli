@@ -21,7 +21,11 @@ AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
-version = 0.22
+AppOtherScriptsFolder = %AppFolder%\OtherScripts
+version = 0.23
+GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+;other scipts (Bool)
+GHUBTool := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -37,6 +41,9 @@ global AppSettingsFolder
 global AppSettingsIni
 global AppHotkeysIni
 global AppUpdateFile
+global AppOtherScriptsFolder
+global GHUBToolLocation
+global GHUBTool
 ;//////////////[Startup checks]///////////////
 IfExist %AppUpdateFile% 
 {
@@ -182,8 +189,15 @@ Gui Tab, 4
 ;____________________________________________________________
 ;//////////////[Other scripts]///////////////
 Gui Font
-Gui Font, s20
-Gui Add, Text, x276 y156 w450 h185 +0x200, Nothing to show yet
+;//////////////[Logitech GHUB Tool]///////////////
+Gui Add, GroupBox, x3 y30 w823 h54, Logitech Backup Tool
+Gui Font, s14
+Gui Add, Text, x12 y48 w258 h32 +0x200, Logitech Backup Profiles Tool
+Gui Font
+Gui Add, Button, x390 y50 w100 h23 vDowloadGHUBToolButton gDownloadLogitechGHUBTool, Download
+Gui Add, Button, x494 y50 w130 h23 +Disabled, Check for updates
+Gui Add, Button, x628 y50 w97 h23 gOpenGHUBToolGithub, Open in Github
+Gui Add, Button, x730 y50 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
 Gui Font
 Gui Tab
 ;____________________________________________________________
@@ -231,6 +245,29 @@ IfExist, %AppHotkeysIni% ;Mouse Clicker
         GuiControl,,MouseClickerDelay, 150
     }
 }
+;____________________________________________________________
+;//////////////[Check for installed scripts]///////////////
+IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+{
+    GuiControl, , DowloadGHUBToolButton, Run
+    GuiControl, Enable,UninstallGHUBToolScritpButton
+    GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+    GHUBTool := true
+}
+else IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
+{
+    IniRead, GHUBToolLocation, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini,Info, ScriptPath
+    IfNotExist, %GHUBToolLocation%
+    {
+        GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+    }
+    Else
+    {
+        GuiControl, , DowloadGHUBToolButton, Run
+        GuiControl, Enable,UninstallGHUBToolScritpButton
+        GHUBTool := true
+    }
+} 
 ;____________________________________________________________
 ;//////////////[Show Gui After setting all saved settings]///////////////
 Gui Show, w835 h517, GamingScriptsByVeskeli
@@ -621,6 +658,29 @@ SaveHotkey(MouseClickerDelay, "MouseClickerDelay")
 return
 ;____________________________________________________________
 ;____________________________________________________________
+;//////////////[Other Scripts]///////////////
+DownloadLogitechGHUBTool:
+if (!GHUBTool)
+{
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppOtherScriptsFolder%
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/LogitechBackupProfilesAhk/master/LogitechBackupProfiles.ahk, %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+    ;write save/Update Gui
+    GuiControl, , DowloadGHUBToolButton, Run
+    GuiControl, Enable,UninstallGHUBToolScritpButton
+    GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+    GHUBTool := True
+}
+Else ;app is already istalled/downloaded
+{
+    run, %GHUBToolLocation%
+}
+Return
+UninstallGHUBToolScript:
+UninstallScript("GHUBTool")
+Return
+;____________________________________________________________
+;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
 whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -671,10 +731,26 @@ Shortcut_to_desktop:
 FileCreateShortcut,"%A_ScriptFullPath%", %A_Desktop%\%ScriptName%.lnk
 return
 ;____________________________________________________________
+;//////////////[Links]///////////////
+OpenGHUBToolGithub:
+run, https://github.com/veskeli/LogitechBackupProfilesAhk
+Return
+;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Functions]///////////////
 SaveHotkey(tHotkey, tKey)
 {
     Gui, Submit, Nohide
     IniWrite, %tHotkey%, %AppHotkeysIni%, GameMode, %tKey%
+}
+UninstallScript(tName)
+{
+    if (tName == "GHUBTool")
+    {
+        FileDelete, %GHUBToolLocation%
+        GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+        GHUBTool := False
+        GuiControl, , DowloadGHUBToolButton, Download
+        GuiControl, Disable ,UninstallGHUBToolScritpButton
+    } 
 }
