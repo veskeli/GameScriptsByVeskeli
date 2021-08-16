@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.3
+version = 0.31
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
@@ -310,8 +310,8 @@ Gui Add, Edit, x406 y198 w293 h21 vNumpadMacroDeckTextEdit gGuiSubmit
 Gui Add, Edit, x417 y240 w215 h21 vNumpadMacroDeckHotkeyBox gGuiSubmit
 Gui Add, Link, x648 y240 w50 h23, <a href="https://www.autohotkey.com/docs/KeyList.htm">Hotkeys</a>
 Gui Font, s14
-Gui Add, Button, x568 y462 w143 h36 gNumpadMacroDeckSaveSettings, Save Settings
-Gui Add, Button, x421 y462 w143 h36 gNumpadMacroDeckDeleteSettings, Delete Settings
+Gui Add, Button, x568 y462 w143 h36 vNumpadMacroDeckSaveSettingsButton gNumpadMacroDeckSaveSettings, Save Settings
+Gui Add, Button, x421 y462 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpadMacroDeckDeleteSettings, Delete Settings
 Gui Font
 ;____________________________________________________________
 ;//////////////[Check for Settings]///////////////
@@ -1008,12 +1008,26 @@ Gui, Submit, Nohide
 if(NumpadMacroDeckEnableHotkeysCheckbox)
 {
     NumpadMacroDeckSetHotkeys(true)
+    ;Disable buttons (Cant edit macros while active)
+    GuiControl,Disable,NumpadMacroDeckTextRadio
+    GuiControl,Disable,NumpadMacroDeckHotkeyRadio
+    GuiControl,Disable,NumpadMacroDeckTextEdit
+    GuiControl,Disable,NumpadMacroDeckHotkeyBox
+    GuiControl,Disable,NumpadMacroDeckSaveSettingsButton
+    GuiControl,Disable,NumpadMacroDeckDeleteSettingsButton
+
     hotkey,NumLock,NumpadMacroDeckNumLockAction
     hotkey,NumLock,ON
 }
 else
 {
     NumpadMacroDeckSetHotkeys(false)
+    GuiControl,Enable,NumpadMacroDeckTextRadio
+    GuiControl,Enable,NumpadMacroDeckHotkeyRadio
+    GuiControl,Enable,NumpadMacroDeckTextEdit
+    GuiControl,Enable,NumpadMacroDeckHotkeyBox
+    GuiControl,Enable,NumpadMacroDeckSaveSettingsButton
+    GuiControl,Enable,NumpadMacroDeckDeleteSettingsButton
     hotkey,NumLock,OFF
 }
 return
@@ -1050,7 +1064,6 @@ if(NumpadMacroDeckToggleBetweenNumpad)
 else
 {
     NumpadMacroDeckSetHotkeys(true)
-    hotkey,NumpadDiv,ON
     NumpadMacroDeckToggleBetweenNumpad := true
 }
 return
@@ -2434,99 +2447,99 @@ NumpadMacroDeckSetHotkeys(T_HotkeysState)
         IniRead, T_DivisionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Division
         if(%T_DivisionIsEnabled% == true)
         {
-            hotkey,NumpadDiv,OFF
+            hotkey,NumpadDiv,OFF,UseErrorLevel
         }
         ;Multiplication
         IniRead, T_MultiplicationIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Multiplication
         if(%T_MultiplicationIsEnabled% == true)
         {
-            hotkey,NumpadMult,OFF
+            hotkey,NumpadMult,OFF,UseErrorLevel
         }
         ;Subtraction
         IniRead, T_SubtractionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Subtraction
         if(%T_SubtractionIsEnabled% == true)
         {
-            hotkey,NumpadSub,OFF
+            hotkey,NumpadSub,OFF,UseErrorLevel
         }
 
         ;0
         IniRead, T_0IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 0
         if(%T_0IsEnabled% == true)
         {
-            hotkey,Numpad0,OFF
+            hotkey,Numpad0,OFF,UseErrorLevel
         }
         ;1
         IniRead, T_1IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 1
         if(%T_1IsEnabled% == true)
         {
-            hotkey,Numpad1,OFF
+            hotkey,Numpad1,OFF,UseErrorLevel
         }
         ;2
         IniRead, T_2IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 2
         if(%T_2IsEnabled% == true)
         {
-            hotkey,Numpad2,OFF
+            hotkey,Numpad2,OFF,UseErrorLevel
         }
         ;3
         IniRead, T_3IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 3
         if(%T_3IsEnabled% == true)
         {
-            hotkey,Numpad3,OFF
+            hotkey,Numpad3,OFF,UseErrorLevel
         }
         ;4
         IniRead, T_4IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 4
         if(%T_4IsEnabled% == true)
         {
-            hotkey,Numpad4,OFF
+            hotkey,Numpad4,OFF,UseErrorLevel
         }
         ;5
         IniRead, T_5IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 5
         if(%T_5IsEnabled% == true)
         {
-            hotkey,Numpad5,OFF
+            hotkey,Numpad5,OFF,UseErrorLevel
         }
         ;6
         IniRead, T_6IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 6
         if(%T_6IsEnabled% == true)
         {
-            hotkey,Numpad6,OFF
+            hotkey,Numpad6,OFF,UseErrorLevel
         }
         ;7
         IniRead, T_7IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 7
         if(%T_7IsEnabled% == true)
         {
-            hotkey,Numpad7,OFF
+            hotkey,Numpad7,OFF,UseErrorLevel
         }
         ;8
         IniRead, T_8IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 8
         if(%T_8IsEnabled% == true)
         {
-            hotkey,Numpad8,OFF
+            hotkey,Numpad8,OFF,UseErrorLevel
         }
         ;9
         IniRead, T_9IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 9
         if(%T_9IsEnabled% == true)
         {
-            hotkey,Numpad9,OFF
+            hotkey,Numpad9,OFF,UseErrorLevel
         }
 
         ;Addition
         IniRead, T_AdditionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Addition
         if(%T_AdditionIsEnabled% == true)
         {
-            hotkey,NumpadAdd,OFF
+            hotkey,NumpadAdd,OFF,UseErrorLevel
         }
         ;Enter
         IniRead, T_EnterIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Enter
         if(%T_EnterIsEnabled% == true)
         {
-            hotkey,NumpadEnter,OFF
+            hotkey,NumpadEnter,OFF,UseErrorLevel
         }
         ;Dot
         IniRead, T_DotIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Dot
         if(%T_DotIsEnabled% == true)
         {
-            hotkey,NumpadDot,OFF
+            hotkey,NumpadDot,OFF,UseErrorLevel
         }
     }
 }
