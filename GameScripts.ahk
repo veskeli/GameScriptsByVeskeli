@@ -22,10 +22,33 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.23
+version = 0.3
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+GuiPictureFolder = %AppFolder%\Gui
+NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
 ;other scipts (Bool)
 GHUBTool := false
+;Numpad Macro Deck
+NumpadDeckSelected := ""
+;NumpadDeckEnalbedArray := []
+DeckNumlockEnabled := false
+DeckDivisionEnabled := false
+DeckMultiplicationEnabled := false
+DeckSubstractionEnabled := false
+Deck0Enabled := false
+Deck1Enabled := false
+Deck2Enabled := false
+Deck3Enabled := false
+Deck4Enabled := false
+Deck5Enabled := false
+Deck6Enabled := false
+Deck7Enabled := false
+Deck8Enabled := false
+Deck9Enabled := false
+DeckAdditionEnabled := false
+DeckEnterEnabled := false
+DeckDotEnabled := false
+NumpadMacroDeckToggleBetweenNumpad := true
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -44,16 +67,42 @@ global AppUpdateFile
 global AppOtherScriptsFolder
 global GHUBToolLocation
 global GHUBTool
+;numpadmacrodeck
+global GuiPictureFolder
+global NumpadDeckSelected
+global NumpadMacroDeckSettingsIni
+;global NumpadDeckEnalbedArray
+global DeckNumlockEnabled
+global DeckDivisionEnabled
+global DeckMultiplicationEnabled
+global DeckSubtractionEnabled
+global Deck0Enabled
+global Deck1Enabled
+global Deck2Enabled
+global Deck3Enabled
+global Deck4Enabled
+global Deck5Enabled
+global Deck6Enabled
+global Deck7Enabled
+global Deck8Enabled
+global Deck9Enabled
+global DeckAdditionEnabled
+global DeckEnterEnabled
+global DeckDotEnabled
 ;//////////////[Startup checks]///////////////
 IfExist %AppUpdateFile% 
 {
     FileDelete, %AppUpdateFile% ;delete old file after update
-} 
+}
+IfNotExist %GuiPictureFolder%
+{
+    DownloadGuiPictures()
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Gui]///////////////
 Gui Font, s9, Segoe UI
-Gui Add, Tab3, x-1 y-1 w840 h521, GameMode|GamingScripts|Settings|Other scripts
+Gui Add, Tab3, x-1 y-1 w840 h521, GameMode|GamingScripts|Settings|Other scripts|Numpad Macro Deck
 ;//////////////[GameMode]///////////////
 Gui Tab, 1
 Gui Font
@@ -163,10 +212,10 @@ Gui Tab, 3
 ;//////////////[Settings]///////////////
 Gui Add, GroupBox, x633 y416 w199 h95, Check for updates
 Gui Add, CheckBox, x646 y442 w172 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
-Gui Add, Button, x666 y473 w126 h23 +Disabled, Check updates
+Gui Add, Button, x666 y473 w126 h23 gcheckForupdates, Check updates
 Gui Font
 Gui Font, s14
-Gui Add, Text, x706 y387 w120 h23 +0x200, Version = %version%
+Gui Add, Text, x496 y440 w120 h23 +0x200, Version = %version%
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, CheckBox, x10 y30 w147 h23 +Disabled, Keep this always on top
@@ -177,14 +226,21 @@ Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, GroupBox, x633 y27 w196 h145, Delete stuff
 Gui Add, Button, x643 y70 w107 h23 gDeleteAppSettings, Delete all settings
-Gui Add, Button, x642 y43 w180 h23 +Disabled, Delete all GameMode settings
+Gui Add, Button, x642 y43 w180 h23 gDeleteGameModeSettings, Delete all GameMode settings
 ;Gui Add, Button, x643 y121 w175 h38 gDeleteAllFiles, Uninstall(Delete all including this script)
 Gui Add, Button, x643 y121 w175 h38 gDeleteAllFiles, Delete all files
 Gui Add, Button, x644 y95 w80 h23 +Disabled, Delete Scripts
 Gui Add, GroupBox, x633 y172 w196 h80, Clear
 Gui Add, Button, x658 y196 w139 h39 gClearGameModeHotkeys, Clear GameMode Hotkeys
 ;Gui Add, Button, x723 y360 w103 h23 +Disabled, Show Changelog
-Gui Add, Button, x720 y255 w108 h34 gShortcut_to_desktop, Shortcut to Desktop
+Gui Add, GroupBox, x506 y27 w128 h64, Shortcut
+Gui Add, Button, x520 y45 w108 h34 gShortcut_to_desktop, Shortcut to Desktop
+Gui Add, GroupBox, x633 y252 w196 h82, Open Folder
+Gui Add, Button, x655 y272 w150 h23 gOpenAppSettingsFolder, Open App Settings Folder
+Gui Add, Button, x677 y301 w110 h23 gOpenAppSettingsFile, Open Settings File
+Gui Add, GroupBox, x340 y27 w167 h53, Numpad Macro Deck
+Gui Add, Button, x348 y46 w100 h23 gNumpadMacroDeckDeleteAllSettings, Delete all Actions
+Gui Add, Button, x384 y472 w82 h36 gRedownloadGuiPictures, Redownload Gui pictures
 Gui Tab, 4
 ;____________________________________________________________
 ;//////////////[Other scripts]///////////////
@@ -199,7 +255,64 @@ Gui Add, Button, x494 y50 w130 h23 +Disabled, Check for updates
 Gui Add, Button, x628 y50 w97 h23 gOpenGHUBToolGithub, Open in Github
 Gui Add, Button, x730 y50 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
 Gui Font
-Gui Tab
+Gui Tab, 5
+;____________________________________________________________
+;//////////////[Numpad Macro Deck]///////////////
+Gui Font, s12
+Gui Add, CheckBox, x360 y40 w238 h23 gNumpadMacroDeckEnableHotkeys vNumpadMacroDeckEnableHotkeysCheckbox, Numpad Macro Deck Enabled
+Gui Font
+Gui Add, Text, x359 y73 w260 h23 +0x200, Num Lock Toggles between numpad and macro deck
+Gui Font, s14
+Gui Add, GroupBox, x0 y32 w339 h476, Numpad Deck
+;start
+Gui Font, s14
+;Gui Add, Picture, x24 y104 w60 h60 gDeckNumlock vDeckNumlockControl, %GuiPictureFolder%\NumLock.png
+Gui Add, Picture, x24 y104 w60 h60, %GuiPictureFolder%\NumLockBlue.png
+Gui Font, s14
+Gui Add, Picture, x88 y104 w60 h60 gDeckDivision vDeckDivisionControl, %GuiPictureFolder%\Division.png
+Gui Font, s14
+Gui Add, Picture, x152 y104 w60 h60 gDeckMultiplication vDeckMultiplicationControl, %GuiPictureFolder%\Multiplication.png
+Gui Font, s14
+Gui Add, Picture, x216 y104 w60 h60 gDeckSubtraction vDeckSubtractionControl, %GuiPictureFolder%\Subtraction.png
+Gui Font, s14
+Gui Add, Picture, x24 y168 w60 h60 gDeck7 vDeck7Control, %GuiPictureFolder%\7.png
+Gui Font, s14
+Gui Add, Picture, x88 y168 w60 h60 gDeck8 vDeck8Control, %GuiPictureFolder%\8.png
+Gui Font, s14
+Gui Add, Picture, x152 y168 w60 h60 gDeck9 vDeck9Control, %GuiPictureFolder%\9.png
+Gui Font, s14
+Gui Add, Picture, x216 y168 w60 h124 gDeckAddition vDeckAdditionControl, %GuiPictureFolder%\Addition.png
+Gui Font, s14
+Gui Add, Picture, x24 y232 w60 h60 gDeck4 vDeck4Control, %GuiPictureFolder%\4.png
+Gui Font, s14
+Gui Add, Picture, x88 y232 w60 h60 gDeck5 vDeck5Control, %GuiPictureFolder%\5.png
+Gui Font, s14
+Gui Add, Picture, x152 y232 w60 h60 gDeck6 vDeck6Control, %GuiPictureFolder%\6.png
+Gui Font, s14
+Gui Add, Picture, x24 y296 w60 h60 gDeck1 vDeck1Control, %GuiPictureFolder%\1.png
+Gui Font, s14
+Gui Add, Picture, x88 y296 w60 h60 gDeck2 vDeck2Control, %GuiPictureFolder%\2.png
+Gui Font, s14
+Gui Add, Picture, x152 y296 w60 h60 gDeck3 vDeck3Control, %GuiPictureFolder%\3.png
+Gui Font, s14
+Gui Add, Picture, x216 y296 w60 h124 gDeckEnter vDeckEnterControl, %GuiPictureFolder%\Enter.png
+Gui Font, s14
+Gui Add, Picture, x152 y360 w60 h60 gDeckDot vDeckDotControl, %GuiPictureFolder%\Dot.png
+Gui Font, s14
+Gui Add, Picture, x24 y360 w124 h60 gDeck0 vDeck0Control, %GuiPictureFolder%\0.png
+Gui Font
+;End
+Gui Add, GroupBox, x338 y116 w379 h392, Actions (More actions coming soon)
+Gui Add, Text, x360 y149 w329 h28 +0x200 vDeckCurrentlyActive, 
+Gui Add, Radio, x348 y197 w52 h23 +Checked vNumpadMacroDeckTextRadio, Text
+Gui Add, Radio, x348 y238 w63 h23 vNumpadMacroDeckHotkeyRadio, Hotkey
+Gui Add, Edit, x406 y198 w293 h21 vNumpadMacroDeckTextEdit gGuiSubmit
+Gui Add, Edit, x417 y240 w215 h21 vNumpadMacroDeckHotkeyBox gGuiSubmit
+Gui Add, Link, x648 y240 w50 h23, <a href="https://www.autohotkey.com/docs/KeyList.htm">Hotkeys</a>
+Gui Font, s14
+Gui Add, Button, x568 y462 w143 h36 gNumpadMacroDeckSaveSettings, Save Settings
+Gui Add, Button, x421 y462 w143 h36 gNumpadMacroDeckDeleteSettings, Delete Settings
+Gui Font
 ;____________________________________________________________
 ;//////////////[Check for Settings]///////////////
 IfExist, %AppSettingsIni% ;Check for updates checkbox
@@ -244,6 +357,11 @@ IfExist, %AppHotkeysIni% ;Mouse Clicker
     {
         GuiControl,,MouseClickerDelay, 150
     }
+}
+;Numpad Macro Deck
+IfExist, %NumpadMacroDeckSettingsIni%
+{
+    CheckForEnabledButtons()
 }
 ;____________________________________________________________
 ;//////////////[Check for installed scripts]///////////////
@@ -492,29 +610,112 @@ SaveHotkey(RebindWindowsButton,"RebindWindowsButton")
 SaveHotkey(RebindCapsLockButton, "RebindCapsLockButton")
 return
 ;____________________________________________________________
-;//////////////[Clear hotkeys]///////////////
+;//////////////[Settings]///////////////
 ClearGameModeHotkeys:
 Gui, Submit, Nohide
 ;always on top
 GuiControl,, AlwaysOnTopHotkey, ""
-SaveHotkey("", "AlwaysOnTopHotkey")
 ;AutoRun
 GuiControl,,ToggleRunHotkey, ""
-SaveHotkey("", "AutoRun")
 ;Mouse Hold
 GuiControl,,MouseHoldHotkey,""
-SaveHotkey("", "MouseHoldHotkey")
 ;Mouse Clicker
 GuiControl,,MouseClickerHotkey,""
 GuiControl,,MouseClickerDelay,150
-SaveHotkey("", "MouseClickerHotkey")
-SaveHotkey(150, "MouseClickerDelay")
 ;Rebind buttons
 GuiControl,,RebindWindowsButton,""
 GuiControl,,RebindCapsLockButton,""
-SaveHotkey("","RebindWindowsButton")
-SaveHotkey("", "RebindCapsLockButton")
 return
+DeleteGameModeSettings:
+MsgBox, 1,Are you sure?,All Game Mode Settings will be deleted!, 15
+IfMsgBox, Cancel
+{
+	return
+}
+else
+{
+    Gui, Submit, Nohide
+    ;always on top
+    GuiControl,, AlwaysOnTopHotkey, ""
+    SaveHotkey("", "AlwaysOnTopHotkey")
+    ;AutoRun
+    GuiControl,,ToggleRunHotkey, ""
+    SaveHotkey("", "AutoRun")
+    ;Mouse Hold
+    GuiControl,,MouseHoldHotkey,""
+    SaveHotkey("", "MouseHoldHotkey")
+    ;Mouse Clicker
+    GuiControl,,MouseClickerHotkey,""
+    GuiControl,,MouseClickerDelay,150
+    SaveHotkey("", "MouseClickerHotkey")
+    SaveHotkey(150, "MouseClickerDelay")
+    ;Rebind buttons
+    GuiControl,,RebindWindowsButton,""
+    GuiControl,,RebindCapsLockButton,""
+    SaveHotkey("","RebindWindowsButton")
+    SaveHotkey("", "RebindCapsLockButton")
+}
+return
+OpenAppSettingsFolder:
+run, %AppFolder%
+return
+OpenAppSettingsFile:
+run, %AppSettingsIni%
+return
+NumpadMacroDeckDeleteAllSettings:
+MsgBox, 1,Are you sure?,All Numpad Macro Deck Settings will be deleted!, 15
+IfMsgBox, Cancel
+{
+	return
+}
+else
+{
+    GuiControl,, NumpadMacroDeckTextEdit,
+    GuiControl,, NumpadMacroDeckHotkeyBox,
+    GuiControl,,NumpadMacroDeckTextRadio,1
+    FileDelete,%NumpadMacroDeckSettingsIni%
+    DeckNumlockEnabled := false
+    DeckDivisionEnabled := false
+    DeckMultiplicationEnabled := false
+    DeckSubstractionEnabled := false
+    Deck0Enabled := false
+    Deck1Enabled := false
+    Deck2Enabled := false
+    Deck3Enabled := false
+    Deck4Enabled := false
+    Deck5Enabled := false
+    Deck6Enabled := false
+    Deck7Enabled := false
+    Deck8Enabled := false
+    Deck9Enabled := false
+    DeckAdditionEnabled := false
+    DeckEnterEnabled := false
+    DeckDotEnabled := false
+    GuiControl,,DeckDivisionControl,%GuiPictureFolder%\Division.png
+    GuiControl,,DeckMultiplicationControl,%GuiPictureFolder%\Multiplication.png
+    GuiControl,,DeckSubtractionControl,%GuiPictureFolder%\Subtraction.png
+    GuiControl,,Deck0Control,%GuiPictureFolder%\0.png
+    GuiControl,,Deck1Control,%GuiPictureFolder%\1.png
+    GuiControl,,Deck2Control,%GuiPictureFolder%\2.png
+    GuiControl,,Deck3Control,%GuiPictureFolder%\3.png
+    GuiControl,,Deck4Control,%GuiPictureFolder%\4.png
+    GuiControl,,Deck5Control,%GuiPictureFolder%\5.png
+    GuiControl,,Deck6Control,%GuiPictureFolder%\6.png
+    GuiControl,,Deck7Control,%GuiPictureFolder%\7.png
+    GuiControl,,Deck8Control,%GuiPictureFolder%\8.png
+    GuiControl,,Deck9Control,%GuiPictureFolder%\9.png
+    GuiControl,,DeckAdditionControl,%GuiPictureFolder%\Addition.png
+    GuiControl,,DeckEnterControl,%GuiPictureFolder%\Enter.png
+    GuiControl,,DeckDotControl,%GuiPictureFolder%\Dot.png
+    GuiControl,,DeckCurrentlyActive,
+    NumpadDeckSelected =
+}
+return
+RedownloadGuiPictures:
+FileRemoveDir, %GuiPictureFolder%, 1
+Run, %A_ScriptFullPath%
+ExitApp
+return ;Just in case
 ;____________________________________________________________
 ;//////////////[Auto Run/Walk]///////////////
 SaveToggleRun:
@@ -681,6 +882,388 @@ UninstallScript("GHUBTool")
 Return
 ;____________________________________________________________
 ;____________________________________________________________
+;//////////////[Numpad Macro Deck]///////////////
+DeckNumlock:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,NumLock
+NumpadDeckSelected := "NumLock"
+SwitchButtonColor("Numlock","NumLockSelected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+DeckDivision:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,Division
+NumpadDeckSelected := "Division"
+SwitchButtonColor("Division","DivisionSelected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+DeckMultiplication:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,Multiplication
+NumpadDeckSelected := "Multiplication"
+SwitchButtonColor("Multiplication","MultiplicationSelected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+DeckSubtraction:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,Subtraction
+NumpadDeckSelected := "Subtraction"
+SwitchButtonColor("subtraction","subtractionSelected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck0:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,0
+NumpadDeckSelected := "0"
+SwitchButtonColor("0","0Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck1:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,1
+NumpadDeckSelected := "1"
+SwitchButtonColor("1","1Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck2:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,2
+NumpadDeckSelected := "2"
+SwitchButtonColor("2","2Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck3:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,3
+NumpadDeckSelected := "3"
+SwitchButtonColor("3","3Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck4:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,4
+NumpadDeckSelected := "4"
+SwitchButtonColor("4","4Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck5:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,5
+NumpadDeckSelected := "5"
+SwitchButtonColor("5","5Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck6:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,6
+NumpadDeckSelected := "6"
+SwitchButtonColor("6","6Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck7:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,7
+NumpadDeckSelected := "7"
+SwitchButtonColor("7","7Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck8:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,8
+NumpadDeckSelected := "8"
+SwitchButtonColor("8","8Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+Deck9:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,9
+NumpadDeckSelected := "9"
+SwitchButtonColor("9","9Selected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+DeckAddition:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,Addition
+NumpadDeckSelected := "Addition"
+SwitchButtonColor("Addition","AdditionSelected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+DeckEnter:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,Enter
+NumpadDeckSelected := "Enter"
+SwitchButtonColor("Enter","EnterSelected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+DeckDot:
+ResetNumpadButtons()
+GuiControl,,DeckCurrentlyActive,Dot
+NumpadDeckSelected := "Dot"
+SwitchButtonColor("Dot","DotSelected")
+UpdateNumlockMacroDeckActionBoxes()
+return
+;//////////////[NumpadMacroDeckEnableHotkeys]///////////////
+NumpadMacroDeckEnableHotkeys:
+Gui, Submit, Nohide
+if(NumpadMacroDeckEnableHotkeysCheckbox)
+{
+    NumpadMacroDeckSetHotkeys(true)
+    hotkey,NumLock,NumpadMacroDeckNumLockAction
+    hotkey,NumLock,ON
+}
+else
+{
+    NumpadMacroDeckSetHotkeys(false)
+    hotkey,NumLock,OFF
+}
+return
+;//////////////[NumpadMacroDeckSaveSettings]///////////////
+NumpadMacroDeckSaveSettings:
+if (NumpadMacroDeckTextRadio)
+{
+    IniWrite, %NumpadMacroDeckTextEdit%, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected% ;Save action
+    IniWrite, true, %NumpadMacroDeckSettingsIni%, Enabled, %NumpadDeckSelected% ;Save enabled state
+    IniWrite, %NumpadMacroDeckTextRadio%, %NumpadMacroDeckSettingsIni%, RadioButtonStates, %NumpadDeckSelected% ;Save Radio button state
+}
+else
+{
+    IniWrite, %NumpadMacroDeckHotkeyBox%, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected% ;Save action
+    IniWrite, true, %NumpadMacroDeckSettingsIni%, Enabled, %NumpadDeckSelected% ;Save enabled state
+    IniWrite, %NumpadMacroDeckTextRadio%, %NumpadMacroDeckSettingsIni%, RadioButtonStates, %NumpadDeckSelected% ;Save Radio button state
+}
+SetNumpadButtonState(NumpadDeckSelected, true) ;Set button color to green
+return
+;//////////////[NumpadMacroDeckDeleteSettings]///////////////
+NumpadMacroDeckDeleteSettings:
+IniDelete,%NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+IniDelete,%NumpadMacroDeckSettingsIni%, Enabled, %NumpadDeckSelected%
+IniDelete,%NumpadMacroDeckSettingsIni%, RadioButtonStates, %NumpadDeckSelected%
+SetNumpadButtonState(NumpadDeckSelected, false) ;Set button color to Red
+return
+;//////////////[NumpadMacroDeckHotkeys]///////////////
+NumpadMacroDeckNumLockAction:
+if(NumpadMacroDeckToggleBetweenNumpad)
+{
+    NumpadMacroDeckSetHotkeys(false)
+    NumpadMacroDeckToggleBetweenNumpad := false
+}
+else
+{
+    NumpadMacroDeckSetHotkeys(true)
+    hotkey,NumpadDiv,ON
+    NumpadMacroDeckToggleBetweenNumpad := true
+}
+return
+NumpadMacroDeckDivisionAction:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,Division
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Division
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Division
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeckMultiplicationAction:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,Multiplication
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Multiplication
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Multiplication
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeckSubtractionAction:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,Subtraction
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Subtraction
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Subtraction
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck0Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,0
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 0
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 0
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck1Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 1
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 1
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck2Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 2
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 2
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck3Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 3
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 3
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck4Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 4
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 4
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck5Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 5
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 5
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck6Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 6
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 6
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck7Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 7
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 7
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck8Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 8
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 8
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeck9Action:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 9
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, 9
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeckAdditionAction:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Addition
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Addition
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeckEnterAction:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Enter
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Enter
+    send, %T_NumpadMacroDeckText%
+}
+return
+NumpadMacroDeckDotAction:
+IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+if(T_RadioButtonState)
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Dot
+    sendraw, %T_NumpadMacroDeckText%
+}
+else
+{
+    IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, Dot
+    send, %T_NumpadMacroDeckText%
+}
+return
+;____________________________________________________________
+;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
 whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -703,6 +1286,7 @@ if(newversion != "")
             FileCreateDir, %AppFolder%
             FileCreateDir, %AppFolder%\temp
             FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete gui pictures
             sleep 1000
             UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
             Sleep 1000
@@ -730,6 +1314,65 @@ return
 Shortcut_to_desktop:
 FileCreateShortcut,"%A_ScriptFullPath%", %A_Desktop%\%ScriptName%.lnk
 return
+DownloadGuiPictures()
+{
+    SplashTextOn, 300,60,Downloading GUI Pictures, Script will run after all GUI pictures has been downloaded
+    FileCreateDir,%GuiPictureFolder%
+    sleep 100
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/NumLockBlue.png , %GuiPictureFolder%/NumLockBlue.png
+
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Division.png , %GuiPictureFolder%/Division.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DivisionEnabled.png , %GuiPictureFolder%/DivisionEnabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DivisionSelected.png , %GuiPictureFolder%/DivisionSelected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Multiplication.png , %GuiPictureFolder%/Multiplication.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/MultiplicationEnabled.png , %GuiPictureFolder%/MultiplicationEnabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/MultiplicationSelected.png , %GuiPictureFolder%/MultiplicationSelected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Subtraction.png , %GuiPictureFolder%/Subtraction.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/SubtractionEnabled.png , %GuiPictureFolder%/SubtractionEnabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/SubtractionSelected.png , %GuiPictureFolder%/SubtractionSelected.png
+    ;nums
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/0.png , %GuiPictureFolder%/0.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/0Enabled.png , %GuiPictureFolder%/0Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/0Selected.png , %GuiPictureFolder%/0Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/1.png , %GuiPictureFolder%/1.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/1Enabled.png , %GuiPictureFolder%/1Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/1Selected.png , %GuiPictureFolder%/1Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/2.png , %GuiPictureFolder%/2.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/2Enabled.png , %GuiPictureFolder%/2Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/2Selected.png , %GuiPictureFolder%/2Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/3.png , %GuiPictureFolder%/3.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/3Enabled.png , %GuiPictureFolder%/3Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/3Selected.png , %GuiPictureFolder%/3Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/4.png , %GuiPictureFolder%/4.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/4Enabled.png , %GuiPictureFolder%/4Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/4Selected.png , %GuiPictureFolder%/4Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/5.png , %GuiPictureFolder%/5.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/5Enabled.png , %GuiPictureFolder%/5Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/5Selected.png , %GuiPictureFolder%/5Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/6.png , %GuiPictureFolder%/6.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/6Enabled.png , %GuiPictureFolder%/6Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/6Selected.png , %GuiPictureFolder%/6Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/7.png , %GuiPictureFolder%/7.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/7Enabled.png , %GuiPictureFolder%/7Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/7Selected.png , %GuiPictureFolder%/7Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/8.png , %GuiPictureFolder%/8.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/8Enabled.png , %GuiPictureFolder%/8Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/8Selected.png , %GuiPictureFolder%/8Selected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/9.png , %GuiPictureFolder%/9.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/9Enabled.png , %GuiPictureFolder%/9Enabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/9Selected.png , %GuiPictureFolder%/9Selected.png
+    ;nums end
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Addition.png , %GuiPictureFolder%/Addition.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/AdditionEnabled.png , %GuiPictureFolder%/AdditionEnabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/AdditionSelected.png , %GuiPictureFolder%/AdditionSelected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Enter.png , %GuiPictureFolder%/Enter.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/EnterEnabled.png , %GuiPictureFolder%/EnterEnabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/EnterSelected.png , %GuiPictureFolder%/EnterSelected.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Dot.png , %GuiPictureFolder%/Dot.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DotEnabled.png , %GuiPictureFolder%/DotEnabled.png
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DotSelected.png , %GuiPictureFolder%/DotSelected.png
+    SplashTextOff
+}
 ;____________________________________________________________
 ;//////////////[Links]///////////////
 OpenGHUBToolGithub:
@@ -753,4 +1396,1137 @@ UninstallScript(tName)
         GuiControl, , DowloadGHUBToolButton, Download
         GuiControl, Disable ,UninstallGHUBToolScritpButton
     } 
+}
+SwitchButtonColor(T_Button,T_PictureName)
+{
+    GuiControl,,Deck%T_Button%Control,%GuiPictureFolder%\%T_PictureName%.png
+}
+ResetNumpadButtons()
+{
+    ;MsgBox, % NumpadDeckEnalbedArray[%NumpadDeckSelected%] NumpadDeckSelected
+    
+    if(NumpadDeckSelected == "NumLock")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,DeckNumLockControl,%GuiPictureFolder%\NumLock.png
+        return
+    }
+    if(NumpadDeckSelected == "Division")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,DeckDivisionControl,%GuiPictureFolder%\Division.png
+        return
+    }
+    if(NumpadDeckSelected == "Multiplication")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,DeckMultiplicationControl,%GuiPictureFolder%\Multiplication.png
+        return
+    }
+    if(NumpadDeckSelected == "Subtraction")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,DeckSubtractionControl,%GuiPictureFolder%\Subtraction.png
+        return
+    }
+    if(NumpadDeckSelected == "0")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck0Control,%GuiPictureFolder%\0.png
+        return
+    } 
+    if(NumpadDeckSelected == "1")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck1Control,%GuiPictureFolder%\1.png
+        return
+    } 
+    if(NumpadDeckSelected == "2")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck2Control,%GuiPictureFolder%\2.png
+        return
+    } 
+    if(NumpadDeckSelected == "3")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck3Control,%GuiPictureFolder%\3.png
+        return
+    } 
+    if(NumpadDeckSelected == "4")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck4Control,%GuiPictureFolder%\4.png
+        return
+    } 
+    if(NumpadDeckSelected == "5")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck5Control,%GuiPictureFolder%\5.png
+        return
+    } 
+    if(NumpadDeckSelected == "6")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck6Control,%GuiPictureFolder%\6.png
+        return
+    } 
+    if(NumpadDeckSelected == "7")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck7Control,%GuiPictureFolder%\7.png
+        return
+    } 
+    if(NumpadDeckSelected == "8")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck8Control,%GuiPictureFolder%\8.png
+        return
+    } 
+    if(NumpadDeckSelected == "9")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,Deck9Control,%GuiPictureFolder%\9.png
+        return
+    } 
+    if(NumpadDeckSelected == "Addition")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,DeckAdditionControl,%GuiPictureFolder%\Addition.png
+        return
+    }
+    if(NumpadDeckSelected == "Enter")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,DeckEnterControl,%GuiPictureFolder%\Enter.png
+        return
+    }
+    if(NumpadDeckSelected == "Dot")
+    {
+        if(Deck%NumpadDeckSelected%Enabled == true)
+        {
+            GuiControl,,Deck%NumpadDeckSelected%Control,%GuiPictureFolder%\%NumpadDeckSelected%Enabled.png
+            return
+        }
+        GuiControl,,DeckDotControl,%GuiPictureFolder%\Dot.png
+        return
+    }
+}
+SetNumpadButtonState(T_SelectedName,T_State)
+{
+    if(T_SelectedName == "NumLock")
+    {
+        DeckNumlockEnabled := T_State
+    }
+    if(T_SelectedName == "Division")
+    {
+        DeckDivisionEnabled := T_State
+    }
+    if(T_SelectedName == "Multiplication")
+    {
+        DeckMultiplicationEnabled := T_State
+    }
+    if(T_SelectedName == "Subtraction")
+    {
+        DeckSubtractionEnabled := T_State
+    }
+    ;num
+    if(T_SelectedName == "0")
+    {
+        Deck0Enabled := T_State
+    }
+    if(T_SelectedName == "1")
+    {
+        Deck1Enabled := T_State
+    }
+    if(T_SelectedName == "2")
+    {
+        Deck2Enabled := T_State
+    }
+    if(T_SelectedName == "3")
+    {
+        Deck3Enabled := T_State
+    }
+    if(T_SelectedName == "4")
+    {
+        Deck4Enabled := T_State
+    }
+    if(T_SelectedName == "5")
+    {
+        Deck5Enabled := T_State
+    }
+    if(T_SelectedName == "6")
+    {
+        Deck6Enabled := T_State
+    }
+    if(T_SelectedName == "7")
+    {
+        Deck7Enabled := T_State
+    }
+    if(T_SelectedName == "8")
+    {
+        Deck8Enabled := T_State
+    }
+    if(T_SelectedName == "9")
+    {
+        Deck9Enabled := T_State
+    }
+    ;num end
+    if(T_SelectedName == "Addition")
+    {
+        DeckAdditionEnabled := T_State
+    }
+    if(T_SelectedName == "Enter")
+    {
+        DeckEnterEnabled := T_State
+    }
+    if(T_SelectedName == "Dot")
+    {
+        DeckDotEnabled := T_State
+    }
+}
+CheckForEnabledButtons()
+{
+    ;Division
+    IniRead, T_DivisionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Division
+    if(%T_DivisionIsEnabled% == true)
+    {
+        SetNumpadButtonState("Division", true)
+        GuiControl,,DeckDivisionControl,%GuiPictureFolder%\DivisionEnabled.png
+    }
+    ;Multiplication
+    IniRead, T_MultiplicationIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Multiplication
+    if(%T_MultiplicationIsEnabled% == true)
+    {
+        SetNumpadButtonState("Multiplication", true)
+        GuiControl,,DeckMultiplicationControl,%GuiPictureFolder%\MultiplicationEnabled.png
+    }
+    ;Subtraction
+    IniRead, T_SubtractionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Subtraction
+    if(%T_SubtractionIsEnabled% == true)
+    {
+        SetNumpadButtonState("Subtraction", true)
+        GuiControl,,DeckSubtractionControl,%GuiPictureFolder%\SubtractionEnabled.png
+    }
+
+    ;0
+    IniRead, T_0IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 0
+    if(%T_0IsEnabled% == true)
+    {
+        SetNumpadButtonState("0", true)
+        GuiControl,,Deck0Control,%GuiPictureFolder%\0Enabled.png
+    }
+    ;1
+    IniRead, T_1IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 1
+    if(%T_1IsEnabled% == true)
+    {
+        SetNumpadButtonState("1", true)
+        GuiControl,,Deck1Control,%GuiPictureFolder%\1Enabled.png
+    }
+    ;2
+    IniRead, T_2IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 2
+    if(%T_2IsEnabled% == true)
+    {
+        SetNumpadButtonState("2", true)
+        GuiControl,,Deck2Control,%GuiPictureFolder%\2Enabled.png
+    }
+    ;3
+    IniRead, T_3IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 3
+    if(%T_3IsEnabled% == true)
+    {
+        SetNumpadButtonState("3", true)
+        GuiControl,,Deck3Control,%GuiPictureFolder%\3Enabled.png
+    }
+    ;4
+    IniRead, T_4IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 4
+    if(%T_4IsEnabled% == true)
+    {
+        SetNumpadButtonState("4", true)
+        GuiControl,,Deck4Control,%GuiPictureFolder%\4Enabled.png
+    }
+    ;5
+    IniRead, T_5IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 5
+    if(%T_5IsEnabled% == true)
+    {
+        SetNumpadButtonState("5", true)
+        GuiControl,,Deck5Control,%GuiPictureFolder%\5Enabled.png
+    }
+    ;6
+    IniRead, T_6IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 6
+    if(%T_6IsEnabled% == true)
+    {
+        SetNumpadButtonState("6", true)
+        GuiControl,,Deck6Control,%GuiPictureFolder%\6Enabled.png
+    }
+    ;7
+    IniRead, T_7IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 7
+    if(%T_7IsEnabled% == true)
+    {
+        SetNumpadButtonState("7", true)
+        GuiControl,,Deck7Control,%GuiPictureFolder%\7Enabled.png
+    }
+    ;8
+    IniRead, T_8IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 8
+    if(%T_8IsEnabled% == true)
+    {
+        SetNumpadButtonState("8", true)
+        GuiControl,,Deck8Control,%GuiPictureFolder%\8Enabled.png
+    }
+    ;9
+    IniRead, T_9IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 9
+    if(%T_9IsEnabled% == true)
+    {
+        SetNumpadButtonState("9", true)
+        GuiControl,,Deck9Control,%GuiPictureFolder%\9Enabled.png
+    }
+
+    ;Addition
+    IniRead, T_AdditionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Addition
+    if(%T_AdditionIsEnabled% == true)
+    {
+        SetNumpadButtonState("Addition", true)
+        GuiControl,,DeckAdditionControl,%GuiPictureFolder%\AdditionEnabled.png
+    }
+    ;Enter
+    IniRead, T_EnterIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Enter
+    if(%T_EnterIsEnabled% == true)
+    {
+        SetNumpadButtonState("Enter", true)
+        GuiControl,,DeckEnterControl,%GuiPictureFolder%\EnterEnabled.png
+    }
+    ;Dot
+    IniRead, T_DotIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Dot
+    if(%T_DotIsEnabled% == true)
+    {
+        SetNumpadButtonState("Dot", true)
+        GuiControl,,DeckDotControl,%GuiPictureFolder%\DotEnabled.png
+    }
+}
+UpdateNumlockMacroDeckActionBoxes()
+{
+    ;//////////////[Read radiobutton state and then change it]///////////////
+    IniRead, T_RadioButtonState,%NumpadMacroDeckSettingsIni%,RadioButtonStates,%NumpadDeckSelected%
+    if(T_RadioButtonState)
+    {
+        GuiControl,,NumpadMacroDeckTextRadio,1
+    }
+    else
+    {
+        GuiControl,,NumpadMacroDeckHotkeyRadio,1
+    }
+    ;//////////////[Read value]///////////////
+    if(NumpadDeckSelected == "NumLock")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "Division")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "Multiplication")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "Subtraction")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    ;num
+    if(NumpadDeckSelected == "0")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "1")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "2")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "3")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "4")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "5")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "6")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "7")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "8")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "9")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    ;num end
+    if(NumpadDeckSelected == "Addition")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "Enter")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+    if(NumpadDeckSelected == "Dot")
+    {
+        if(T_RadioButtonState)
+        {
+            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
+            }
+        }
+        else
+        {
+            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+            if(T_NumpadMacroDeckText == "ERROR")
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,
+            }
+            else
+            {
+                GuiControl,, NumpadMacroDeckTextEdit,
+                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
+            }
+        }
+    }
+}
+NumpadMacroDeckSetHotkeys(T_HotkeysState)
+{
+    if(T_HotkeysState)
+    {
+        ;Division
+        IniRead, T_DivisionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Division
+        if(%T_DivisionIsEnabled% == true)
+        {
+            hotkey,NumpadDiv,NumpadMacroDeckDivisionAction
+            hotkey,NumpadDiv,ON
+        }
+        ;Multiplication
+        IniRead, T_MultiplicationIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Multiplication
+        if(%T_MultiplicationIsEnabled% == true)
+        {
+            hotkey,NumpadMult,NumpadMacroDeckMultiplicationAction
+            hotkey,NumpadMult,ON
+        }
+        ;Subtraction
+        IniRead, T_SubtractionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Subtraction
+        if(%T_SubtractionIsEnabled% == true)
+        {
+            hotkey,NumpadSub,NumpadMacroDeckSubtractionAction
+            hotkey,NumpadSub,ON
+        }
+
+        ;0
+        IniRead, T_0IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 0
+        if(%T_0IsEnabled% == true)
+        {
+            hotkey,Numpad0,NumpadMacroDeck0Action
+            hotkey,Numpad0,ON
+        }
+        ;1
+        IniRead, T_1IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 1
+        if(%T_1IsEnabled% == true)
+        {
+            hotkey,Numpad1,NumpadMacroDeck1Action
+            hotkey,Numpad1,ON
+        }
+        ;2
+        IniRead, T_2IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 2
+        if(%T_2IsEnabled% == true)
+        {
+            hotkey,Numpad2,NumpadMacroDeck2Action
+            hotkey,Numpad2,ON
+        }
+        ;3
+        IniRead, T_3IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 3
+        if(%T_3IsEnabled% == true)
+        {
+            hotkey,Numpad3,NumpadMacroDeck3Action
+            hotkey,Numpad3,ON
+        }
+        ;4
+        IniRead, T_4IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 4
+        if(%T_4IsEnabled% == true)
+        {
+            hotkey,Numpad4,NumpadMacroDeck4Action
+            hotkey,Numpad4,ON
+        }
+        ;5
+        IniRead, T_5IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 5
+        if(%T_5IsEnabled% == true)
+        {
+            hotkey,Numpad5,NumpadMacroDeck5Action
+            hotkey,Numpad5,ON
+        }
+        ;6
+        IniRead, T_6IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 6
+        if(%T_6IsEnabled% == true)
+        {
+            hotkey,Numpad6,NumpadMacroDeck6Action
+            hotkey,Numpad6,ON
+        }
+        ;7
+        IniRead, T_7IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 7
+        if(%T_7IsEnabled% == true)
+        {
+            hotkey,Numpad7,NumpadMacroDeck7Action
+            hotkey,Numpad7,ON
+        }
+        ;8
+        IniRead, T_8IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 8
+        if(%T_8IsEnabled% == true)
+        {
+            hotkey,Numpad8,NumpadMacroDeck8Action
+            hotkey,Numpad8,ON
+        }
+        ;9
+        IniRead, T_9IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 9
+        if(%T_9IsEnabled% == true)
+        {
+            hotkey,Numpad9,NumpadMacroDeck9Action
+            hotkey,Numpad9,ON
+        }
+
+        ;Addition
+        IniRead, T_AdditionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Addition
+        if(%T_AdditionIsEnabled% == true)
+        {
+            hotkey,NumpadAdd,NumpadMacroDeckAdditionAction
+            hotkey,NumpadAdd,ON
+        }
+        ;Enter
+        IniRead, T_EnterIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Enter
+        if(%T_EnterIsEnabled% == true)
+        {
+            hotkey,NumpadEnter,NumpadMacroDeckEnterAction
+            hotkey,NumpadEnter,ON
+        }
+        ;Dot
+        IniRead, T_DotIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Dot
+        if(%T_DotIsEnabled% == true)
+        {
+            hotkey,NumpadDot,NumpadMacroDeckDotAction
+            hotkey,NumpadDot,ON
+        }
+    }
+    else
+    {
+        ;Division
+        IniRead, T_DivisionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Division
+        if(%T_DivisionIsEnabled% == true)
+        {
+            hotkey,NumpadDiv,OFF
+        }
+        ;Multiplication
+        IniRead, T_MultiplicationIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Multiplication
+        if(%T_MultiplicationIsEnabled% == true)
+        {
+            hotkey,NumpadMult,OFF
+        }
+        ;Subtraction
+        IniRead, T_SubtractionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Subtraction
+        if(%T_SubtractionIsEnabled% == true)
+        {
+            hotkey,NumpadSub,OFF
+        }
+
+        ;0
+        IniRead, T_0IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 0
+        if(%T_0IsEnabled% == true)
+        {
+            hotkey,Numpad0,OFF
+        }
+        ;1
+        IniRead, T_1IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 1
+        if(%T_1IsEnabled% == true)
+        {
+            hotkey,Numpad1,OFF
+        }
+        ;2
+        IniRead, T_2IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 2
+        if(%T_2IsEnabled% == true)
+        {
+            hotkey,Numpad2,OFF
+        }
+        ;3
+        IniRead, T_3IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 3
+        if(%T_3IsEnabled% == true)
+        {
+            hotkey,Numpad3,OFF
+        }
+        ;4
+        IniRead, T_4IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 4
+        if(%T_4IsEnabled% == true)
+        {
+            hotkey,Numpad4,OFF
+        }
+        ;5
+        IniRead, T_5IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 5
+        if(%T_5IsEnabled% == true)
+        {
+            hotkey,Numpad5,OFF
+        }
+        ;6
+        IniRead, T_6IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 6
+        if(%T_6IsEnabled% == true)
+        {
+            hotkey,Numpad6,OFF
+        }
+        ;7
+        IniRead, T_7IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 7
+        if(%T_7IsEnabled% == true)
+        {
+            hotkey,Numpad7,OFF
+        }
+        ;8
+        IniRead, T_8IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 8
+        if(%T_8IsEnabled% == true)
+        {
+            hotkey,Numpad8,OFF
+        }
+        ;9
+        IniRead, T_9IsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, 9
+        if(%T_9IsEnabled% == true)
+        {
+            hotkey,Numpad9,OFF
+        }
+
+        ;Addition
+        IniRead, T_AdditionIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Addition
+        if(%T_AdditionIsEnabled% == true)
+        {
+            hotkey,NumpadAdd,OFF
+        }
+        ;Enter
+        IniRead, T_EnterIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Enter
+        if(%T_EnterIsEnabled% == true)
+        {
+            hotkey,NumpadEnter,OFF
+        }
+        ;Dot
+        IniRead, T_DotIsEnabled,%NumpadMacroDeckSettingsIni%, Enabled, Dot
+        if(%T_DotIsEnabled% == true)
+        {
+            hotkey,NumpadDot,OFF
+        }
+    }
 }
