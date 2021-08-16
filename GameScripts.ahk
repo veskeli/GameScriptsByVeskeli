@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.31
+version = 0.32
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
@@ -49,6 +49,7 @@ DeckAdditionEnabled := false
 DeckEnterEnabled := false
 DeckDotEnabled := false
 NumpadMacroDeckToggleBetweenNumpad := true
+IsEXERunnerEnabled := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -93,6 +94,7 @@ global DeckDotEnabled
 IfExist %AppUpdateFile% 
 {
     FileDelete, %AppUpdateFile% ;delete old file after update
+    FileRemoveDir, %AppFolder%\temp ;Delete temp directory
 }
 IfNotExist %GuiPictureFolder%
 {
@@ -101,6 +103,7 @@ IfNotExist %GuiPictureFolder%
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Gui]///////////////
+Menu Tray, Icon, %GuiPictureFolder%\GameScripts.ico,1
 Gui Font, s9, Segoe UI
 Gui Add, Tab3, x-1 y-1 w840 h521, GameMode|GamingScripts|Settings|Other scripts|Numpad Macro Deck
 ;//////////////[GameMode]///////////////
@@ -235,6 +238,9 @@ Gui Add, Button, x658 y196 w139 h39 gClearGameModeHotkeys, Clear GameMode Hotkey
 ;Gui Add, Button, x723 y360 w103 h23 +Disabled, Show Changelog
 Gui Add, GroupBox, x506 y27 w128 h64, Shortcut
 Gui Add, Button, x520 y45 w108 h34 gShortcut_to_desktop, Shortcut to Desktop
+Gui Add, GroupBox, x0 y364 w317 h155, Exe Runner
+Gui Add, Button, x168 y480 w141 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
+Gui Add, Text, x8 y385 w306 h90, EXE Runner is simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file)(You can alway revert back)`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 Gui Add, GroupBox, x633 y252 w196 h82, Open Folder
 Gui Add, Button, x655 y272 w150 h23 gOpenAppSettingsFolder, Open App Settings Folder
 Gui Add, Button, x677 y301 w110 h23 gOpenAppSettingsFile, Open Settings File
@@ -362,6 +368,21 @@ IfExist, %AppHotkeysIni% ;Mouse Clicker
 IfExist, %NumpadMacroDeckSettingsIni%
 {
     CheckForEnabledButtons()
+}
+;EXERunner
+IfExist, %AppSettingsIni%
+{
+    iniread, T_IsRunnerEnabled,%AppSettingsIni%, ExeRunner, UsingExeRunner
+    if(%T_IsRunnerEnabled%)
+    {
+        GuiControl,Enable,Shortcut_to_taskbarButton
+        GuiControl,,DownloadEXERunnerButton,Delete EXE Runner
+        IsEXERunnerEnabled := true
+    }
+    else
+    {
+        IsEXERunnerEnabled := false
+    }
 }
 ;____________________________________________________________
 ;//////////////[Check for installed scripts]///////////////
@@ -716,6 +737,46 @@ FileRemoveDir, %GuiPictureFolder%, 1
 Run, %A_ScriptFullPath%
 ExitApp
 return ;Just in case
+DownloadEXERunner:
+if(IsEXERunnerEnabled)
+{
+    ;Delete exe runner
+    IniRead, T_RevertLocation,%AppSettingsIni%, ExeRunner, ExeFileLocation
+    if(T_RevertLocation = "ERROR")
+    {
+        iniread,T_RevertLocation,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
+    }
+    FileMove, %AppFolder%\%ScriptName%.ahk,%T_RevertLocation%\%ScriptName%.ahk ,1
+    if ErrorLevel
+    {
+        MsgBox, Error while moving files
+        return
+    }    
+    FileDelete, %T_RevertLocation%\%ScriptName%.exe
+    if ErrorLevel
+    {
+        FileRecycle, %T_RevertLocation%\%ScriptName%.exe
+        if ErrorLevel
+        {
+            MsgBox, Error while deleting file`nYou need to delete exe file manually
+        }
+    }
+    IniWrite,false,%AppSettingsIni%, ExeRunner, UsingExeRunner
+    GuiControl,,DownloadEXERunnerButton,Download EXE Runner
+    IsEXERunnerEnabled := false
+}
+else
+{ 
+    ;Download exe runner
+    T_FileBeforeMoveLocation = %A_ScriptDir%
+    IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
+    IniWrite,%A_ScriptDir%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
+    FileMove, %A_ScriptFullPath%,%AppFolder%\%ScriptName%.ahk ,1
+    GuiControl,,DownloadEXERunnerButton,Delete EXE Runner
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe , %T_FileBeforeMoveLocation%\GameScripts.exe
+    IsEXERunnerEnabled := true
+}
+return
 ;____________________________________________________________
 ;//////////////[Auto Run/Walk]///////////////
 SaveToggleRun:
@@ -1325,13 +1386,26 @@ IniWrite, %CheckUpdatesOnStartup%, %AppSettingsIni%, Updates, CheckOnStartup
 return
 ;Shortcut
 Shortcut_to_desktop:
-FileCreateShortcut,"%A_ScriptFullPath%", %A_Desktop%\%ScriptName%.lnk
+if(IsEXERunnerEnabled)
+{
+    IniRead, T_RevertLocation,%AppSettingsIni%, ExeRunner, ExeFileLocation
+    if(T_RevertLocation = "ERROR")
+    {
+        iniread,T_RevertLocation,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
+    }
+    FileCreateShortcut,"T_RevertLocation\%ScriptName%.exe", %A_Desktop%\%ScriptName%.lnk
+}
+else
+{
+    FileCreateShortcut,"%A_ScriptFullPath%", %A_Desktop%\%ScriptName%.lnk
+}
 return
 DownloadGuiPictures()
 {
     SplashTextOn, 300,60,Downloading GUI Pictures, Script will run after all GUI pictures has been downloaded
     FileCreateDir,%GuiPictureFolder%
     sleep 100
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/NumLockBlue.png , %GuiPictureFolder%/NumLockBlue.png
 
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Division.png , %GuiPictureFolder%/Division.png
