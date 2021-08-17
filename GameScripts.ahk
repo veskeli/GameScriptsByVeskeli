@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.32
+version = 0.33
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
@@ -218,13 +218,7 @@ Gui Add, CheckBox, x646 y442 w172 h23 vCheckUpdatesOnStartup gAutoUpdates, Check
 Gui Add, Button, x666 y473 w126 h23 gcheckForupdates, Check updates
 Gui Font
 Gui Font, s14
-Gui Add, Text, x496 y440 w120 h23 +0x200, Version = %version%
-Gui Font
-Gui Font, s9, Segoe UI
-Gui Add, CheckBox, x10 y30 w147 h23 +Disabled, Keep this always on top
-Gui Font
-Gui Font, s14
-Gui Add, Button, x467 y470 w163 h40 +Disabled, Save all settings
+Gui Add, Text, x505 y488 w120 h23 +0x200, Version = %version%
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, GroupBox, x633 y27 w196 h145, Delete stuff
@@ -246,7 +240,25 @@ Gui Add, Button, x655 y272 w150 h23 gOpenAppSettingsFolder, Open App Settings Fo
 Gui Add, Button, x677 y301 w110 h23 gOpenAppSettingsFile, Open Settings File
 Gui Add, GroupBox, x340 y27 w167 h53, Numpad Macro Deck
 Gui Add, Button, x348 y46 w100 h23 gNumpadMacroDeckDeleteAllSettings, Delete all Actions
-Gui Add, Button, x384 y472 w82 h36 gRedownloadGuiPictures, Redownload Gui pictures
+Gui Add, GroupBox, x632 y336 w197 h80, This Script
+Gui Add, Button, x647 y378 w145 h30 gRedownloadGuiPictures, Redownload Gui pictures
+Gui Font, s9, Segoe UI
+Gui Add, CheckBox, x648 y352 w147 h23 +Disabled, Keep this always on top
+Gui Font
+;Windows settigns/folders
+Gui Font
+Gui Add, GroupBox, x0 y28 w102 h130, Open Folders
+Gui Add, Button, x10 y48 w85 h23 gOpenAppdataFolder, Appdata
+Gui Add, Button, x10 y74 w85 h23 gOpenStartupFolder, Startup
+Gui Add, Button, x10 y100 w85 h23 gOpenWindowsTempFolder, Windows Temp
+Gui Add, Button, x10 y126 w85 h23 gOpenMyDocuments, My Documents
+Gui Add, GroupBox, x101 y28 w164 h130, Toggle windows settings
+Gui Add, Button, x109 y48 w112 h23 gXboxOverlayOn, Xbox overlay On
+Gui Add, Button, x225 y48 w35 h23 gXboxOverlayOff, Off
+Gui Add, Button, x110 y74 w111 h23 gGameModeOn, Game Mode On
+Gui Add, Button, x225 y74 w35 h23 gGameModeOff, Off
+Gui Add, Button, x110 y100 w111 h23 gToggleGameDVRON, Game DVR On
+Gui Add, Button, x225 y100 w35 h23 gToggleGameDVROFF, Off
 Gui Tab, 4
 ;____________________________________________________________
 ;//////////////[Other scripts]///////////////
@@ -409,7 +421,40 @@ else IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 } 
 ;____________________________________________________________
 ;//////////////[Show Gui After setting all saved settings]///////////////
-Gui Show, w835 h517, GamingScriptsByVeskeli
+;Gui Show, w835 h517, Remember to drink your daily dose of coffee.
+Random,T_Coice_Num,1,8
+If (T_Coice_Num = 1)
+{
+    Gui Show, w835 h517,Remember to drink your daily dose of coffee.
+}
+else if (T_Coice_Num = 2)
+{
+    Gui Show, w835 h517,Humanity runs on coffee.
+}
+else if (T_Coice_Num = 3)
+{
+    Gui Show, w835 h517,I put coffee in my coffee
+}
+else if (T_Coice_Num = 4)
+{
+    Gui Show, w835 h517,Coffee is always a good idea.
+}
+else if (T_Coice_Num = 5)
+{
+    Gui Show, w835 h517,When life gives you lemons trade them for coffee.
+}
+else if (T_Coice_Num = 6)
+{
+    Gui Show, w835 h517, I've had so much coffee today I can see noises.
+}
+else if (T_Coice_Num = 7)
+{
+    Gui Show, w835 h517,I will start working when my coffee does.
+}
+else if (T_Coice_Num = 8)
+{
+    Gui Show, w835 h517,Coffee runs through my veins.
+}
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
 IfExist, %AppSettingsIni%
@@ -776,6 +821,40 @@ else
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe , %T_FileBeforeMoveLocation%\GameScripts.exe
     IsEXERunnerEnabled := true
 }
+return
+OpenAppdataFolder:
+run, %A_AppData%
+return
+OpenStartupFolder:
+run, %A_Startup%
+return
+OpenWindowsTempFolder:
+run, %A_Temp%
+return
+OpenMyDocuments:
+run, %A_MyDocuments%
+return
+ToggleGameDVRON:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
+return
+ToggleGameDVROFF:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
+return
+XboxOverlayOn:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
+return
+XboxOverlayOff:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
+return
+GameModeOn:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,1
+return
+GameModeOff:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,0
 return
 ;____________________________________________________________
 ;//////////////[Auto Run/Walk]///////////////
