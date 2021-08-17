@@ -1,5 +1,7 @@
 # GameScriptsByVeskeli
 
+[https://www.autohotkey.com/](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/Ahk.png "Download AutoHotkey")
+[https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.32/GameScripts.ahk](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/MyScript.png "Download GameScriptAhk")
 !!! [Download AutoHotkey](https://www.autohotkey.com/) !!!
 !!! [Download GameScriptAhk](https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.32/GameScripts.ahk) !!!
 
