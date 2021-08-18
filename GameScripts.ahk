@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.344
+version = 0.345
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
@@ -323,17 +323,32 @@ Gui Tab, 6
 ;____________________________________________________________
 ;//////////////[Windows settigns/folders]///////////////
 Gui Font
-Gui Add, GroupBox, x0 y28 w102 h130, Open Folders
+Gui Add, GroupBox, x0 y28 w102 h186, Open Folders
 Gui Add, Button, x10 y48 w85 h23 gOpenAppdataFolder, Appdata
 Gui Add, Button, x10 y74 w85 h23 gOpenStartupFolder, Startup
 Gui Add, Button, x10 y100 w85 h23 gOpenWindowsTempFolder, Windows Temp
 Gui Add, Button, x10 y126 w85 h23 gOpenMyDocuments, My Documents
+Gui Add, Button, x10 y152 w85 h23 gOpenDesktop, Desktop
+Gui Add, Button, x10 y179 w85 h23 gOpenStartMenu, StartMenu
 Gui Add, GroupBox, x101 y28 w164 h105, Toggle Windows game settings
 Gui Add, CheckBox, x109 y48 w115 h23 gToggleXboxOverlay vXboxOverlayCheckbox, Toggle Xbox overlay
 Gui Add, CheckBox, x110 y74 w111 h23 gToggleGameMode vToggleGameModeCheckbox, Toggle Game Mode
 Gui Add, CheckBox, x110 y100 w111 h23 gToggleGameDVR vToggleGameDVRCheckbox, Toggle Game DVR
-Gui Add, Button, x272 y40 w107 h23 gClearWindowsTempFolder, Clear Windows temp
-Gui Add, Button, x398 y223 w80 h23 gTestWindowsReg, Test
+Gui Add, GroupBox, x101 y137 w163 h89, Clear stuff
+Gui Add, Button, x120 y155 w107 h23 gClearWindowsTempFolder, Clear Windows temp
+Gui Add, Button, x112 y184 w125 h33 +Disabled, Clear all recent documents in wordpad
+Gui Add, GroupBox, x384 y32 w147 h119, Toggle windows settings
+Gui Add, CheckBox, x392 y54 w131 h23 +Disabled, Clipboard history
+Gui Add, CheckBox, x392 y81 w128 h28 +Disabled, Automatically backup registery
+Gui Add, CheckBox, x392 y114 w120 h30 +Disabled, Clear Virtual memory page file at shutdown
+Gui Add, Button, x536 y48 w124 h23 +Disabled, Disable Most of ads
+Gui Add, CheckBox, x536 y96 w120 h28 +Disabled, Advertising ID For Relevant ads
+Gui Add, Button, x536 y72 w124 h23 +Disabled, Restore Most of ads
+Gui Add, CheckBox, x536 y128 w124 h45 +Disabled, Toggle Featured or Suggested Apps from Automatically Installing
+Gui Add, GroupBox, x530 y32 w135 h146, Windows 10 Fixes
+Gui Add, GroupBox, x264 y28 w121 h81
+Gui Add, Button, x275 y42 w97 h23 +Disabled, Open Cmd
+Gui Add, Button, x275 y68 w97 h23 +Disabled, IPConfig
 ;____________________________________________________________
 ;//////////////[System]///////////////
 ;____________________________________________________________
@@ -1480,7 +1495,12 @@ return
 OpenMyDocuments:
 run, %A_MyDocuments%
 return
-
+OpenDesktop:
+run, %A_Desktop%
+return
+OpenStartMenu:
+run, %A_StartMenu%
+return
 ToggleXboxOverlay:
 Gui, Submit, Nohide
 if(XboxOverlayCheckbox)
@@ -1530,13 +1550,6 @@ IfExist, %dir%\*.*
 {
     MsgBox,,Finished,Some files are being used by other apps.`nBut others were deleted
 }
-return
-TestWindowsReg:
-regRead,T_XboxOverlayConfig,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled
-regRead,T_GameModeConfig,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode
-regRead,T_GameModeConfig2,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled
-regRead,T_GameDVRConfig,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled
-MsgBox, Xbox overlay: %T_XboxOverlayConfig% `nGamebar config: %T_GameModeConfig% `nGamebar config2: %T_GameModeConfig2% `nGame DVR: %T_GameDVRConfig%
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1638,7 +1651,7 @@ if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
 {
     if(ExperimentalVersion > version)
     {
-        MsgBox, 1,Update,New Experimental version`nCurrent: %versio%`nNew:%ExperimentalVersion%`nUpdate now?
+        MsgBox, 1,Update,New Experimental version`nCurrent: %version%`nNew:%ExperimentalVersion%`nUpdate now?
         IfMsgBox, Cancel
         {
             ;temp stuff
@@ -3064,7 +3077,7 @@ UpdateSettingsFromRegistery()
     }
     regRead,T_GameModeConfig,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode
     regRead,T_GameModeConfig2,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled
-    if(T_GameModeConfig == 1 and T_GameModeConfig2 == 1)
+    if(T_GameModeConfig == 1 or T_GameModeConfig2 == 1)
     {
         GuiControl,,ToggleGameModeCheckbox,1
     }
