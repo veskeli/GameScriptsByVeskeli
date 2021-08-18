@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.342
+version = 0.343
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
@@ -332,6 +332,7 @@ Gui Add, GroupBox, x101 y28 w164 h105, Toggle Windows game settings
 Gui Add, CheckBox, x109 y48 w115 h23 gToggleXboxOverlay vXboxOverlayCheckbox, Toggle Xbox overlay
 Gui Add, CheckBox, x110 y74 w111 h23 gToggleGameMode vToggleGameModeCheckbox, Toggle Game Mode
 Gui Add, CheckBox, x110 y100 w111 h23 gToggleGameDVR vToggleGameDVRCheckbox, Toggle Game DVR
+Gui Add, Button, x272 y40 w107 h23 gClearWindowsTempFolder, Clear Windows temp
 ;____________________________________________________________
 ;//////////////[System]///////////////
 ;____________________________________________________________
@@ -893,54 +894,6 @@ else
     GuiControl,,DownloadEXERunnerButton,Delete EXE Runner
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe , %T_FileBeforeMoveLocation%\GameScripts.exe
     IsEXERunnerEnabled := true
-}
-return
-OpenAppdataFolder:
-run, %A_AppData%
-return
-OpenStartupFolder:
-run, %A_Startup%
-return
-OpenWindowsTempFolder:
-run, %A_Temp%
-return
-OpenMyDocuments:
-run, %A_MyDocuments%
-return
-
-ToggleXboxOverlay:
-Gui, Submit, Nohide
-if(XboxOverlayCheckbox)
-{
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,1
-}
-else
-{
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,0
-}
-return
-ToggleGameMode:
-Gui, Submit, Nohide
-if(ToggleGameModeCheckbox)
-{
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,1
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,1
-}
-else
-{
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,0
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,0
-}
-return
-ToggleGameDVR:
-Gui, Submit, Nohide
-if(ToggleGameDVRCheckbox)
-{
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
-}
-else
-{
-    regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
 }
 return
 ;____________________________________________________________
@@ -1514,7 +1467,69 @@ return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows]///////////////
+OpenAppdataFolder:
+run, %A_AppData%
+return
+OpenStartupFolder:
+run, %A_Startup%
+return
+OpenWindowsTempFolder:
+run, %A_Temp%
+return
+OpenMyDocuments:
+run, %A_MyDocuments%
+return
 
+ToggleXboxOverlay:
+Gui, Submit, Nohide
+if(XboxOverlayCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,0
+}
+return
+ToggleGameMode:
+Gui, Submit, Nohide
+if(ToggleGameModeCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,1
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,0
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,0
+}
+return
+ToggleGameDVR:
+Gui, Submit, Nohide
+if(ToggleGameDVRCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
+}
+return
+ClearWindowsTempFolder:
+Progress, b w300, Wait while script is deleting temp files, Deleting Temp Files..., Deleting Temp Files...
+dir= %A_Temp%
+FileDelete, %dir%\*.*
+Loop, %dir%\*.*, 2
+{
+    Progress, %A_Index%
+    FileRemoveDir, %A_LoopFileLongPath%,1
+}
+Progress, Off
+IfExist, %dir%\*.*
+{
+    MsgBox,,Finished,Some files are being used by other apps.`nBut others were deleted
+}
+return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
@@ -1536,6 +1551,7 @@ if(newversion != "")
         else
         {
             ;Download update
+            SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
             FileCreateDir, %AppFolder%
             FileCreateDir, %AppFolder%\temp
             FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
@@ -1543,6 +1559,7 @@ if(newversion != "")
             sleep 1000
             UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
             Sleep 1000
+            SplashTextOff
             loop
             {
                 IfExist %A_ScriptFullPath%
@@ -1581,6 +1598,7 @@ if(newversion != "")
         }
         else
         {
+            SplashTextOn, 300,50,Downloading...,Downloading new Stable version.`nVersion: %newversion%
             ;Download update
             FileCreateDir, %AppFolder%
             FileCreateDir, %AppFolder%\temp
@@ -1589,6 +1607,7 @@ if(newversion != "")
             sleep 1000
             UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
             Sleep 1000
+            SplashTextOff
             loop
             {
                 IfExist %A_ScriptFullPath%
@@ -1611,7 +1630,7 @@ if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
 {
     if(ExperimentalVersion > version)
     {
-        MsgBox, 1,Update,New Experimental version`nUpdate now?
+        MsgBox, 1,Update,New Experimental version`nCurrent: %versio%`nNew:%ExperimentalVersion%`nUpdate now?
         IfMsgBox, Cancel
         {
             ;temp stuff
@@ -1619,6 +1638,7 @@ if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
         else
         {
             ;Download update
+            SplashTextOn, 300,50,Downloading...,Downloading new Experimental version.`nVersion: %ExperimentalVersion%
             FileCreateDir, %AppFolder%
             FileCreateDir, %AppFolder%\temp
             FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
@@ -1626,6 +1646,7 @@ if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
             sleep 1000
             UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
             Sleep 1000
+            SplashTextOff
             loop
             {
                 IfExist %A_ScriptFullPath%
@@ -1643,6 +1664,7 @@ DownloadExperimentalBranch:
 if(IsThisExperimental)
 {
     ;Download stable
+    SplashTextOn, 240,30,Downloading...,Downloading Stable version.
     FileCreateDir, %AppFolder%
     FileCreateDir, %AppFolder%\temp
     FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
@@ -1650,6 +1672,7 @@ if(IsThisExperimental)
     sleep 1000
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
     Sleep 1000
+    SplashTextOff
     loop
     {
         IfExist %A_ScriptFullPath%
@@ -1663,6 +1686,7 @@ if(IsThisExperimental)
 else
 {
     ;Download Experimental
+    SplashTextOn, 240,30,Downloading...,Downloading Experimental version.
     FileCreateDir, %AppFolder%
     FileCreateDir, %AppFolder%\temp
     FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
@@ -1670,6 +1694,7 @@ else
     sleep 1000
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
     Sleep 1000
+    SplashTextOff
     loop
     {
         IfExist %A_ScriptFullPath%
