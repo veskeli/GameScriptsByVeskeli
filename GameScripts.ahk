@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.343
+version = 0.344
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
@@ -333,6 +333,7 @@ Gui Add, CheckBox, x109 y48 w115 h23 gToggleXboxOverlay vXboxOverlayCheckbox, To
 Gui Add, CheckBox, x110 y74 w111 h23 gToggleGameMode vToggleGameModeCheckbox, Toggle Game Mode
 Gui Add, CheckBox, x110 y100 w111 h23 gToggleGameDVR vToggleGameDVRCheckbox, Toggle Game DVR
 Gui Add, Button, x272 y40 w107 h23 gClearWindowsTempFolder, Clear Windows temp
+Gui Add, Button, x398 y223 w80 h23 gTestWindowsReg, Test
 ;____________________________________________________________
 ;//////////////[System]///////////////
 ;____________________________________________________________
@@ -484,7 +485,7 @@ else if (T_Coice_Num = 17)
 }
 else if (T_Coice_Num = 18)
 {
-    Gui Show, w835 h517,Sometimes I go hours without drinking coffee…it's called sleeping.
+    Gui Show, w835 h517,Sometimes I go hours without drinking coffee...it's called sleeping.
 }
 else if (T_Coice_Num = 19)
 {
@@ -1529,6 +1530,13 @@ IfExist, %dir%\*.*
 {
     MsgBox,,Finished,Some files are being used by other apps.`nBut others were deleted
 }
+return
+TestWindowsReg:
+regRead,T_XboxOverlayConfig,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled
+regRead,T_GameModeConfig,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode
+regRead,T_GameModeConfig2,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled
+regRead,T_GameDVRConfig,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled
+MsgBox, Xbox overlay: %T_XboxOverlayConfig% `nGamebar config: %T_GameModeConfig% `nGamebar config2: %T_GameModeConfig2% `nGame DVR: %T_GameDVRConfig%
 return
 ;____________________________________________________________
 ;____________________________________________________________
