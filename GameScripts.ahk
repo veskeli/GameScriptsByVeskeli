@@ -22,7 +22,8 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.33
+version = 0.34
+IsThisExperimental := false
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
@@ -220,6 +221,7 @@ Gui Font
 Gui Font, s14
 Gui Add, Text, x505 y488 w120 h23 +0x200, Version = %version%
 Gui Font
+Gui Add, Button, x479 y457 w148 h33 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton , Download experimental branch
 Gui Font, s9, Segoe UI
 Gui Add, GroupBox, x633 y27 w196 h145, Delete stuff
 Gui Add, Button, x643 y70 w107 h23 gDeleteAppSettings, Delete all settings
@@ -333,40 +335,26 @@ Gui Add, Button, x421 y462 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpad
 Gui Font
 ;____________________________________________________________
 ;//////////////[Check for Settings]///////////////
-IfExist, %AppSettingsIni% ;Check for updates checkbox
+IfExist, %AppHotkeysIni% 
 {
-    IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
-	GuiControl,,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
-}
-IfExist, %AppHotkeysIni% ;Always on top hotkey
-{
+    ;Always on top hotkey
     IniRead, Temp_AlwayOnTopHotkey, %AppHotkeysIni%, GameMode, AlwaysOnTopHotkey
 	GuiControl,,AlwaysOnTopHotkey,%Temp_AlwayOnTopHotkey%
-}
-IfExist, %AppHotkeysIni% ;Auto Run/Walk
-{
+    ;Auto Run/Walk
     IniRead, Temp_AutoRunHotkey, %AppHotkeysIni%, GameMode, AutoRun
 	GuiControl,,ToggleRunHotkey,%Temp_AutoRunHotkey%
-}
-IfExist, %AppHotkeysIni% ;Rebind Windows button
-{
+    ;Rebind Windows button
     IniRead, Temp_RebindWindowsHotkey, %AppHotkeysIni%, GameMode, RebindWindowsButton
 	GuiControl,,RebindWindowsButton,%Temp_RebindWindowsHotkey%
-}
-IfExist, %AppHotkeysIni% ;Rebind Caps lock button
-{
+    ;Rebind Caps lock button
     IniRead, Temp_RebindCapsLockHotkey, %AppHotkeysIni%, GameMode, RebindCapsLockButton
 	GuiControl,,RebindCapsLockButton,%Temp_RebindCapsLockHotkey%
-}
-IfExist, %AppHotkeysIni% ;Mouse Hold
-{
+    ;Mouse Hold
     IniRead, Temp_MouseHoldHotkey, %AppHotkeysIni%, GameMode, MouseHoldHotkey
     ;IniRead, Temp_MouseHoldButton, %AppHotkeysIni%, GameMode, MouseHoldButton
     GuiControl,,MouseHoldHotkey,%Temp_MouseHoldHotkey%
     ;GuiControl,,MouseHoldList,%Temp_MouseHoldButton%
-}
-IfExist, %AppHotkeysIni% ;Mouse Clicker
-{
+    ;Mouse Clicker
     IniRead, Temp_MouseClickerHotkey, %AppHotkeysIni%, GameMode, MouseClickerHotkey
     IniRead, Temp_MouseClickerDelay, %AppHotkeysIni%, GameMode, MouseClickerDelay
 	GuiControl,,MouseClickerHotkey,%Temp_MouseClickerHotkey%
@@ -459,9 +447,44 @@ else if (T_Coice_Num = 8)
 ;//////////////[Check for updates]///////////////
 IfExist, %AppSettingsIni%
 {
+    ;Is check for updates enabled
+    IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
+    GuiControl,,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
     if(Temp_CheckUpdatesOnStartup == 1)
     {
-        goto checkForupdates
+        if(IsThisExperimental)
+        {
+            MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
+            GuiControl,show,DownloadExperimentalBranchButton
+            GuiControl,,DownloadExperimentalBranchButton, Download Stable version
+            ;check if there is new stable
+            goto CheckForStableVersion
+        }
+        else
+        {
+            ;Check for experimental branch
+            whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+            whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/version.txt", False)
+            whr.Send()
+            whr.WaitForResponse()
+            ExperimentalVersion := whr.ResponseText
+            if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
+            {
+                ;Found experimental version
+                GuiControl,show,DownloadExperimentalBranchButton
+            }
+            goto checkForupdates
+        }
+    }
+    else
+    {
+        ;if this is experimental but check updates on start is disabled
+        if(IsThisExperimental)
+        {
+            MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
+            GuiControl,show,DownloadExperimentalBranchButton
+            GuiControl,,DownloadExperimentalBranchButton, Download Stable version
+        }
     }
 }
 ;____________________________________________________________
@@ -1463,6 +1486,124 @@ FileCreateDir, %AppFolder%
 FileCreateDir, %AppSettingsFolder%
 IniWrite, %CheckUpdatesOnStartup%, %AppSettingsIni%, Updates, CheckOnStartup
 return
+;//////////////[Experimental Download]///////////////
+CheckForStableVersion:
+whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/version.txt", False)
+whr.Send()
+whr.WaitForResponse()
+newversion := whr.ResponseText
+if(newversion != "")
+{
+    if(newversion >= version)
+    {
+        MsgBox, 1,Update,New Stable version is live`nExperimental version: %version%`nStable versio: %newversion%`nUpdate to stable?
+        IfMsgBox, Cancel
+        {
+            ;temp stuff
+        }
+        else
+        {
+            ;Download update
+            FileCreateDir, %AppFolder%
+            FileCreateDir, %AppFolder%\temp
+            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete gui pictures
+            sleep 1000
+            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
+            Sleep 1000
+            loop
+            {
+                IfExist %A_ScriptFullPath%
+                {
+                    Run, %A_ScriptFullPath%
+                    ExitApp
+                }
+            }
+			ExitApp
+        }
+    }
+}
+;check if there is new experimental version
+whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/version.txt", False)
+whr.Send()
+whr.WaitForResponse()
+ExperimentalVersion := whr.ResponseText
+if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
+{
+    if(ExperimentalVersion > version)
+    {
+        MsgBox, 1,Update,New Experimental version`nUpdate now?
+        IfMsgBox, Cancel
+        {
+            ;temp stuff
+        }
+        else
+        {
+            ;Download update
+            FileCreateDir, %AppFolder%
+            FileCreateDir, %AppFolder%\temp
+            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete gui pictures
+            sleep 1000
+            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
+            Sleep 1000
+            loop
+            {
+                IfExist %A_ScriptFullPath%
+                {
+                    Run, %A_ScriptFullPath%
+                    ExitApp
+                }
+            }
+			ExitApp
+        }
+    }
+}
+return
+DownloadExperimentalBranch:
+if(IsThisExperimental)
+{
+    ;Download stable
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppFolder%\temp
+    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete gui pictures
+    sleep 1000
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
+    Sleep 1000
+    loop
+    {
+        IfExist %A_ScriptFullPath%
+        {
+            Run, %A_ScriptFullPath%
+            ExitApp
+        }
+    }
+    ExitApp
+}
+else
+{
+    ;Download Experimental
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppFolder%\temp
+    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete gui pictures
+    sleep 1000
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
+    Sleep 1000
+    loop
+    {
+        IfExist %A_ScriptFullPath%
+        {
+            Run, %A_ScriptFullPath%
+            ExitApp
+        }
+    }
+    ExitApp
+}
+return
 ;Shortcut
 Shortcut_to_desktop:
 if(IsEXERunnerEnabled)
@@ -1481,63 +1622,167 @@ else
 return
 DownloadGuiPictures()
 {
-    SplashTextOn, 300,60,Downloading GUI Pictures, Script will run after all GUI pictures has been downloaded
+    Progress, b w300, Script will run after all GUI pictures has been downloaded, Downloading GUI Pictures..., Downloading GUI Pictures...
+    T_GUIPicProgress = 0
+    T_GuiPicAddAmount = 2
+    
+    ;SplashTextOn, 300,60,Downloading GUI Pictures, Script will run after all GUI pictures has been downloaded
     FileCreateDir,%GuiPictureFolder%
     sleep 100
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/NumLockBlue.png , %GuiPictureFolder%/NumLockBlue.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
 
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Division.png , %GuiPictureFolder%/Division.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DivisionEnabled.png , %GuiPictureFolder%/DivisionEnabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DivisionSelected.png , %GuiPictureFolder%/DivisionSelected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Multiplication.png , %GuiPictureFolder%/Multiplication.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/MultiplicationEnabled.png , %GuiPictureFolder%/MultiplicationEnabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/MultiplicationSelected.png , %GuiPictureFolder%/MultiplicationSelected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Subtraction.png , %GuiPictureFolder%/Subtraction.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/SubtractionEnabled.png , %GuiPictureFolder%/SubtractionEnabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/SubtractionSelected.png , %GuiPictureFolder%/SubtractionSelected.png
     ;nums
+    
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/0.png , %GuiPictureFolder%/0.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/0Enabled.png , %GuiPictureFolder%/0Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/0Selected.png , %GuiPictureFolder%/0Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/1.png , %GuiPictureFolder%/1.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/1Enabled.png , %GuiPictureFolder%/1Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/1Selected.png , %GuiPictureFolder%/1Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/2.png , %GuiPictureFolder%/2.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/2Enabled.png , %GuiPictureFolder%/2Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/2Selected.png , %GuiPictureFolder%/2Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/3.png , %GuiPictureFolder%/3.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/3Enabled.png , %GuiPictureFolder%/3Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/3Selected.png , %GuiPictureFolder%/3Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/4.png , %GuiPictureFolder%/4.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/4Enabled.png , %GuiPictureFolder%/4Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/4Selected.png , %GuiPictureFolder%/4Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/5.png , %GuiPictureFolder%/5.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/5Enabled.png , %GuiPictureFolder%/5Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/5Selected.png , %GuiPictureFolder%/5Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/6.png , %GuiPictureFolder%/6.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/6Enabled.png , %GuiPictureFolder%/6Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/6Selected.png , %GuiPictureFolder%/6Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/7.png , %GuiPictureFolder%/7.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/7Enabled.png , %GuiPictureFolder%/7Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/7Selected.png , %GuiPictureFolder%/7Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/8.png , %GuiPictureFolder%/8.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/8Enabled.png , %GuiPictureFolder%/8Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/8Selected.png , %GuiPictureFolder%/8Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/9.png , %GuiPictureFolder%/9.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/9Enabled.png , %GuiPictureFolder%/9Enabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/9Selected.png , %GuiPictureFolder%/9Selected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     ;nums end
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Addition.png , %GuiPictureFolder%/Addition.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/AdditionEnabled.png , %GuiPictureFolder%/AdditionEnabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/AdditionSelected.png , %GuiPictureFolder%/AdditionSelected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Enter.png , %GuiPictureFolder%/Enter.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/EnterEnabled.png , %GuiPictureFolder%/EnterEnabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/EnterSelected.png , %GuiPictureFolder%/EnterSelected.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/Dot.png , %GuiPictureFolder%/Dot.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DotEnabled.png , %GuiPictureFolder%/DotEnabled.png
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/DotSelected.png , %GuiPictureFolder%/DotSelected.png
-    SplashTextOff
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    Progress, Off
+    ;SplashTextOff
 }
 ;____________________________________________________________
 ;//////////////[Links]///////////////
