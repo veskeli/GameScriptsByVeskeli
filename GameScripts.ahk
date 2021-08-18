@@ -22,8 +22,8 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.34
-IsThisExperimental := false
+version = 0.341
+IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
@@ -106,7 +106,7 @@ IfNotExist %GuiPictureFolder%
 ;//////////////[Gui]///////////////
 Menu Tray, Icon, %GuiPictureFolder%\GameScripts.ico,1
 Gui Font, s9, Segoe UI
-Gui Add, Tab3, x-1 y-1 w840 h521, GameMode|GamingScripts|Settings|Other scripts|Numpad Macro Deck
+Gui Add, Tab3, x-1 y-1 w840 h521, GameMode|GamingScripts|Settings|Other scripts|Numpad Macro Deck|System Optimization
 ;//////////////[GameMode]///////////////
 Gui Tab, 1
 Gui Font
@@ -219,7 +219,7 @@ Gui Add, CheckBox, x646 y442 w172 h23 vCheckUpdatesOnStartup gAutoUpdates, Check
 Gui Add, Button, x666 y473 w126 h23 gcheckForupdates, Check updates
 Gui Font
 Gui Font, s14
-Gui Add, Text, x505 y488 w120 h23 +0x200, Version = %version%
+Gui Add, Text, x479 y488 w148 h23 +0x200, Version = %version%
 Gui Font
 Gui Add, Button, x479 y457 w148 h33 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton , Download experimental branch
 Gui Font, s9, Segoe UI
@@ -247,20 +247,6 @@ Gui Add, Button, x647 y378 w145 h30 gRedownloadGuiPictures, Redownload Gui pictu
 Gui Font, s9, Segoe UI
 Gui Add, CheckBox, x648 y352 w147 h23 +Disabled, Keep this always on top
 Gui Font
-;Windows settigns/folders
-Gui Font
-Gui Add, GroupBox, x0 y28 w102 h130, Open Folders
-Gui Add, Button, x10 y48 w85 h23 gOpenAppdataFolder, Appdata
-Gui Add, Button, x10 y74 w85 h23 gOpenStartupFolder, Startup
-Gui Add, Button, x10 y100 w85 h23 gOpenWindowsTempFolder, Windows Temp
-Gui Add, Button, x10 y126 w85 h23 gOpenMyDocuments, My Documents
-Gui Add, GroupBox, x101 y28 w164 h130, Toggle windows settings
-Gui Add, Button, x109 y48 w112 h23 gXboxOverlayOn, Xbox overlay On
-Gui Add, Button, x225 y48 w35 h23 gXboxOverlayOff, Off
-Gui Add, Button, x110 y74 w111 h23 gGameModeOn, Game Mode On
-Gui Add, Button, x225 y74 w35 h23 gGameModeOff, Off
-Gui Add, Button, x110 y100 w111 h23 gToggleGameDVRON, Game DVR On
-Gui Add, Button, x225 y100 w35 h23 gToggleGameDVROFF, Off
 Gui Tab, 4
 ;____________________________________________________________
 ;//////////////[Other scripts]///////////////
@@ -333,6 +319,23 @@ Gui Font, s14
 Gui Add, Button, x568 y462 w143 h36 vNumpadMacroDeckSaveSettingsButton gNumpadMacroDeckSaveSettings, Save Settings
 Gui Add, Button, x421 y462 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpadMacroDeckDeleteSettings, Delete Settings
 Gui Font
+Gui Tab, 6
+;Windows settigns/folders
+Gui Font
+Gui Add, GroupBox, x0 y28 w102 h130, Open Folders
+Gui Add, Button, x10 y48 w85 h23 gOpenAppdataFolder, Appdata
+Gui Add, Button, x10 y74 w85 h23 gOpenStartupFolder, Startup
+Gui Add, Button, x10 y100 w85 h23 gOpenWindowsTempFolder, Windows Temp
+Gui Add, Button, x10 y126 w85 h23 gOpenMyDocuments, My Documents
+Gui Add, GroupBox, x101 y28 w164 h130, Toggle windows settings
+Gui Add, Button, x109 y48 w112 h23 gXboxOverlayOn, Xbox overlay On
+Gui Add, Button, x225 y48 w35 h23 gXboxOverlayOff, Off
+Gui Add, Button, x110 y74 w111 h23 gGameModeOn, Game Mode On
+Gui Add, Button, x225 y74 w35 h23 gGameModeOff, Off
+Gui Add, Button, x110 y100 w111 h23 gToggleGameDVRON, Game DVR On
+Gui Add, Button, x225 y100 w35 h23 gToggleGameDVROFF, Off
+;____________________________________________________________
+;//////////////[System]///////////////
 ;____________________________________________________________
 ;//////////////[Check for Settings]///////////////
 IfExist, %AppHotkeysIni% 
