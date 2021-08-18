@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.341
+version = 0.342
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
@@ -106,7 +106,7 @@ IfNotExist %GuiPictureFolder%
 ;//////////////[Gui]///////////////
 Menu Tray, Icon, %GuiPictureFolder%\GameScripts.ico,1
 Gui Font, s9, Segoe UI
-Gui Add, Tab3, x-1 y-1 w840 h521, GameMode|GamingScripts|Settings|Other scripts|Numpad Macro Deck|System Optimization
+Gui Add, Tab3, x-1 y-1 w840 h521 gUpdateGUIWhenSwitchingTabs vUpdateGUIWhenSwitchingTabsTab3, GameMode|GamingScripts|Settings|Other scripts|Numpad Macro Deck|Windows
 ;//////////////[GameMode]///////////////
 Gui Tab, 1
 Gui Font
@@ -320,20 +320,18 @@ Gui Add, Button, x568 y462 w143 h36 vNumpadMacroDeckSaveSettingsButton gNumpadMa
 Gui Add, Button, x421 y462 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpadMacroDeckDeleteSettings, Delete Settings
 Gui Font
 Gui Tab, 6
-;Windows settigns/folders
+;____________________________________________________________
+;//////////////[Windows settigns/folders]///////////////
 Gui Font
 Gui Add, GroupBox, x0 y28 w102 h130, Open Folders
 Gui Add, Button, x10 y48 w85 h23 gOpenAppdataFolder, Appdata
 Gui Add, Button, x10 y74 w85 h23 gOpenStartupFolder, Startup
 Gui Add, Button, x10 y100 w85 h23 gOpenWindowsTempFolder, Windows Temp
 Gui Add, Button, x10 y126 w85 h23 gOpenMyDocuments, My Documents
-Gui Add, GroupBox, x101 y28 w164 h130, Toggle windows settings
-Gui Add, Button, x109 y48 w112 h23 gXboxOverlayOn, Xbox overlay On
-Gui Add, Button, x225 y48 w35 h23 gXboxOverlayOff, Off
-Gui Add, Button, x110 y74 w111 h23 gGameModeOn, Game Mode On
-Gui Add, Button, x225 y74 w35 h23 gGameModeOff, Off
-Gui Add, Button, x110 y100 w111 h23 gToggleGameDVRON, Game DVR On
-Gui Add, Button, x225 y100 w35 h23 gToggleGameDVROFF, Off
+Gui Add, GroupBox, x101 y28 w164 h105, Toggle Windows game settings
+Gui Add, CheckBox, x109 y48 w115 h23 gToggleXboxOverlay vXboxOverlayCheckbox, Toggle Xbox overlay
+Gui Add, CheckBox, x110 y74 w111 h23 gToggleGameMode vToggleGameModeCheckbox, Toggle Game Mode
+Gui Add, CheckBox, x110 y100 w111 h23 gToggleGameDVR vToggleGameDVRCheckbox, Toggle Game DVR
 ;____________________________________________________________
 ;//////////////[System]///////////////
 ;____________________________________________________________
@@ -366,6 +364,8 @@ IfExist, %AppHotkeysIni%
     {
         GuiControl,,MouseClickerDelay, 150
     }
+    ;Read From registery
+    UpdateSettingsFromRegistery()
 }
 ;Numpad Macro Deck
 IfExist, %NumpadMacroDeckSettingsIni%
@@ -412,8 +412,7 @@ else IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 } 
 ;____________________________________________________________
 ;//////////////[Show Gui After setting all saved settings]///////////////
-;Gui Show, w835 h517, Remember to drink your daily dose of coffee.
-Random,T_Coice_Num,1,8
+Random,T_Coice_Num,1,20
 If (T_Coice_Num = 1)
 {
     Gui Show, w835 h517,Remember to drink your daily dose of coffee.
@@ -445,6 +444,54 @@ else if (T_Coice_Num = 7)
 else if (T_Coice_Num = 8)
 {
     Gui Show, w835 h517,Coffee runs through my veins.
+}
+else if (T_Coice_Num = 9)
+{
+    Gui Show, w835 h517,Coffee helps me maintain my "never killed anyone streak"
+}
+else if (T_Coice_Num = 10)
+{
+    Gui Show, w835 h517,Coffee is the gasoline of life
+}
+else if (T_Coice_Num = 11)
+{
+    Gui Show, w835 h517,A bad day with coffee is better than a good day without it
+}
+else if (T_Coice_Num = 12)
+{
+    Gui Show, w835 h517,No one can understand the truth until he drinks of coffee's frothy goodness.
+}
+else if (T_Coice_Num = 13)
+{
+    Gui Show, w835 h517,I don't know how people live without coffee. I really don't.
+}
+else if (T_Coice_Num = 14)
+{
+    Gui Show, w835 h517,There is no life without water. Because water is needed to make coffee.
+}
+else if (T_Coice_Num = 15)
+{
+    Gui Show, w835 h517,Today's good mood is sponsored by coffee.
+}
+else if (T_Coice_Num = 16)
+{
+    Gui Show, w835 h517,I like coffee because it gives me the illusion that I might be awake.
+}
+else if (T_Coice_Num = 17)
+{
+    Gui Show, w835 h517,The most dangerous drinking game is seeing how long I can go without coffee.
+}
+else if (T_Coice_Num = 18)
+{
+    Gui Show, w835 h517,Sometimes I go hours without drinking coffee…it's called sleeping.
+}
+else if (T_Coice_Num = 19)
+{
+    Gui Show, w835 h517,Doctors found traces of blood in my coffee stream.
+}
+else if (T_Coice_Num = 20)
+{
+    Gui Show, w835 h517,I don't have a problem with caffeine. I have a problem without it.
 }
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
@@ -860,27 +907,50 @@ return
 OpenMyDocuments:
 run, %A_MyDocuments%
 return
-ToggleGameDVRON:
-regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
+
+ToggleXboxOverlay:
+Gui, Submit, Nohide
+if(XboxOverlayCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,0
+}
 return
-ToggleGameDVROFF:
-regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
+ToggleGameMode:
+Gui, Submit, Nohide
+if(ToggleGameModeCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,1
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,0
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,0
+}
 return
-XboxOverlayOn:
-regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,1
-regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
+ToggleGameDVR:
+Gui, Submit, Nohide
+if(ToggleGameDVRCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
+}
 return
-XboxOverlayOff:
-regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,0
-regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
-return
-GameModeOn:
-regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,1
-regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,1
-return
-GameModeOff:
-regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode,0
-regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled,0
+;____________________________________________________________
+;//////////////[GUI update stuff]///////////////
+UpdateGUIWhenSwitchingTabs:
+Gui, Submit, Nohide
+if(UpdateGUIWhenSwitchingTabsTab3 == "Windows")
+{
+    UpdateSettingsFromRegistery()
+}
 return
 ;____________________________________________________________
 ;//////////////[Auto Run/Walk]///////////////
@@ -1441,6 +1511,10 @@ else
     send, %T_NumpadMacroDeckText%
 }
 return
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Windows]///////////////
+
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
@@ -2942,5 +3016,36 @@ NumpadMacroDeckSetHotkeys(T_HotkeysState)
         {
             hotkey,NumpadDot,OFF,UseErrorLevel
         }
+    }
+}
+UpdateSettingsFromRegistery()
+{
+    regRead,T_XboxOverlayConfig,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled
+    if(T_XboxOverlayConfig == 1)
+    {
+        GuiControl,,XboxOverlayCheckbox,1
+    }
+    else
+    {
+        GuiControl,,XboxOverlayCheckbox,0
+    }
+    regRead,T_GameModeConfig,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode
+    regRead,T_GameModeConfig2,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled
+    if(T_GameModeConfig == 1 and T_GameModeConfig2 == 1)
+    {
+        GuiControl,,ToggleGameModeCheckbox,1
+    }
+    else
+    {
+        GuiControl,,ToggleGameModeCheckbox,0
+    }
+    regRead,T_GameDVRConfig,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled
+    if(T_GameDVRConfig == 1)
+    {
+        GuiControl,,ToggleGameDVRCheckbox,1
+    }
+    else
+    {
+        GuiControl,,ToggleGameDVRCheckbox,0
     }
 }
