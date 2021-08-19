@@ -20,17 +20,22 @@ AppFolderName = AHKGameScriptsByVeskeli
 AppFolder = %A_AppData%\%AppFolderName%
 AppSettingsFolder = %AppFolder%\Settings
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
+AppGameScriptSettingsIni = %AppSettingsFolder%\GameScriptSettings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
+AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.351
-IsThisExperimental := false
+version = 0.352
+IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
+NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
+FactorioToolLocation = %AppGamingScriptsFolder%\FactorioTool.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
 ;other scipts (Bool)
 GHUBTool := false
 NgrokTool := false
+FactorioTool := false
 ;Numpad Macro Deck
 NumpadDeckSelected := ""
 ;NumpadDeckEnalbedArray := []
@@ -208,12 +213,20 @@ Gui Add, CheckBox, x542 y450 w77 h23 gEnableCapsLockRebind vRebindCapsLockCheckb
 Gui Add, Hotkey, x622 y451 w120 h21 gGuiSubmit vRebindCapsLockButton ;capslock
 Gui Add, Button, x732 y478 w80 h23 gSaveRebindHotkeys, Save Hotkeys
 Gui Add, CheckBox, x385 y479 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
+Gui Font
 Gui Tab, 2
 ;____________________________________________________________
 ;//////////////[Game scripts]///////////////
+;Factorio
+Gui Add, GroupBox, x3 y30 w830 h54, Factorio
+Gui Font, s14
+Gui Add, Text, x12 y48 w258 h32 +0x200, Factorio Tool
 Gui Font
-Gui Font, s20
-Gui Add, Text, x276 y156 w450 h185 +0x200, Nothing to show yet
+Gui Font, s9, Segoe UI
+Gui Add, Button, x360 y50 w100 h23 gDownloadFactorioTool vDownloadFactorioToolButton, Download
+Gui Add, CheckBox, x464 y50 w170 h23 +Disabled, Open/Close automatically
+Gui Add, CheckBox, x628 y50 w120 h23 +Disabled, Check for updates
+Gui Add, Button, x740 y50 w90 h23 gUninstallFactorioTool vUninstallFactorioToolButton +Disabled, Delete
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Tab, 3
@@ -267,14 +280,15 @@ Gui Add, Button, x494 y50 w130 h23 +Disabled, Check for updates
 Gui Add, Button, x628 y50 w97 h23 gOpenGHUBToolGithub, Open in Github
 Gui Add, Button, x730 y50 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
 Gui Font
+;//////////////[Ngrok Tool]///////////////
 Gui Add, GroupBox, x3 y85 w823 h54, Ngrok tool
 Gui Font, s14
 Gui Add, Text, x12 y102 w258 h32 +0x200, Ngrok Port fowarding tool
 Gui Font
-Gui Add, Button, x390 y105 w100 h23 +Disabled, Download
+Gui Add, Button, x390 y105 w100 h23 gDownloadNgrokTool vDownloadNgrokToolButton, Download
 Gui Add, Button, x494 y105 w130 h23 +Disabled, Check for updates
 Gui Add, Button, x628 y105 w97 h23 gOpenNgrokInGithub, Open in Github
-Gui Add, Button, x730 y105 w80 h23 +Disabled, Delete
+Gui Add, Button, x730 y105 w80 h23 gUninstallNgrokTool vUninstallNgrokToolButton +Disabled, Delete
 Gui Font
 Gui Tab, 5
 ;____________________________________________________________
@@ -433,6 +447,19 @@ IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GuiControl, Enable,UninstallGHUBToolScritpButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := true
+}
+IfExist %AppOtherScriptsFolder%\Ngrok.ahk
+{
+    GuiControl, , DownloadNgrokToolButton, Run
+    GuiControl, Enable,UninstallNgrokToolButton
+    NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
+    NgrokTool := true
+}
+IfExist %FactorioToolLocation%
+{
+    GuiControl,, DownloadFactorioToolButton, Run
+    GuiControl, Enable,UninstallFactorioToolButton
+    FactorioTool := true
 }
 else IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 {
@@ -1150,7 +1177,7 @@ if (!GHUBTool)
     FileCreateDir, %AppOtherScriptsFolder%
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/LogitechBackupProfilesAhk/master/LogitechBackupProfiles.ahk, %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     ;write save/Update Gui
-    GuiControl, , DowloadGHUBToolButton, Run
+    GuiControl,, DowloadGHUBToolButton, Run
     GuiControl, Enable,UninstallGHUBToolScritpButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := True
@@ -1163,17 +1190,48 @@ Return
 UninstallGHUBToolScript:
 UninstallScript("GHUBTool")
 Return
+;ngrok
 OpenNgrokInGithub:
     run, https://github.com/veskeli/NgrokAhk
 return
 DownloadNgrokTool:
 if(!NgrokTool)
 {
-
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppOtherScriptsFolder%
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/NgrokAhk/master/Ngrok.ahk, %AppOtherScriptsFolder%\Ngrok.ahk
+    ;write save/Update Gui
+    GuiControl,, DownloadNgrokToolButton, Run
+    GuiControl, Enable,UninstallNgrokToolButton
+    NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
+    NgrokTool := True
 }
 else
 {
-    
+    run, %NgrokToolLocation%
+}
+return
+UninstallNgrokTool:
+UninstallScript("NgrokTool")
+return
+;Factorio
+UninstallFactorioTool:
+UninstallScript("FactorioTool")
+return
+DownloadFactorioTool:
+if(!FactorioTool)
+{
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppGamingScriptsFolder%
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GamingScripts/FactorioTool.ahk, %FactorioToolLocation%
+    ;write save/Update Gui
+    GuiControl,, DownloadFactorioToolButton, Run
+    GuiControl, Enable,UninstallFactorioToolButton
+    FactorioTool := True
+}
+else
+{
+    run, %FactorioToolLocation%
 }
 return
 ;____________________________________________________________
@@ -2113,11 +2171,41 @@ UninstallScript(tName)
     if (tName == "GHUBTool")
     {
         FileDelete, %GHUBToolLocation%
+        if ErrorLevel
+        {
+            MsgBox,, Error, Error while deleting`nSometimes script cannot delete files`nYou can manually delete if necessary
+            return
+        }
         GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
         GHUBTool := False
         GuiControl, , DowloadGHUBToolButton, Download
         GuiControl, Disable ,UninstallGHUBToolScritpButton
+    }
+    if(tName == "NgrokTool")
+    {
+        FileDelete, %NgrokToolLocation%
+        if ErrorLevel
+        {
+            MsgBox,, Error, Error while deleting`nSometimes script cannot delete files`nYou can manually delete if necessary
+            return
+        }
+        NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
+        NgrokTool := False
+        GuiControl,, DownloadNgrokToolButton, Download
+        GuiControl, Disable ,UninstallNgrokToolButton
     } 
+    if(tName == "FactorioTool")
+    {
+        FileDelete, %FactorioToolLocation%
+        if ErrorLevel
+        {
+            MsgBox,, Error, Error while deleting`nSometimes script cannot delete files`nYou can manually delete if necessary
+            return
+        }
+        FactorioTool := False
+        GuiControl,, DownloadNgrokToolButton, Download
+        GuiControl, Disable ,UninstallFactorioToolButton
+    }
 }
 SwitchButtonColor(T_Button,T_PictureName)
 {
