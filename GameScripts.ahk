@@ -23,13 +23,14 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.5
+version = 0.351
 IsThisExperimental := false
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
 ;other scipts (Bool)
 GHUBTool := false
+NgrokTool := false
 ;Numpad Macro Deck
 NumpadDeckSelected := ""
 ;NumpadDeckEnalbedArray := []
@@ -265,6 +266,15 @@ Gui Add, Button, x390 y50 w100 h23 vDowloadGHUBToolButton gDownloadLogitechGHUBT
 Gui Add, Button, x494 y50 w130 h23 +Disabled, Check for updates
 Gui Add, Button, x628 y50 w97 h23 gOpenGHUBToolGithub, Open in Github
 Gui Add, Button, x730 y50 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
+Gui Font
+Gui Add, GroupBox, x3 y85 w823 h54, Ngrok tool
+Gui Font, s14
+Gui Add, Text, x12 y102 w258 h32 +0x200, Ngrok Port fowarding tool
+Gui Font
+Gui Add, Button, x390 y105 w100 h23 +Disabled, Download
+Gui Add, Button, x494 y105 w130 h23 +Disabled, Check for updates
+Gui Add, Button, x628 y105 w97 h23 gOpenNgrokInGithub, Open in Github
+Gui Add, Button, x730 y105 w80 h23 +Disabled, Delete
 Gui Font
 Gui Tab, 5
 ;____________________________________________________________
@@ -1153,6 +1163,19 @@ Return
 UninstallGHUBToolScript:
 UninstallScript("GHUBTool")
 Return
+OpenNgrokInGithub:
+    run, https://github.com/veskeli/NgrokAhk
+return
+DownloadNgrokTool:
+if(!NgrokTool)
+{
+
+}
+else
+{
+    
+}
+return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Numpad Macro Deck]///////////////
