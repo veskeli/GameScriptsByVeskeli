@@ -23,7 +23,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.347
+version = 0.348
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
@@ -3327,7 +3327,7 @@ UpdateTrayicon()
         Menu,Tray,Click,1
         Menu,Tray,DeleteAll
         Menu,Tray,NoStandard
-        Menu,Tray,Add,OPEN GUI,P_OpenGui
+        Menu,Tray,Add,Show GUI,P_OpenGui
         Menu,Tray,Add
         Menu,Tray,Add,Activate Numpad Macro deck,P_ActivateNumpadMacroDeck
         Menu,Tray,Add,Disable Numpad Macro deck,P_DisableNumpadMacroDeck
@@ -3335,5 +3335,5 @@ UpdateTrayicon()
         Menu,Tray,Add,Run IpConfig,RunIpConfig
         Menu,Tray,Add
         Menu,Tray,Add,E&xit,EXIT
-        Menu,Tray,Default,OPEN GUI
+        Menu,Tray,Default,Show GUI
 }
