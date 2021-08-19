@@ -11,6 +11,7 @@ SplitPath, A_ScriptName, , , , GameScripts
 SetWinDelay, -1 ; Remove short delay done automatically after every windowing command except IfWinActive and IfWinExist
 SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystroke sent by Send or ControlSend
 SetMouseDelay, -1 ; Remove short delay done automatically after Click and MouseMove/Click/Drag
+#Persistent
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[variables]///////////////
@@ -22,7 +23,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.346
+version = 0.347
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
@@ -51,6 +52,7 @@ DeckEnterEnabled := false
 DeckDotEnabled := false
 NumpadMacroDeckToggleBetweenNumpad := true
 IsEXERunnerEnabled := false
+CloseToTray := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -91,6 +93,8 @@ global Deck9Enabled
 global DeckAdditionEnabled
 global DeckEnterEnabled
 global DeckDotEnabled
+;
+global CloseToTray
 ;//////////////[Startup checks]///////////////
 IfExist %AppUpdateFile% 
 {
@@ -142,7 +146,7 @@ Gui Add, CheckBox, x743 y132 w70 h23 gMouseClickerEnabled vMouseClickerCheckbox,
 Gui Font
 Gui Font, s11
 ;//////////////[Auto Run/Walk]///////////////
-Gui Add, GroupBox, x375 y168 w450 h78, Auto Run/Walk
+Gui Add, GroupBox, x375 y168 w450 h78, Auto Run/Walk (Holds "W" so only 3D games)
 Gui Font
 Gui Font, s9, Segoe UI
 Gui Add, Text, x385 y185 w47 h23 +0x200, Hotkey:
@@ -214,9 +218,9 @@ Gui Font, s9, Segoe UI
 Gui Tab, 3
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
-Gui Add, GroupBox, x633 y416 w199 h95, Check for updates
-Gui Add, CheckBox, x646 y442 w172 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
-Gui Add, Button, x666 y473 w126 h23 gcheckForupdates, Check updates
+Gui Add, GroupBox, x633 y433 w199 h78, Check for updates
+Gui Add, CheckBox, x646 y451 w172 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
+Gui Add, Button, x666 y480 w126 h23 gcheckForupdates, Check updates
 Gui Font
 Gui Font, s14
 Gui Add, Text, x479 y488 w148 h23 +0x200, Version = %version%
@@ -242,10 +246,11 @@ Gui Add, Button, x655 y272 w150 h23 gOpenAppSettingsFolder, Open App Settings Fo
 Gui Add, Button, x677 y301 w110 h23 gOpenAppSettingsFile, Open Settings File
 Gui Add, GroupBox, x340 y27 w167 h53, Numpad Macro Deck
 Gui Add, Button, x348 y46 w100 h23 gNumpadMacroDeckDeleteAllSettings, Delete all Actions
-Gui Add, GroupBox, x632 y336 w197 h80, This Script
-Gui Add, Button, x647 y378 w145 h30 gRedownloadGuiPictures, Redownload Gui pictures
+Gui Add, GroupBox, x633 y334 w197 h100, This Script
+Gui Add, Button, x647 y370 w145 h30 gRedownloadGuiPictures, Redownload Gui pictures
+Gui Add, CheckBox, x648 y401 w175 h27 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray `n(Esc Still is ExitApp)
 Gui Font, s9, Segoe UI
-Gui Add, CheckBox, x648 y352 w147 h23 +Disabled, Keep this always on top
+Gui Add, CheckBox, x648 y349 w147 h20 +Disabled, Keep this always on top
 Gui Font
 Gui Tab, 4
 ;____________________________________________________________
@@ -381,8 +386,6 @@ IfExist, %AppHotkeysIni%
     {
         GuiControl,,MouseClickerDelay, 150
     }
-    ;Read From registery
-    UpdateSettingsFromRegistery()
 }
 ;Numpad Macro Deck
 IfExist, %NumpadMacroDeckSettingsIni%
@@ -393,7 +396,7 @@ IfExist, %NumpadMacroDeckSettingsIni%
 IfExist, %AppSettingsIni%
 {
     iniread, T_IsRunnerEnabled,%AppSettingsIni%, ExeRunner, UsingExeRunner
-    if(%T_IsRunnerEnabled%)
+    if(%T_IsRunnerEnabled% == true)
     {
         GuiControl,Enable,Shortcut_to_taskbarButton
         GuiControl,,DownloadEXERunnerButton,Delete EXE Runner
@@ -403,7 +406,15 @@ IfExist, %AppSettingsIni%
     {
         IsEXERunnerEnabled := false
     }
+    iniread, Temp_CloseToTray,%AppSettingsIni%,Settings,CloseToTray
+    if(%Temp_CloseToTray% == true)
+    {
+        CloseToTray := true
+        GuiControl,,OnExitCloseToTrayCheckbox,1
+    }
 }
+;Read From registery
+UpdateSettingsFromRegistery()
 ;____________________________________________________________
 ;//////////////[Check for installed scripts]///////////////
 IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
@@ -510,6 +521,7 @@ else if (T_Coice_Num = 20)
 {
     Gui Show, w835 h517,I don't have a problem with caffeine. I have a problem without it.
 }
+UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
 IfExist, %AppSettingsIni%
@@ -578,10 +590,66 @@ IfNotExist, %AppSettingsIni%
     }
 }
 Return
-
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[GUI/Tray Actions]///////////////
 GuiEscape:
-GuiClose:
     ExitApp
+GuiClose:
+if(CloseToTray)
+{
+    Gui, Hide
+}
+else
+{
+    ExitApp
+}
+Return
+
+EXIT:
+	ExitApp
+Return
+P_OpenGui:
+    Gui, Show
+return
+P_ActivateNumpadMacroDeck:
+    NumpadMacroDeckSetHotkeys(true)
+    ;Disable buttons (Cant edit macros while active)
+    GuiControl,Disable,NumpadMacroDeckTextRadio
+    GuiControl,Disable,NumpadMacroDeckHotkeyRadio
+    GuiControl,Disable,NumpadMacroDeckTextEdit
+    GuiControl,Disable,NumpadMacroDeckHotkeyBox
+    GuiControl,Disable,NumpadMacroDeckSaveSettingsButton
+    GuiControl,Disable,NumpadMacroDeckDeleteSettingsButton
+
+    hotkey,NumLock,NumpadMacroDeckNumLockAction
+    hotkey,NumLock,ON
+    GuiControl,,NumpadMacroDeckEnableHotkeysCheckbox,1
+return
+P_DisableNumpadMacroDeck:
+    NumpadMacroDeckSetHotkeys(false)
+    GuiControl,Enable,NumpadMacroDeckTextRadio
+    GuiControl,Enable,NumpadMacroDeckHotkeyRadio
+    GuiControl,Enable,NumpadMacroDeckTextEdit
+    GuiControl,Enable,NumpadMacroDeckHotkeyBox
+    GuiControl,Enable,NumpadMacroDeckSaveSettingsButton
+    GuiControl,Enable,NumpadMacroDeckDeleteSettingsButton
+    hotkey,NumLock,OFF
+    GuiControl,,NumpadMacroDeckEnableHotkeysCheckbox,0
+return
+OnExitCloseToTray:
+Gui, Submit, Nohide
+if(OnExitCloseToTrayCheckbox)
+{
+    CloseToTray := true
+    IniWrite, true,%AppSettingsIni%,Settings,CloseToTray
+}
+else
+{
+    CloseToTray := false
+    IniWrite, false,%AppSettingsIni%,Settings,CloseToTray
+}
+return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Actions]///////////////
@@ -3253,4 +3321,19 @@ NotAdminError()
         Run *RunAs %A_ScriptFullPath%
         ExitApp
     }
+}
+UpdateTrayicon()
+{
+        Menu,Tray,Click,1
+        Menu,Tray,DeleteAll
+        Menu,Tray,NoStandard
+        Menu,Tray,Add,OPEN GUI,P_OpenGui
+        Menu,Tray,Add
+        Menu,Tray,Add,Activate Numpad Macro deck,P_ActivateNumpadMacroDeck
+        Menu,Tray,Add,Disable Numpad Macro deck,P_DisableNumpadMacroDeck
+        Menu,Tray,Add,Open Appdata Folder,OpenAppdataFolder
+        Menu,Tray,Add,Run IpConfig,RunIpConfig
+        Menu,Tray,Add
+        Menu,Tray,Add,E&xit,EXIT
+        Menu,Tray,Default,OPEN GUI
 }
