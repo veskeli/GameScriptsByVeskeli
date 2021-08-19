@@ -22,7 +22,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.345
+version = 0.346
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 GuiPictureFolder = %AppFolder%\Gui
@@ -336,19 +336,19 @@ Gui Add, CheckBox, x110 y74 w111 h23 gToggleGameMode vToggleGameModeCheckbox, To
 Gui Add, CheckBox, x110 y100 w111 h23 gToggleGameDVR vToggleGameDVRCheckbox, Toggle Game DVR
 Gui Add, GroupBox, x101 y137 w163 h89, Clear stuff
 Gui Add, Button, x120 y155 w107 h23 gClearWindowsTempFolder, Clear Windows temp
-Gui Add, Button, x112 y184 w125 h33 +Disabled, Clear all recent documents in wordpad
+Gui Add, Button, x112 y184 w125 h33 gClearAllRecentDocumentsInWordpad, Clear all recent documents in wordpad
 Gui Add, GroupBox, x384 y32 w147 h119, Toggle windows settings
-Gui Add, CheckBox, x392 y54 w131 h23 +Disabled, Clipboard history
-Gui Add, CheckBox, x392 y81 w128 h28 +Disabled, Automatically backup registery
-Gui Add, CheckBox, x392 y114 w120 h30 +Disabled, Clear Virtual memory page file at shutdown
-Gui Add, Button, x536 y48 w124 h23 +Disabled, Disable Most of ads
-Gui Add, CheckBox, x536 y96 w120 h28 +Disabled, Advertising ID For Relevant ads
-Gui Add, Button, x536 y72 w124 h23 +Disabled, Restore Most of ads
-Gui Add, CheckBox, x536 y128 w124 h45 +Disabled, Toggle Featured or Suggested Apps from Automatically Installing
+Gui Add, CheckBox, x392 y54 w131 h23 gToggleClipboardHistory vToggleClipboardHistoryCheckbox, Clipboard history Sync
+Gui Add, CheckBox, x392 y81 w128 h28 gAutomaticallyBackupRegistery vAutomaticallyBackupRegisteryCheckbox, Automatically backup registery
+Gui Add, CheckBox, x392 y114 w120 h30 gClearVirtualMemoryPageFileAtShutdown vClearVirtualMemoryPageFileAtShutdownCheckbox, Clear Virtual memory page file at shutdown
+Gui Add, Button, x536 y48 w124 h23 gDisableMostOfAds, Disable Most of ads
+Gui Add, Button, x536 y72 w124 h23 gRestoreMostOfAds, Restore Most of ads
+Gui Add, CheckBox, x536 y96 w120 h28 gToggleAdvertisingIDForRelevantAds vToggleAdvertisingIDForRelevantAdsCheckbox, Advertising ID For Relevant ads
+Gui Add, CheckBox, x536 y128 w124 h45 gToggleFeaturedAutoInstall vToggleFeaturedAutoInstallCheckbox, Toggle Featured or Suggested Apps from Automatically Installing
 Gui Add, GroupBox, x530 y32 w135 h146, Windows 10 Fixes
 Gui Add, GroupBox, x264 y28 w121 h81
-Gui Add, Button, x275 y42 w97 h23 +Disabled, Open Cmd
-Gui Add, Button, x275 y68 w97 h23 +Disabled, IPConfig
+Gui Add, Button, x275 y42 w97 h23 gOpenCmd, Open Cmd
+Gui Add, Button, x275 y68 w97 h23 gRunIpConfig, IPConfig
 ;____________________________________________________________
 ;//////////////[System]///////////////
 ;____________________________________________________________
@@ -1550,6 +1550,103 @@ IfExist, %dir%\*.*
 {
     MsgBox,,Finished,Some files are being used by other apps.`nBut others were deleted
 }
+return
+ToggleClipboardHistory:
+Gui, Submit, Nohide
+if(ToggleClipboardHistoryCheckbox)
+{
+    if(!A_IsAdmin)
+        NotAdminError()
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System,AllowClipboardHistory,1
+}
+else
+{
+    if(!A_IsAdmin)
+        NotAdminError()
+    regDelete,HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System,AllowClipboardHistory
+}
+return
+AutomaticallyBackupRegistery:
+Gui, Submit, Nohide
+if(AutomaticallyBackupRegisteryCheckbox)
+{
+    if(!A_IsAdmin)
+        NotAdminError()
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager,EnablePeriodicBackup,1
+}
+else
+{
+    if(!A_IsAdmin)
+        NotAdminError()
+    regDelete,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager,EnablePeriodicBackup
+}
+return
+ClearVirtualMemoryPageFileAtShutdown:
+Gui, Submit, Nohide
+if(ClearVirtualMemoryPageFileAtShutdownCheckbox)
+{
+    if(!A_IsAdmin)
+        NotAdminError()
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management,ClearPageFileAtShutdown,1
+}
+else
+{
+    if(!A_IsAdmin)
+        NotAdminError()
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management,ClearPageFileAtShutdown,0
+}
+return
+OpenCmd:
+run, %ComSpec%
+return
+RunIpConfig:
+runwait %ComSpec% /k ipconfig
+return
+ClearAllRecentDocumentsInWordpad:
+regDelete,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\Recent File List
+return
+DisableMostOfAds:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SystemPaneSuggestionsEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced,ShowSyncProviderNotifications,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SoftLandingEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenOverlayEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SubscribedContent-310093Enabled,0
+UpdateSettingsFromRegistery()
+return
+RestoreMostOfAds:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SystemPaneSuggestionsEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced,ShowSyncProviderNotifications,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SoftLandingEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenOverlayEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SubscribedContent-310093Enabled,1
+UpdateSettingsFromRegistery()
+Return
+ToggleAdvertisingIDForRelevantAds:
+Gui, Submit, Nohide
+if(ToggleAdvertisingIDForRelevantAdsCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo,Enabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo,Enabled,0
+}
+return
+ToggleFeaturedAutoInstall:
+Gui, Submit, Nohide
+if(ToggleFeaturedAutoInstallCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,0
+}
+UpdateSettingsFromRegistery()
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -3066,6 +3163,7 @@ NumpadMacroDeckSetHotkeys(T_HotkeysState)
 }
 UpdateSettingsFromRegistery()
 {
+    ;Xbox overlay
     regRead,T_XboxOverlayConfig,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled
     if(T_XboxOverlayConfig == 1)
     {
@@ -3075,6 +3173,7 @@ UpdateSettingsFromRegistery()
     {
         GuiControl,,XboxOverlayCheckbox,0
     }
+    ;Game mode
     regRead,T_GameModeConfig,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode
     regRead,T_GameModeConfig2,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AutoGameModeEnabled
     if(T_GameModeConfig == 1 or T_GameModeConfig2 == 1)
@@ -3085,6 +3184,7 @@ UpdateSettingsFromRegistery()
     {
         GuiControl,,ToggleGameModeCheckbox,0
     }
+    ;Game DVR
     regRead,T_GameDVRConfig,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled
     if(T_GameDVRConfig == 1)
     {
@@ -3093,5 +3193,64 @@ UpdateSettingsFromRegistery()
     else
     {
         GuiControl,,ToggleGameDVRCheckbox,0
+    }
+    ;Clipboard history
+    regRead,T_AllowClipboardHistory,HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System,AllowClipboardHistory
+    if(T_AllowClipboardHistory == 1)
+    {
+        GuiControl,,ToggleClipboardHistoryCheckbox,1
+    }
+    else
+    {
+        GuiControl,,ToggleClipboardHistoryCheckbox,0
+    }
+    ;AutomaticallyBackupRegistery
+    regRead,T_AutomaticallyBackupRegistery,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager,EnablePeriodicBackup
+    if(T_AutomaticallyBackupRegistery == 1)
+    {
+        GuiControl,,AutomaticallyBackupRegisteryCheckbox,1
+    }
+    else
+    {
+        GuiControl,,AutomaticallyBackupRegisteryCheckbox,0
+    }
+    ;ClearVirtualMemoryPageFileAtShutdown
+    regRead,T_ClearVirtualMemoryPageFileAtShutdown,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management,ClearPageFileAtShutdown
+    if(T_ClearVirtualMemoryPageFileAtShutdown == 1)
+    {
+        GuiControl,,ClearVirtualMemoryPageFileAtShutdownCheckbox,1
+    }
+    else
+    {
+        GuiControl,,ClearVirtualMemoryPageFileAtShutdownCheckbox,0
+    }
+    ;ToggleAdvertisingIDForRelevantAds
+    regRead,T_ToggleAdvertisingIDForRelevantAds,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo,Enabled
+    if(T_ToggleAdvertisingIDForRelevantAds == 1)
+    {
+        GuiControl,,ToggleAdvertisingIDForRelevantAdsCheckbox,1
+    }
+    else
+    {
+        GuiControl,,ToggleAdvertisingIDForRelevantAdsCheckbox,0
+    }
+    ;ToggleFeaturedAutoInstall
+    regRead,T_ToggleFeaturedAutoInstall,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled
+    if(T_ToggleFeaturedAutoInstall == 1)
+    {
+        GuiControl,,ToggleFeaturedAutoInstallCheckbox,1
+    }
+    else
+    {
+        GuiControl,,ToggleFeaturedAutoInstallCheckbox,0
+    }
+}
+NotAdminError()
+{
+    MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
+    IfMsgBox, ok
+    {
+        Run *RunAs %A_ScriptFullPath%
+        ExitApp
     }
 }
