@@ -25,10 +25,11 @@ AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.352
+version = 0.353
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
+BetterDiscordTroubleshooterLocation = %AppOtherScriptsFolder%\BetterDiscordTroubleshooter.ahk
 FactorioToolLocation = %AppGamingScriptsFolder%\FactorioTool.ahk
 GuiPictureFolder = %AppFolder%\Gui
 NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
@@ -36,6 +37,7 @@ NumpadMacroDeckSettingsIni = %AppSettingsFolder%\NumpadMacroDeck.ini
 GHUBTool := false
 NgrokTool := false
 FactorioTool := false
+BetterDiscordTroubleshooter := false
 ;Numpad Macro Deck
 NumpadDeckSelected := ""
 ;NumpadDeckEnalbedArray := []
@@ -76,6 +78,12 @@ global AppHotkeysIni
 global AppUpdateFile
 global AppOtherScriptsFolder
 global GHUBToolLocation
+global FactorioToolLocation
+global NgrokToolLocation
+global NgrokTool
+global FactorioTool
+global BetterDiscordTroubleshooterLocation
+global BetterDiscordTroubleshooter
 global GHUBTool
 ;numpadmacrodeck
 global GuiPictureFolder
@@ -269,6 +277,7 @@ Gui Font
 Gui Tab, 4
 ;____________________________________________________________
 ;//////////////[Other scripts]///////////////
+;y + 55
 Gui Font
 ;//////////////[Logitech GHUB Tool]///////////////
 Gui Add, GroupBox, x3 y30 w823 h54, Logitech Backup Tool
@@ -289,6 +298,16 @@ Gui Add, Button, x390 y105 w100 h23 gDownloadNgrokTool vDownloadNgrokToolButton,
 Gui Add, Button, x494 y105 w130 h23 +Disabled, Check for updates
 Gui Add, Button, x628 y105 w97 h23 gOpenNgrokInGithub, Open in Github
 Gui Add, Button, x730 y105 w80 h23 gUninstallNgrokTool vUninstallNgrokToolButton +Disabled, Delete
+Gui Font
+;//////////////[Better Discord Troubleshooter]///////////////
+Gui Add, GroupBox, x3 y140 w823 h54, Better Discord Troubleshooter
+Gui Font, s14
+Gui Add, Text, x12 y157 w258 h32 +0x200, Better Discord Troubleshooter
+Gui Font
+Gui Add, Button, x390 y160 w100 h23 gDownloadBetterDiscordTroubleshooter vDownloadBetterDiscordTroubleshooterButton, Download
+Gui Add, Button, x494 y160 w130 h23 +Disabled, Check for updates
+Gui Add, Button, x628 y160 w97 h23 gOpenBetterDiscordTroubleshooterGithub, Open in Github
+Gui Add, Button, x730 y160 w80 h23 gUninstallBetterDiscordTroubleshooter vUninstallBetterDiscordTroubleshooter +Disabled, Delete
 Gui Font
 Gui Tab, 5
 ;____________________________________________________________
@@ -460,6 +479,12 @@ IfExist %FactorioToolLocation%
     GuiControl,, DownloadFactorioToolButton, Run
     GuiControl, Enable,UninstallFactorioToolButton
     FactorioTool := true
+}
+IfExist %BetterDiscordTroubleshooterLocation%
+{
+    GuiControl,, DownloadBetterDiscordTroubleshooterButton, Run
+    GuiControl, Enable,UninstallBetterDiscordTroubleshooter
+    BetterDiscordTroubleshooter := true
 }
 else IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 {
@@ -1233,6 +1258,28 @@ else
 {
     run, %FactorioToolLocation%
 }
+return
+DownloadBetterDiscordTroubleshooter:
+if(!BetterDiscordTroubleshooter)
+{
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppGamingScriptsFolder%
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/BetterDiscordTroubleshooter/main/BetterDiscordTroubleshooter.ahk, %BetterDiscordTroubleshooterLocation%
+    ;write save/Update Gui
+    GuiControl,, DownloadBetterDiscordTroubleshooterButton, Run
+    GuiControl, Enable,UninstallBetterDiscordTroubleshooter
+    BetterDiscordTroubleshooter := True
+}
+else
+{
+    run, %BetterDiscordTroubleshooterLocation%
+}
+return
+OpenBetterDiscordTroubleshooterGithub:
+    run, https://github.com/veskeli/BetterDiscordTroubleshooter
+return
+UninstallBetterDiscordTroubleshooter:
+UninstallScript("BetterDiscordTroubleshooter")
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -2203,8 +2250,20 @@ UninstallScript(tName)
             return
         }
         FactorioTool := False
-        GuiControl,, DownloadNgrokToolButton, Download
+        GuiControl,, DownloadFactorioToolButton, Download
         GuiControl, Disable ,UninstallFactorioToolButton
+    }
+    if(tName == "BetterDiscordTroubleshooter")
+    {
+        FileDelete, %BetterDiscordTroubleshooterLocation%
+        if ErrorLevel
+        {
+            MsgBox,, Error, Error while deleting`nSometimes script cannot delete files`nYou can manually delete if necessary
+            return
+        }
+        BetterDiscordTroubleshooter := False
+        GuiControl,, DownloadBetterDiscordTroubleshooterButton, Download
+        GuiControl, Disable ,UninstallBetterDiscordTroubleshooter
     }
 }
 SwitchButtonColor(T_Button,T_PictureName)
