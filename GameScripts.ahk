@@ -25,7 +25,7 @@ AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.353
+version = 0.354
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
@@ -274,6 +274,8 @@ Gui Add, CheckBox, x648 y401 w175 h27 gOnExitCloseToTray vOnExitCloseToTrayCheck
 Gui Font, s9, Segoe UI
 Gui Add, CheckBox, x648 y349 w147 h20 +Disabled, Keep this always on top
 Gui Font
+Gui Add, GroupBox, x204 y22 w134 h68, Backup Close
+Gui Add, CheckBox, x210 y34 w120 h52 gBackupClose vBackupCloseCheckbox, Close This Script if Some Games That doesn't like Ahk is running
 Gui Tab, 4
 ;____________________________________________________________
 ;//////////////[Other scripts]///////////////
@@ -454,6 +456,12 @@ IfExist, %AppSettingsIni%
     {
         CloseToTray := true
         GuiControl,,OnExitCloseToTrayCheckbox,1
+    }
+    iniread, Temp_BackupClose,%AppSettingsIni%,Settings,BackupClose
+    if(%Temp_BackupClose% == true)
+    {
+        SetTimer,DetectGames,4000
+        GuiControl,,BackupCloseCheckbox,1
     }
 }
 ;Read From registery
@@ -1042,6 +1050,7 @@ else
     IsEXERunnerEnabled := true
 }
 return
+
 ;____________________________________________________________
 ;//////////////[GUI update stuff]///////////////
 UpdateGUIWhenSwitchingTabs:
@@ -1050,6 +1059,37 @@ if(UpdateGUIWhenSwitchingTabsTab3 == "Windows")
 {
     UpdateSettingsFromRegistery()
 }
+return
+BackupClose:
+Gui, Submit, Nohide
+if(BackupCloseCheckbox)
+{
+    SetTimer,DetectGames,4000
+    IniWrite,true,%AppSettingsIni%,Settings,BackupClose
+}
+else
+{
+    SetTimer,DetectGames,Off
+    IniWrite,false,%AppSettingsIni%,Settings,BackupClose
+}
+return
+DetectGames:
+IfWinExist, ahk_exe EscapeFromTarkov.exe
+    ExitApp
+IfWinExist, ahk_exe csgo.exe
+    ExitApp
+IfWinExist, ahk_exe ModernWarfare.exe
+    ExitApp
+IfWinExist,​ ahk_exe BlackOpsColdWar.exe
+    ExitApp
+IfWinExist, ahk_exe VALORANT.exe
+    ExitApp
+IfWinExist, ahk_exe hunt.exe
+    ExitApp
+IfWinExist, ahk_exe RainbowSix.exe
+    ExitApp
+IfWinExist, ahk_exe RainbowSix_Vulkan.exe
+    ExitApp
 return
 ;____________________________________________________________
 ;//////////////[Auto Run/Walk]///////////////
