@@ -29,11 +29,17 @@ Menu,Tray,Add,E&xit,EXIT
 Menu,Tray,Default,Show Help Text
 return
 P_OpenGui:
-MsgBox,,Factorio,Press Delete to exit script`nAlt + Scroll down to fast craft
+MsgBox,,Factorio,Press Delete to exit script`nAlt + Scroll down to fast craft`nAlt + Scroll up to fast craft even Faster
 return
 
+#IfWinActive, ahk_exe factorio.exe
 !WheelDown::
 Send {Click Left}
+return
+
+#IfWinActive, ahk_exe factorio.exe
+!WheelUp::
+Send {Click Right}
 return
 
 Delete::

@@ -25,7 +25,7 @@ AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.355
+version = 0.356
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
@@ -61,6 +61,7 @@ DeckDotEnabled := false
 NumpadMacroDeckToggleBetweenNumpad := true
 IsEXERunnerEnabled := false
 CloseToTray := false
+ToggleNumpadMacroDeck := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -272,7 +273,7 @@ Gui Add, GroupBox, x633 y334 w197 h100, This Script
 Gui Add, Button, x647 y370 w145 h30 gRedownloadGuiPictures, Redownload Gui pictures
 Gui Add, CheckBox, x648 y401 w175 h27 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray `n(Esc Still is ExitApp)
 Gui Font, s9, Segoe UI
-Gui Add, CheckBox, x648 y349 w147 h20 +Disabled, Keep this always on top
+Gui Add, CheckBox, x648 y349 w147 h20 gKeepThisAlwaysOnTop, Keep this always on top
 Gui Font
 Gui Add, GroupBox, x145 y24 w196 h68, Backup Close
 Gui Add, CheckBox, x153 y43 w176 h39 gBackupClose vBackupCloseCheckbox, Close This Script if Some Games That doesn't like Ahk is running
@@ -700,7 +701,9 @@ Return
 P_OpenGui:
     Gui, Show
 return
-P_ActivateNumpadMacroDeck:
+P_ToggleNumpadMacroDeck:
+if(!ToggleNumpadMacroDeck)
+{
     NumpadMacroDeckSetHotkeys(true)
     ;Disable buttons (Cant edit macros while active)
     GuiControl,Disable,NumpadMacroDeckTextRadio
@@ -713,8 +716,11 @@ P_ActivateNumpadMacroDeck:
     hotkey,NumLock,NumpadMacroDeckNumLockAction
     hotkey,NumLock,ON
     GuiControl,,NumpadMacroDeckEnableHotkeysCheckbox,1
-return
-P_DisableNumpadMacroDeck:
+    UpdateTrayNumpadMacroState(true)
+    ToggleNumpadMacroDeck := true
+}
+else
+{
     NumpadMacroDeckSetHotkeys(false)
     GuiControl,Enable,NumpadMacroDeckTextRadio
     GuiControl,Enable,NumpadMacroDeckHotkeyRadio
@@ -724,6 +730,9 @@ P_DisableNumpadMacroDeck:
     GuiControl,Enable,NumpadMacroDeckDeleteSettingsButton
     hotkey,NumLock,OFF
     GuiControl,,NumpadMacroDeckEnableHotkeysCheckbox,0
+    UpdateTrayNumpadMacroState(false)
+    ToggleNumpadMacroDeck := false
+}
 return
 OnExitCloseToTray:
 Gui, Submit, Nohide
@@ -1075,10 +1084,14 @@ RunAsThisAdminCheckboxButton:
 Gui, Submit, Nohide
 IniWrite, %RunAsThisAdminCheckbox%,%AppSettingsIni%,Settings,RunAsAdminOnStart
 return
+KeepThisAlwaysOnTop:
+WinSet, AlwaysOnTop,, A
+return
 ;____________________________________________________________
 ;//////////////[GUI update stuff]///////////////
 UpdateGUIWhenSwitchingTabs:
 Gui, Submit, Nohide
+UpdateTrayicon()
 if(UpdateGUIWhenSwitchingTabsTab3 == "Windows")
 {
     UpdateSettingsFromRegistery()
@@ -1483,6 +1496,8 @@ if(NumpadMacroDeckEnableHotkeysCheckbox)
 
     hotkey,NumLock,NumpadMacroDeckNumLockAction
     hotkey,NumLock,ON
+    UpdateTrayNumpadMacroState(true)
+    ToggleNumpadMacroDeck := true
 }
 else
 {
@@ -1494,6 +1509,8 @@ else
     GuiControl,Enable,NumpadMacroDeckSaveSettingsButton
     GuiControl,Enable,NumpadMacroDeckDeleteSettingsButton
     hotkey,NumLock,OFF
+    UpdateTrayNumpadMacroState(false)
+    ToggleNumpadMacroDeck := false
 }
 return
 ;//////////////[NumpadMacroDeckSaveSettings]///////////////
@@ -3563,11 +3580,22 @@ UpdateTrayicon()
         Menu,Tray,NoStandard
         Menu,Tray,Add,Show GUI,P_OpenGui
         Menu,Tray,Add
-        Menu,Tray,Add,Activate Numpad Macro deck,P_ActivateNumpadMacroDeck
-        Menu,Tray,Add,Disable Numpad Macro deck,P_DisableNumpadMacroDeck
+        Menu,Tray,Add,Numpad Macro deck,P_ToggleNumpadMacroDeck
         Menu,Tray,Add,Open Appdata Folder,OpenAppdataFolder
         Menu,Tray,Add,Run IpConfig,RunIpConfig
         Menu,Tray,Add
         Menu,Tray,Add,E&xit,EXIT
         Menu,Tray,Default,Show GUI
+        Menu,Tray,Tip, Game Script Ahk
+}
+UpdateTrayNumpadMacroState(Temp_state)
+{
+    if(Temp_state)
+    {
+        Menu,Tray,Check,Numpad Macro deck
+    }
+    else
+    {
+        Menu,Tray,UnCheck,Numpad Macro deck
+    }
 }
