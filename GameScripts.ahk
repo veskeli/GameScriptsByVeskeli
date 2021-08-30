@@ -25,7 +25,7 @@ AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.354
+version = 0.355
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
@@ -274,8 +274,11 @@ Gui Add, CheckBox, x648 y401 w175 h27 gOnExitCloseToTray vOnExitCloseToTrayCheck
 Gui Font, s9, Segoe UI
 Gui Add, CheckBox, x648 y349 w147 h20 +Disabled, Keep this always on top
 Gui Font
-Gui Add, GroupBox, x204 y22 w134 h68, Backup Close
-Gui Add, CheckBox, x210 y34 w120 h52 gBackupClose vBackupCloseCheckbox, Close This Script if Some Games That doesn't like Ahk is running
+Gui Add, GroupBox, x145 y24 w196 h68, Backup Close
+Gui Add, CheckBox, x153 y43 w176 h39 gBackupClose vBackupCloseCheckbox, Close This Script if Some Games That doesn't like Ahk is running
+Gui Add, GroupBox, x4 y24 w142 h80, Admin
+Gui Add, Button, x19 y42 w101 h30 gRunAsThisAdmin vRunAsThisAdminButton, Run this as admin
+Gui Add, CheckBox, x17 y72 w120 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on start
 Gui Tab, 4
 ;____________________________________________________________
 ;//////////////[Other scripts]///////////////
@@ -437,7 +440,7 @@ IfExist, %NumpadMacroDeckSettingsIni%
 {
     CheckForEnabledButtons()
 }
-;EXERunner
+;Settings tab
 IfExist, %AppSettingsIni%
 {
     iniread, T_IsRunnerEnabled,%AppSettingsIni%, ExeRunner, UsingExeRunner
@@ -463,6 +466,21 @@ IfExist, %AppSettingsIni%
         SetTimer,DetectGames,4000
         GuiControl,,BackupCloseCheckbox,1
     }
+    iniread, Temp_RunAsAdminOnStartup,%AppSettingsIni%,Settings,RunAsAdminOnStart
+    if(Temp_RunAsAdminOnStartup == true)
+    {
+        GuiControl,,RunAsThisAdminCheckbox,1
+        if(!A_IsAdmin)
+        {
+            Run *RunAs %A_ScriptFullPath%
+            ExitApp
+        }
+    }
+}
+if(A_IsAdmin)
+{
+    GuiControl,,RunAsThisAdminButton,Already running as admin
+    GuiCOntrol,Disable,RunAsThisAdminButton
 }
 ;Read From registery
 UpdateSettingsFromRegistery()
@@ -494,7 +512,7 @@ IfExist %BetterDiscordTroubleshooterLocation%
     GuiControl, Enable,UninstallBetterDiscordTroubleshooter
     BetterDiscordTroubleshooter := true
 }
-else IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
+IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 {
     IniRead, GHUBToolLocation, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini,Info, ScriptPath
     IfNotExist, %GHUBToolLocation%
@@ -1050,7 +1068,13 @@ else
     IsEXERunnerEnabled := true
 }
 return
-
+RunAsThisAdmin:
+Run *RunAs %A_ScriptFullPath%
+ExitApp
+RunAsThisAdminCheckboxButton:
+Gui, Submit, Nohide
+IniWrite, %RunAsThisAdminCheckbox%,%AppSettingsIni%,Settings,RunAsAdminOnStart
+return
 ;____________________________________________________________
 ;//////////////[GUI update stuff]///////////////
 UpdateGUIWhenSwitchingTabs:
