@@ -25,8 +25,8 @@ AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.356
-IsThisExperimental := true
+version = 0.36
+IsThisExperimental := false
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
 BetterDiscordTroubleshooterLocation = %AppOtherScriptsFolder%\BetterDiscordTroubleshooter.ahk
@@ -310,7 +310,7 @@ Gui Add, GroupBox, x3 y140 w823 h54, Better Discord Troubleshooter
 Gui Font, s14
 Gui Add, Text, x12 y157 w258 h32 +0x200, Better Discord Troubleshooter
 Gui Font
-Gui Add, Button, x390 y160 w100 h23 gDownloadBetterDiscordTroubleshooter vDownloadBetterDiscordTroubleshooterButton, Download
+Gui Add, Button, x390 y160 w100 h23 +Disabled gDownloadBetterDiscordTroubleshooter vDownloadBetterDiscordTroubleshooterButton, Download
 Gui Add, Button, x494 y160 w130 h23 +Disabled, Check for updates
 Gui Add, Button, x628 y160 w97 h23 gOpenBetterDiscordTroubleshooterGithub, Open in Github
 Gui Add, Button, x730 y160 w80 h23 gUninstallBetterDiscordTroubleshooter vUninstallBetterDiscordTroubleshooter +Disabled, Delete
@@ -362,7 +362,7 @@ Gui Font, s14
 Gui Add, Picture, x24 y360 w124 h60 gDeck0 vDeck0Control, %GuiPictureFolder%\0.png
 Gui Font
 ;End
-Gui Add, GroupBox, x338 y116 w379 h392, Actions (More actions coming soon)
+Gui Add, GroupBox, x338 y116 w379 h392, Actions (More actions coming in 0.37)
 Gui Add, Text, x360 y149 w329 h28 +0x200 vDeckCurrentlyActive, 
 Gui Add, Radio, x348 y197 w52 h23 +Checked vNumpadMacroDeckTextRadio, Text
 Gui Add, Radio, x348 y238 w63 h23 vNumpadMacroDeckHotkeyRadio, Hotkey
