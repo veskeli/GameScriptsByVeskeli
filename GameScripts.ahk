@@ -1325,7 +1325,7 @@ if(!FactorioTool)
 {
     FileCreateDir, %AppFolder%
     FileCreateDir, %AppGamingScriptsFolder%
-    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GamingScripts/FactorioTool.ahk, %FactorioToolLocation%
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GamingScripts/FactorioTool.ahk, %FactorioToolLocation%
     ;write save/Update Gui
     GuiControl,, DownloadFactorioToolButton, Run
     GuiControl, Enable,UninstallFactorioToolButton
