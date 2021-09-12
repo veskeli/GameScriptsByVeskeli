@@ -25,8 +25,8 @@ AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.36
-IsThisExperimental := false
+version = 0.361
+IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
 BetterDiscordTroubleshooterLocation = %AppOtherScriptsFolder%\BetterDiscordTroubleshooter.ahk
@@ -1113,8 +1113,6 @@ return
 DetectGames:
 IfWinExist, ahk_exe EscapeFromTarkov.exe
     ExitApp
-IfWinExist, ahk_exe csgo.exe
-    ExitApp
 IfWinExist, ahk_exe ModernWarfare.exe
     ExitApp
 IfWinExist,​ ahk_exe BlackOpsColdWar.exe
@@ -1925,6 +1923,9 @@ else
 }
 UpdateSettingsFromRegistery()
 return
+OpenSounds:
+Run, mmsys.cpl
+return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
@@ -2347,14 +2348,13 @@ UninstallScript(tName)
         GuiControl, Disable ,UninstallBetterDiscordTroubleshooter
     }
 }
+;/////////////////////////////////////////////////////Numpad macro deck
 SwitchButtonColor(T_Button,T_PictureName)
 {
     GuiControl,,Deck%T_Button%Control,%GuiPictureFolder%\%T_PictureName%.png
 }
 ResetNumpadButtons()
 {
-    ;MsgBox, % NumpadDeckEnalbedArray[%NumpadDeckSelected%] NumpadDeckSelected
-    
     if(NumpadDeckSelected == "NumLock")
     {
         if(Deck%NumpadDeckSelected%Enabled == true)
@@ -2729,533 +2729,32 @@ UpdateNumlockMacroDeckActionBoxes()
         GuiControl,,NumpadMacroDeckHotkeyRadio,1
     }
     ;//////////////[Read value]///////////////
-    if(NumpadDeckSelected == "NumLock")
+    if(T_RadioButtonState)
     {
-        if(T_RadioButtonState)
+        IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+        if(T_NumpadMacroDeckText == "ERROR")
         {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
+            GuiControl,, NumpadMacroDeckTextEdit,
+            GuiControl,, NumpadMacroDeckHotkeyBox,
         }
         else
         {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
+            GuiControl,, NumpadMacroDeckHotkeyBox,
+            GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
         }
     }
-    if(NumpadDeckSelected == "Division")
+    else
     {
-        if(T_RadioButtonState)
+        IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
+        if(T_NumpadMacroDeckText == "ERROR")
         {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
+            GuiControl,, NumpadMacroDeckTextEdit,
+            GuiControl,, NumpadMacroDeckHotkeyBox,
         }
         else
         {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "Multiplication")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "Subtraction")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    ;num
-    if(NumpadDeckSelected == "0")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "1")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "2")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "3")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "4")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "5")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "6")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "7")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "8")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "9")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    ;num end
-    if(NumpadDeckSelected == "Addition")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "Enter")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
-        }
-    }
-    if(NumpadDeckSelected == "Dot")
-    {
-        if(T_RadioButtonState)
-        {
-            IniRead, T_NumpadMacroDeckText, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-                GuiControl,, NumpadMacroDeckTextEdit,%T_NumpadMacroDeckText%
-            }
-        }
-        else
-        {
-            IniRead, T_NumpadMacroDeckHotkey, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
-            if(T_NumpadMacroDeckText == "ERROR")
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,
-            }
-            else
-            {
-                GuiControl,, NumpadMacroDeckTextEdit,
-                GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
-            }
+            GuiControl,, NumpadMacroDeckTextEdit,
+            GuiControl,, NumpadMacroDeckHotkeyBox,%T_NumpadMacroDeckHotkey%
         }
     }
 }
@@ -3480,6 +2979,12 @@ NumpadMacroDeckSetHotkeys(T_HotkeysState)
         }
     }
 }
+/*
+NumpadMacroDeckReadValue(t_RadioState,t_Action,t_Selected)
+{
+
+}
+*/
 UpdateSettingsFromRegistery()
 {
     ;Xbox overlay
@@ -3583,6 +3088,7 @@ UpdateTrayicon()
         Menu,Tray,Add,Numpad Macro deck,P_ToggleNumpadMacroDeck
         Menu,Tray,Add,Open Appdata Folder,OpenAppdataFolder
         Menu,Tray,Add,Run IpConfig,RunIpConfig
+        Menu,Tray,Add,Open Sounds,OpenSounds
         Menu,Tray,Add
         Menu,Tray,Add,E&xit,EXIT
         Menu,Tray,Default,Show GUI
