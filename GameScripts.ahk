@@ -25,7 +25,7 @@ AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
-version = 0.361
+version = 0.362
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
@@ -318,12 +318,12 @@ Gui Font
 Gui Tab, 5
 ;____________________________________________________________
 ;//////////////[Numpad Macro Deck]///////////////
-Gui Font, s12
-Gui Add, CheckBox, x360 y40 w238 h23 gNumpadMacroDeckEnableHotkeys vNumpadMacroDeckEnableHotkeysCheckbox, Numpad Macro Deck Enabled
+Gui Font, s17
+Gui Add, CheckBox, x304 y40 w343 h41 gNumpadMacroDeckEnableHotkeys vNumpadMacroDeckEnableHotkeysCheckbox, Numpad Macro Deck Enabled
 Gui Font
-Gui Add, Text, x359 y73 w260 h23 +0x200, Num Lock Toggles between numpad and macro deck
+;Gui Add, Text, x359 y73 w260 h23 +0x200, Num Lock Toggles between numpad and macro deck
 Gui Font, s14
-Gui Add, GroupBox, x0 y32 w339 h476, Numpad Deck
+Gui Add, GroupBox, x0 y32 w288 h476, Numpad Deck
 ;start
 Gui Font, s14
 ;Gui Add, Picture, x24 y104 w60 h60 gDeckNumlock vDeckNumlockControl, %GuiPictureFolder%\NumLock.png
@@ -362,16 +362,24 @@ Gui Font, s14
 Gui Add, Picture, x24 y360 w124 h60 gDeck0 vDeck0Control, %GuiPictureFolder%\0.png
 Gui Font
 ;End
-Gui Add, GroupBox, x338 y116 w379 h392, Actions (More actions coming in 0.37)
-Gui Add, Text, x360 y149 w329 h28 +0x200 vDeckCurrentlyActive, 
-Gui Add, Radio, x348 y197 w52 h23 +Checked vNumpadMacroDeckTextRadio, Text
-Gui Add, Radio, x348 y238 w63 h23 vNumpadMacroDeckHotkeyRadio, Hotkey
-Gui Add, Edit, x406 y198 w293 h21 vNumpadMacroDeckTextEdit gGuiSubmit
-Gui Add, Edit, x417 y240 w215 h21 vNumpadMacroDeckHotkeyBox gGuiSubmit
-Gui Add, Link, x648 y240 w50 h23, <a href="https://www.autohotkey.com/docs/KeyList.htm">Hotkeys</a>
+Gui Add, GroupBox, x287 y106 w370 h402, Actions
+Gui Add, Text, x296 y136 w329 h28 +0x200 vDeckCurrentlyActive,
+;Radio buttons
+Gui Add, Radio, x296 y176 w52 h23 +Checked vNumpadMacroDeckTextRadio, Text
+Gui Add, Radio, x296 y208 w63 h23 vNumpadMacroDeckHotkeyRadio, Hotkey
+Gui Add, Radio, x296 y264 w85 h23 +Disabled, Macro  Name:
+;Text
+Gui Add, Edit, x352 y176 w293 h21 vNumpadMacroDeckTextEdit gGuiSubmit
+;Hotkey
+Gui Add, Edit, x368 y208 w278 h21 vNumpadMacroDeckHotkeyBox gGuiSubmit
+Gui Add, Text, x296 y232 w139 h23 +0x200, (Alt = ! Control = ^ Shift = +)
+Gui Add, Link, x440 y232 w85 h23, <a href="https://www.autohotkey.com/docs/KeyList.htm">List of Hotkeys</a>
+;Macro
+Gui Add, Edit, x384 y264 w150 h21 +Disabled
+Gui Add, Button, x536 y263 w80 h23 +Disabled, Edit macro
 Gui Font, s14
-Gui Add, Button, x568 y462 w143 h36 vNumpadMacroDeckSaveSettingsButton gNumpadMacroDeckSaveSettings, Save Settings
-Gui Add, Button, x421 y462 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpadMacroDeckDeleteSettings, Delete Settings
+Gui Add, Button, x456 y464 w143 h36 vNumpadMacroDeckSaveSettingsButton gNumpadMacroDeckSaveSettings, Save Settings
+Gui Add, Button, x304 y464 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpadMacroDeckDeleteSettings, Delete Settings
 Gui Font
 Gui Tab, 6
 ;____________________________________________________________
@@ -2979,12 +2987,6 @@ NumpadMacroDeckSetHotkeys(T_HotkeysState)
         }
     }
 }
-/*
-NumpadMacroDeckReadValue(t_RadioState,t_Action,t_Selected)
-{
-
-}
-*/
 UpdateSettingsFromRegistery()
 {
     ;Xbox overlay
