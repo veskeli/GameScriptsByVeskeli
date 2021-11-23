@@ -41,6 +41,7 @@ FactorioTool := false
 BetterDiscordTroubleshooter := false
 ;Numpad Macro Deck
 NumpadDeckSelected := ""
+CurrentCustomMacro := ""
 ;NumpadDeckEnalbedArray := []
 DeckNumlockEnabled := false
 DeckDivisionEnabled := false
@@ -95,6 +96,7 @@ global NumpadDeckSelected
 global NumpadMacroDeckSettingsIni
 global IsMacroGuiOpen
 ;global NumpadDeckEnalbedArray
+global CurrentCustomMacro
 global DeckNumlockEnabled
 global DeckDivisionEnabled
 global DeckMultiplicationEnabled
@@ -274,7 +276,7 @@ Gui 1:Add, Button, x677 y301 w110 h23 gOpenAppSettingsFile, Open Settings File
 Gui 1:Add, GroupBox, x340 y27 w167 h53, Numpad Macro Deck
 Gui 1:Add, Button, x348 y46 w100 h23 gNumpadMacroDeckDeleteAllSettings, Delete all Actions
 Gui 1:Add, GroupBox, x633 y334 w197 h100, This Script
-Gui 1:Add, Button, x647 y370 w145 h30 gRedownloadGuiPictures, Redownload Gui 1:pictures
+Gui 1:Add, Button, x647 y370 w145 h30 gRedownloadGuiPictures, Redownload Gui pictures
 Gui 1:Add, CheckBox, x648 y401 w175 h27 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray `n(Esc Still is ExitApp)
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, CheckBox, x648 y349 w147 h20 gKeepThisAlwaysOnTop, Keep this always on top
@@ -327,7 +329,7 @@ Gui 1:Add, CheckBox, x304 y40 w343 h41 gNumpadMacroDeckEnableHotkeys vNumpadMacr
 Gui 1:Font
 ;Gui 1:Add, Text, x359 y73 w260 h23 +0x200, Num Lock Toggles between numpad and macro deck
 Gui 1:Font, s14
-Gui 1:Add, GroupBox, x0 y32 w288 h476, Numpad Deck
+Gui 1:Add, GroupBox, x0 y32 w288 h476, Numpad Deck Beta
 ;start
 Gui 1:Font, s14
 ;Gui 1:Add, Picture, x24 y104 w60 h60 gDeckNumlock vDeckNumlockControl, %GuiPictureFolder%\NumLock.png
@@ -366,7 +368,9 @@ Gui 1:Font, s14
 Gui 1:Add, Picture, x24 y360 w124 h60 gDeck0 vDeck0Control, %GuiPictureFolder%\0.png
 Gui 1:Font
 ;End
+Gui 1:Font, s14
 Gui 1:Add, GroupBox, x287 y106 w370 h402, Actions
+Gui 1:Font
 Gui 1:Add, Text, x296 y136 w329 h28 +0x200 vDeckCurrentlyActive,
 ;Radio buttons
 Gui 1:Add, Radio, x296 y176 w52 h23 +Checked vNumpadMacroDeckTextRadio, Text
@@ -379,8 +383,9 @@ Gui 1:Add, Edit, x368 y208 w278 h21 vNumpadMacroDeckHotkeyBox gGuiSubmit
 Gui 1:Add, Text, x296 y232 w139 h23 +0x200, (Alt = ! Control = ^ Shift = +)
 Gui 1:Add, Link, x440 y232 w85 h23, <a href="https://www.autohotkey.com/docs/KeyList.htm">List of Hotkeys</a>
 ;Macro
-Gui 1:Add, DropDownList, x384 y264 w150 h150 vCustomMacroDropDownList
-Gui 1:Add, Button, x536 y263 w80 h23 gCreateOrEditMacro vCreateOrEditMacroButton, Create macro
+Gui 1:Add, DropDownList, x384 y264 w150 h150 vCustomMacroDropDownList gUpdateCustomMacroDropDownList
+Gui 1:Add, Button, x536 y263 w47 h23 gEditMacro, Edit
+Gui 1:Add, Button, x583 y263 w73 h23 gCreateMacro vCreateOrEditMacroButton, Create macro
 Gui 1:Font, s14
 Gui 1:Add, Button, x456 y464 w143 h36 vNumpadMacroDeckSaveSettingsButton gNumpadMacroDeckSaveSettings, Save Settings
 Gui 1:Add, Button, x304 y464 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpadMacroDeckDeleteSettings, Delete Settings
@@ -1528,6 +1533,10 @@ return
 ;//////////////[NumpadMacroDeckSaveSettings]///////////////
 NumpadMacroDeckSaveSettings:
 Gui,Submit,Nohide
+if(%NumpadDeckSelected% == "")
+{
+    return
+}
 if (NumpadMacroDeckTextRadio) ;Text
 {
     IniWrite, %NumpadMacroDeckTextEdit%, %NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected% ;Save action
@@ -1548,11 +1557,27 @@ else if(NumpadCustomMacroRadio) ;Macro
 }
 SetNumpadButtonState(NumpadDeckSelected, true) ;Set button color to green
 return
-CreateOrEditMacro:
+CreateMacro:
 MacroMakerGui(true)
+return
+EditMacro:
+Gui,1:Submit,Nohide
+MacroMakerGui(true)
+if(CustomMacroDropDownList != "")
+{
+    CurrentCustomMacro = %CustomMacroDropDownList%
+    LoadMacroMakerMacro(CurrentCustomMacro)
+}
+return
+UpdateCustomMacroDropDownList:
+
 return
 ;//////////////[NumpadMacroDeckDeleteSettings]///////////////
 NumpadMacroDeckDeleteSettings:
+if(%NumpadDeckSelected% == "")
+{
+    return
+}
 IniDelete,%NumpadMacroDeckSettingsIni%, Actions, %NumpadDeckSelected%
 IniDelete,%NumpadMacroDeckSettingsIni%, Enabled, %NumpadDeckSelected%
 IniDelete,%NumpadMacroDeckSettingsIni%, RadioButtonStates, %NumpadDeckSelected%
@@ -3023,6 +3048,8 @@ MacroMakerGui(t_State)
             global Custom_Macro_Location
             global CustomMacroText
             global Pick_location_button
+            global TestCustomMacroButton
+            global DeleteCurrentMacroButton
             Gui 2:Add, GroupBox, x0 y0 w706 h80, Settings
             Gui 2:Add, Radio, x8 y16 w120 h23 gChangeMacroStyle vUseCustomlocationMacroRadio, Use custom macro
             Gui 2:Add, Radio, x8 y48 w120 h23 gChangeMacroStyle +Checked vUseCustomMacroRadio, Macro:
@@ -3032,10 +3059,11 @@ MacroMakerGui(t_State)
             Gui 2:Add, GroupBox, x135 y40 w572 h40
             Gui 2:Add, Text, x143 y52 w73 h23 +0x200, Macro Name:
             Gui 2:Add, Edit, x220 y53 w255 h21 vMacroFileName
-            Gui 2:Add, Button, x482 y51 w87 h23 gTestCustomMacro, Run scirpt/Test
-            Gui 2:Font, s12
-            Gui 2:Add, Button, x573 y50 w110 h25 gSave_Macro, Save Macro
+            Gui 2:Add, Button, x482 y51 w87 h23 gTestCustomMacro vTestCustomMacroButton, Run scirpt/Test
+            Gui 2:Font, s14
+            Gui 2:Add, Button, x573 y50 w78 h25 gSave_Macro, Save 
             Gui 2:Font
+            Gui 2:Add, Button, x652 y45 w53 h35 gDeleteCurrentMacro vDeleteCurrentMacroButton, Delete macro
             Gui 2:Add, Edit, x4 y88 w698 h464 Multi vCustomMacroText
 
             Gui 2:Show, w706 h555, Macro Maker
@@ -3046,6 +3074,15 @@ MacroMakerGui(t_State)
     {
         Gui 2:Destroy
         IsMacroGuiOpen := false
+    }
+}
+LoadMacroMakerMacro(t_CurrentCustomMacro)
+{
+    ;Load Macro type
+    IniRead, t_macrotype, %NumpadMacroDeckSettingsIni%, CustomMacroUseLocation, %t_CurrentCustomMacro%
+    if(t_macrotype == 1)
+    {
+        MsgBox, Edit is not implemented yet
     }
 }
 TestCustomMacro:
@@ -3065,6 +3102,8 @@ if(UseCustomMacroRadio)
     GuiControl,2:Disable,Pick_location_button
 
     GuiControl,2:Enable,CustomMacroText
+    GuiControl,2:Enable,TestCustomMacroButton
+    GuiControl,2:,DeleteCurrentMacroButton,Delete macro
 }
 else if(UseCustomlocationMacroRadio)
 {
@@ -3072,6 +3111,8 @@ else if(UseCustomlocationMacroRadio)
     GuiControl,2:Enable,Pick_location_button
 
     GuiControl,2:Disable,CustomMacroText
+    GuiControl,2:Disable,TestCustomMacroButton
+    GuiControl,2:,DeleteCurrentMacroButton,Unlink macro
 }
 else
 {
@@ -3127,14 +3168,47 @@ else
     t_MacroText = %CustomMacroText%
 }
 ;Save handle
-FileCreateDir, %AppCustomMacrosFolder%
-FileAppend, %t_MacroText%`n,%AppCustomMacrosFolder%\%MacroFileName%.txt
-IniWrite, %t_UseLocation%, %NumpadMacroDeckSettingsIni%, CustomMacroUseLocation, %MacroFileName%
+FileCreateDir, %AppCustomMacrosFolder%  ;Crate Macro Folder
+FileAppend, %t_MacroText%`n,%AppCustomMacrosFolder%\%MacroFileName%.txt     ;Save Macro To file
+IniWrite, %t_UseLocation%, %NumpadMacroDeckSettingsIni%, CustomMacroUseLocation, %MacroFileName%    ;Save Macro Type
 GuiControl,1:,CustomMacroDropDownList,%MacroFileName%
 GuiControl,1:ChooseString,CustomMacroDropDownList,%MacroFileName%
 
 MacroMakerGui(false)
 return
+DeleteCurrentMacro:
+if(UseCustomlocationMacroRadio == true)
+{
+    MsgBox, 4,Warning, This will unlink current macro`nWould you like to continue?
+    IfMsgBox No
+    {
+        return
+    }
+    else
+    {
+        DeleteMacro(%CurrentCustomMacro%,txt)
+        return
+    }
+}
+else
+{
+    MsgBox, 4,Warning, This Will Delete current macro`nWould you like to continue?
+    IfMsgBox No
+    {
+        return
+    }
+    else
+    {
+        DeleteMacro(%CurrentCustomMacro%,txt)
+        return
+    }
+}
+return
+DeleteMacro(t_Macro,t_FileType)
+{
+    FileDelete, %AppCustomMacrosFolder%\%t_Macro%.%t_FileType%
+    IniDelete, %NumpadMacroDeckSettingsIni%, CustomMacroUseLocation, %t_Macro%
+}
 UpdateCustomMacrosList()
 {
     loop, Files, % AppCustomMacrosFolder "\*.*"
