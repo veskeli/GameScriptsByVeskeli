@@ -26,7 +26,7 @@ AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 AppCustomMacrosFolder = %AppFolder%\CustomMacros
-version = 0.365
+version = 0.366
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
@@ -547,7 +547,7 @@ IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
     }
 } 
 ;____________________________________________________________
-;//////////////[Show Gui 1:After setting all saved settings]///////////////
+;//////////////[Show Gui After setting all saved settings]///////////////
 Random,T_Coice_Num,1,20
 If (T_Coice_Num = 1)
 {
@@ -2169,7 +2169,7 @@ else
 return
 DownloadGuiPictures()
 {
-    Progress, b w300, Script will run after all Gui 1:pictures has been downloaded, Downloading Gui 1:Pictures..., Downloading Gui 1:Pictures...
+    Progress, b w300, Script will run after all pictures has been downloaded, Downloading Gui Pictures..., Downloading Gui Pictures...
     T_GUIPicProgress = 0
     T_GuiPicAddAmount = 2
     
