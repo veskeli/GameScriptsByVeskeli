@@ -26,7 +26,7 @@ AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 AppCustomMacrosFolder = %AppFolder%\CustomMacros
-version = 0.364
+version = 0.365
 IsThisExperimental := true
 GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
@@ -369,7 +369,7 @@ Gui 1:Add, Picture, x24 y360 w124 h60 gDeck0 vDeck0Control, %GuiPictureFolder%\0
 Gui 1:Font
 ;End
 Gui 1:Font, s14
-Gui 1:Add, GroupBox, x287 y106 w370 h402, Actions
+Gui 1:Add, GroupBox, x287 y106 w370 h402, Actions (More changes coming later..)
 Gui 1:Font
 Gui 1:Add, Text, x296 y136 w329 h28 +0x200 vDeckCurrentlyActive,
 ;Radio buttons
@@ -383,9 +383,9 @@ Gui 1:Add, Edit, x368 y208 w278 h21 vNumpadMacroDeckHotkeyBox gGuiSubmit
 Gui 1:Add, Text, x296 y232 w139 h23 +0x200, (Alt = ! Control = ^ Shift = +)
 Gui 1:Add, Link, x440 y232 w85 h23, <a href="https://www.autohotkey.com/docs/KeyList.htm">List of Hotkeys</a>
 ;Macro
-Gui 1:Add, DropDownList, x384 y264 w150 h150 vCustomMacroDropDownList gUpdateCustomMacroDropDownList
-Gui 1:Add, Button, x536 y263 w47 h23 gEditMacro, Edit
-Gui 1:Add, Button, x583 y263 w73 h23 gCreateMacro vCreateOrEditMacroButton, Create macro
+Gui 1:Add, DropDownList, +disabled x384 y264 w150 h150 vCustomMacroDropDownList gUpdateCustomMacroDropDownList
+Gui 1:Add, Button, +disabled x536 y263 w47 h23 gEditMacro, Edit
+Gui 1:Add, Button, +disabled x583 y263 w73 h23 gCreateMacro vCreateOrEditMacroButton, Create macro
 Gui 1:Font, s14
 Gui 1:Add, Button, x456 y464 w143 h36 vNumpadMacroDeckSaveSettingsButton gNumpadMacroDeckSaveSettings, Save Settings
 Gui 1:Add, Button, x304 y464 w143 h36 vNumpadMacroDeckDeleteSettingsButton gNumpadMacroDeckDeleteSettings, Delete Settings
