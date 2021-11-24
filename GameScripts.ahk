@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.381
+version = 0.382
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -54,6 +54,12 @@ global AppSettingsIni
 global AppHotkeysIni
 global AppUpdateFile
 global CloseToTray
+global GuiPictureFolder
+global AppOtherScriptsFolder
+global GHUBToolLocation
+global NgrokToolLocation
+global GHUBTool
+global NgrokTool
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
@@ -65,7 +71,7 @@ IfExist %AppUpdateFile%
 }
 IfNotExist %GuiPictureFolder%
 {
-    DownloadGuiPictures()
+    DownloadAssets()
 }
 IfExist, %GuiPictureFolder%\GameScripts.ico
 {
@@ -99,7 +105,7 @@ Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAd
 Gui 1:Add, GroupBox, x8 y121 w175 h193, This script settings
 Gui 1:Add, CheckBox, x16 y144 w143 h23 gKeepThisAlwaysOnTop, Keep this always on top
 Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray
-Gui 1:Add, Button, x16 y192 w133 h28 +Disabled, Redownload assets
+Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
 Gui 1:Add, CheckBox, x11 y224 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui 1:Add, Button, x16 y248 w128 h23 gcheckForupdates, Check for updates
 Gui 1:Add, Button, x16 y324 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
@@ -626,11 +632,8 @@ Loop, %dir%\*.*, 2
     Progress, %A_Index%
     FileRemoveDir, %A_LoopFileLongPath%,1
 }
+Progress, 100
 Progress, Off
-IfExist, %dir%\*.*
-{
-    MsgBox,,Finished,Some files are being used by other apps.`nBut others were deleted
-}
 return
 OpenCmd:
 run, %ComSpec%
@@ -653,23 +656,10 @@ return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
-DownloadGuiPictures()
-{
-    Progress, b w300, Script will run after all pictures has been downloaded, Downloading Gui Pictures..., Downloading Gui Pictures...
-    T_GUIPicProgress = 0
-    T_GuiPicAddAmount = 50
-    
-    ;SplashTextOn, 300,60,Downloading Gui 1:Pictures, Script will run after all Gui 1:pictures has been downloaded
-    FileCreateDir,%GuiPictureFolder%
-    sleep 100
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
-    T_GUIPicProgress += T_GuiPicAddAmount
-    Progress, %T_GUIPicProgress%
-    
-    Progress, 100
-    Progress, Off
-    ;SplashTextOff
-}
+RedownloadAssets:
+FileRemoveDir, %GuiPictureFolder%, 1
+Run, %A_ScriptFullPath%
+ExitApp
 RunAsThisAdmin:
 Run *RunAs %A_ScriptFullPath%
 ExitApp
@@ -1366,4 +1356,21 @@ GetDeviceID(Devices, Name)
     For DeviceName, DeviceID in Devices
         If (InStr(DeviceName, Name))
             Return DeviceID
+}
+DownloadAssets()
+{
+    Progress, b w300, Script will run after all Assets has been downloaded, Downloading Assets..., Downloading Assets...
+    T_GUIPicProgress = 0
+    T_GuiPicAddAmount = 50
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    ;SplashTextOn, 300,60,Downloading Gui Pictures, Script will run after all Gui pictures has been downloaded
+    FileCreateDir,%GuiPictureFolder%
+    sleep 100
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    
+    Progress, Off
+    ;SplashTextOff
 }
