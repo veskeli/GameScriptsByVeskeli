@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.38
+version = 0.381
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -57,7 +57,24 @@ global CloseToTray
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
-Menu Tray, Icon, %GuiPictureFolder%\GameScripts.ico,1
+;//////////////[Startup checks]///////////////
+IfExist %AppUpdateFile%
+{
+    FileDelete, %AppUpdateFile% ;delete old file after update
+    FileRemoveDir, %AppFolder%\temp ;Delete temp directory
+}
+IfNotExist %GuiPictureFolder%
+{
+    DownloadGuiPictures()
+}
+IfExist, %GuiPictureFolder%\GameScripts.ico
+{
+    Menu Tray, Icon, %GuiPictureFolder%\GameScripts.ico,1
+}
+else
+{
+    MsgBox,,Asset download error,Assets needs to be Redownloaded `n You can re download assets from settings tab
+}
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, Tab3, x0 y0 w898 h640, Home|Settings|Other Scripts|Windows and Voicemeeter|Basic Scripts
 ;____________________________________________________________
@@ -636,6 +653,23 @@ return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
+DownloadGuiPictures()
+{
+    Progress, b w300, Script will run after all pictures has been downloaded, Downloading Gui Pictures..., Downloading Gui Pictures...
+    T_GUIPicProgress = 0
+    T_GuiPicAddAmount = 50
+    
+    ;SplashTextOn, 300,60,Downloading Gui 1:Pictures, Script will run after all Gui 1:pictures has been downloaded
+    FileCreateDir,%GuiPictureFolder%
+    sleep 100
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    
+    Progress, 100
+    Progress, Off
+    ;SplashTextOff
+}
 RunAsThisAdmin:
 Run *RunAs %A_ScriptFullPath%
 ExitApp
