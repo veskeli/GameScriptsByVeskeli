@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.384
+version = 0.385
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -346,7 +346,7 @@ IfExist %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
 {
     GuiControl,1: , DownloadSatisfactorySaveManagerButton, Run
     GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
-    SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\Ngrok.ahk
+    SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     SatisfactorySaveManager := true
 }
 IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
