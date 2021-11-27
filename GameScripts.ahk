@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.385
+version = 0.386
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -44,6 +44,9 @@ MouseClickerToggle = 0
 ;____________________________________________________________
 ;//////////////[variables]///////////////
 CloseToTray := false
+;//////////////[Gui Pictures]///////////////
+PinPic = %GuiPictureFolder%\pin.png
+RemovePinPic = %GuiPictureFolder%\removepin.png
 ;____________________________________________________________
 ;//////////////[Global variables]///////////////
 global ScriptName
@@ -97,6 +100,17 @@ Gui 1:Add, Button, x568 y56 w80 h23 gRunIpConfig, IPConfig
 Gui 1:Add, Button, x568 y80 w80 h23 gOpenAppdataFolder, Appdata
 Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
+Gui 1:Add, Picture, x48 y112 w349 h294, %GuiPictureFolder%/pintext.png
+Gui 1:Font, s17
+Gui 1:Add, Text, x272 y440 w353 h50 +0x200, Everything is due to change.
+Gui 1:Font
+;Gui Font, s16
+;Gui Add, GroupBox, x16 y40 w385 h80, Pin1
+;Gui Add, GroupBox, x16 y128 w385 h80, Pin2
+;Gui Add, GroupBox, x16 y216 w385 h80, Pin3
+;Gui Add, GroupBox, x16 y304 w385 h80, Pin4
+;Gui Add, GroupBox, x16 y392 w385 h80, Pin5
+Gui Font
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
@@ -141,6 +155,7 @@ Gui 1:Add, Button, x16 y56 w131 h23 vDowloadGHUBToolButton gDownloadLogitechGHUB
 Gui 1:Add, Button, x352 y56 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
 Gui 1:Add, Button, x160 y56 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y56 w100 h23 gOpenGHUBToolGithub, Open in Github
+Gui 1:Add, Picture, x413 y39 w18 h18 gPinGHUBTool vPinGHUBToolIMG, %PinPic%
 ;Ngrok tool
 Gui 1:Font, s13
 Gui 1:Add, GroupBox, x8 y97 w430 h69, Ngrok port fowarding Tool
@@ -150,6 +165,7 @@ Gui 1:Add, Button, x16 y126 w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton
 Gui 1:Add, Button, x352 y126 w80 h23 gUninstallNgrokTool vUninstallNgrokToolButton +Disabled, Delete
 Gui 1:Add, Button, x160 y126 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y126 w100 h23 gOpenNgrokInGithub, Open in Github
+Gui 1:Add, Picture, x413 y109 w18 h18 gPinNgrokTool vPinNgrokToolIMG, %PinPic%
 ;Satisfactory Save Manager
 Gui 1:Font, s13
 Gui 1:Add, GroupBox, x8 y167 w430 h69, Satisfactory Save Manager
@@ -159,6 +175,7 @@ Gui 1:Add, Button, x16 y196 w131 h23 gDownloadSatisfactorySaveManager vDownloadS
 Gui 1:Add, Button, x352 y196 w80 h23 gUninstallSatisfactorySaveManager vUninstallSatisfactorySaveManagerButton +Disabled, Delete
 Gui 1:Add, Button, x160 y196 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y196 w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
+Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfactorySaveManagerIMG, %PinPic%
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows and voicemeeter]///////////////
@@ -997,6 +1014,9 @@ Return
 UninstallGHUBToolScript:
 UninstallScript("GHUBTool")
 Return
+PinGHUBTool:
+PinAppOrAction("GHUBTool")
+return
 OpenGHUBToolGithub:
 run, https://github.com/veskeli/LogitechBackupProfilesAhk
 Return
@@ -1027,6 +1047,9 @@ return
 UninstallNgrokTool:
 UninstallScript("NgrokTool")
 return
+PinNgrokTool:
+PinAppOrAction("NgrokTool")
+return
 DownloadSatisfactorySaveManager:
 if(!SatisfactorySaveManager)
 {
@@ -1046,6 +1069,9 @@ else
 return
 UninstallSatisfactorySaveManager:
 UninstallScript("SatisfactorySaveManager")
+return
+PinSatisfactorySaveManager:
+PinAppOrAction("SatisfactorySaveManager")
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1465,7 +1491,7 @@ DownloadAssets()
 {
     Progress, b w300, Script will run after all Assets has been downloaded, Downloading Assets..., Downloading Assets...
     T_GUIPicProgress = 0
-    T_GuiPicAddAmount = 50
+    T_GuiPicAddAmount = 25
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     ;SplashTextOn, 300,60,Downloading Gui Pictures, Script will run after all Gui pictures has been downloaded
@@ -1474,7 +1500,31 @@ DownloadAssets()
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
     
     Progress, Off
     ;SplashTextOff
+}
+PinAppOrAction(AppOrAction)
+{
+    if(AppOrAction == "GHUBTool")
+    {
+        GuiControl,,PinGHUBToolIMG,%RemovePinPic%
+    }
+    else if (AppOrAction == "NgrokTool")
+    {
+        GuiControl,,PinNgrokToolIMG,%RemovePinPic%
+    }
+    else if (AppOrAction == "SatisfactorySaveManager")
+    {
+        GuiControl,,PinSatisfactorySaveManagerIMG,%RemovePinPic%
+    }
 }
