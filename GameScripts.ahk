@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.382
+version = 0.383
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -122,6 +122,9 @@ Gui 1:Add, Button, x16 y440 w103 h23 gDeleteAppSettings, Delete all settings
 Gui 1:Add, Button, x16 y464 w135 h42 gDeleteAllFiles, Delete all files (including this script)
 Gui 1:Add, GroupBox, x182 y32 w120 h62, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
+Gui 1:Add, Button, x512 y48 w67 h28 vDownloadEXERunnerButton gDownloadEXERunner, Download
+Gui 1:Add, GroupBox, x301 y31 w281 h63, exe Shortcut
+Gui 1:Add, Text, x305 y48 w208 h40, Changes current ahk file with .exe`n(ahk files cannot be pinned to taskbar)
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
@@ -290,7 +293,7 @@ IfExist, %AppSettingsIni%
     if(%T_IsRunnerEnabled% == true)
     {
         GuiControl,1:Enable,Shortcut_to_taskbarButton
-        GuiControl,1:,DownloadEXERunnerButton,Delete EXE Runner
+        GuiControl,1:,DownloadEXERunnerButton,Revert
         IsEXERunnerEnabled := true
     }
     else
@@ -384,87 +387,95 @@ Loop % (Count)
 }
 ;____________________________________________________________
 ;//////////////[Show Gui After setting all saved settings]///////////////
-Random,T_Coice_Num,1,20
-If (T_Coice_Num = 1)
+if(IsThisExperimental)
 {
-    Gui 1:Show, w835 h517,Remember to drink your daily dose of coffee.
+    Gui 1:Show, w835 h517,This is experimental branch! Only for testing new versions.
 }
-else if (T_Coice_Num = 2)
+else
 {
-    Gui 1:Show, w835 h517,Humanity runs on coffee.
+    Random,T_Coice_Num,1,20
+    If (T_Coice_Num = 1)
+    {
+        Gui 1:Show, w835 h517,Remember to drink your daily dose of coffee.
+    }
+    else if (T_Coice_Num = 2)
+    {
+        Gui 1:Show, w835 h517,Humanity runs on coffee.
+    }
+    else if (T_Coice_Num = 3)
+    {
+        Gui 1:Show, w835 h517,I put coffee in my coffee
+    }
+    else if (T_Coice_Num = 4)
+    {
+        Gui 1:Show, w835 h517,Coffee is always a good idea.
+    }
+    else if (T_Coice_Num = 5)
+    {
+        Gui 1:Show, w835 h517,When life gives you lemons trade them for coffee.
+    }
+    else if (T_Coice_Num = 6)
+    {
+        Gui 1:Show, w835 h517, I've had so much coffee today I can see noises.
+    }
+    else if (T_Coice_Num = 7)
+    {
+        Gui 1:Show, w835 h517,I will start working when my coffee does.
+    }
+    else if (T_Coice_Num = 8)
+    {
+        Gui 1:Show, w835 h517,Coffee runs through my veins.
+    }
+    else if (T_Coice_Num = 9)
+    {
+        Gui 1:Show, w835 h517,Coffee helps me maintain my "never killed anyone streak"
+    }
+    else if (T_Coice_Num = 10)
+    {
+        Gui 1:Show, w835 h517,Coffee is the gasoline of life
+    }
+    else if (T_Coice_Num = 11)
+    {
+        Gui 1:Show, w835 h517,A bad day with coffee is better than a good day without it
+    }
+    else if (T_Coice_Num = 12)
+    {
+        Gui 1:Show, w835 h517,No one can understand the truth until he drinks of coffee's frothy goodness.
+    }
+    else if (T_Coice_Num = 13)
+    {
+        Gui 1:Show, w835 h517,I don't know how people live without coffee. I really don't.
+    }
+    else if (T_Coice_Num = 14)
+    {
+        Gui 1:Show, w835 h517,There is no life without water. Because water is needed to make coffee.
+    }
+    else if (T_Coice_Num = 15)
+    {
+        Gui 1:Show, w835 h517,Today's good mood is sponsored by coffee.
+    }
+    else if (T_Coice_Num = 16)
+    {
+        Gui 1:Show, w835 h517,I like coffee because it gives me the illusion that I might be awake.
+    }
+    else if (T_Coice_Num = 17)
+    {
+        Gui 1:Show, w835 h517,The most dangerous drinking game is seeing how long I can go without coffee.
+    }
+    else if (T_Coice_Num = 18)
+    {
+        Gui 1:Show, w835 h517,Sometimes I go hours without drinking coffee...it's called sleeping.
+    }
+    else if (T_Coice_Num = 19)
+    {
+        Gui 1:Show, w835 h517,Doctors found traces of blood in my coffee stream.
+    }
+    else if (T_Coice_Num = 20)
+    {
+        Gui 1:Show, w835 h517,I don't have a problem with caffeine. I have a problem without it.
+    }
 }
-else if (T_Coice_Num = 3)
-{
-    Gui 1:Show, w835 h517,I put coffee in my coffee
-}
-else if (T_Coice_Num = 4)
-{
-    Gui 1:Show, w835 h517,Coffee is always a good idea.
-}
-else if (T_Coice_Num = 5)
-{
-    Gui 1:Show, w835 h517,When life gives you lemons trade them for coffee.
-}
-else if (T_Coice_Num = 6)
-{
-    Gui 1:Show, w835 h517, I've had so much coffee today I can see noises.
-}
-else if (T_Coice_Num = 7)
-{
-    Gui 1:Show, w835 h517,I will start working when my coffee does.
-}
-else if (T_Coice_Num = 8)
-{
-    Gui 1:Show, w835 h517,Coffee runs through my veins.
-}
-else if (T_Coice_Num = 9)
-{
-    Gui 1:Show, w835 h517,Coffee helps me maintain my "never killed anyone streak"
-}
-else if (T_Coice_Num = 10)
-{
-    Gui 1:Show, w835 h517,Coffee is the gasoline of life
-}
-else if (T_Coice_Num = 11)
-{
-    Gui 1:Show, w835 h517,A bad day with coffee is better than a good day without it
-}
-else if (T_Coice_Num = 12)
-{
-    Gui 1:Show, w835 h517,No one can understand the truth until he drinks of coffee's frothy goodness.
-}
-else if (T_Coice_Num = 13)
-{
-    Gui 1:Show, w835 h517,I don't know how people live without coffee. I really don't.
-}
-else if (T_Coice_Num = 14)
-{
-    Gui 1:Show, w835 h517,There is no life without water. Because water is needed to make coffee.
-}
-else if (T_Coice_Num = 15)
-{
-    Gui 1:Show, w835 h517,Today's good mood is sponsored by coffee.
-}
-else if (T_Coice_Num = 16)
-{
-    Gui 1:Show, w835 h517,I like coffee because it gives me the illusion that I might be awake.
-}
-else if (T_Coice_Num = 17)
-{
-    Gui 1:Show, w835 h517,The most dangerous drinking game is seeing how long I can go without coffee.
-}
-else if (T_Coice_Num = 18)
-{
-    Gui 1:Show, w835 h517,Sometimes I go hours without drinking coffee...it's called sleeping.
-}
-else if (T_Coice_Num = 19)
-{
-    Gui 1:Show, w835 h517,Doctors found traces of blood in my coffee stream.
-}
-else if (T_Coice_Num = 20)
-{
-    Gui 1:Show, w835 h517,I don't have a problem with caffeine. I have a problem without it.
-}
+
 UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
@@ -695,6 +706,45 @@ FileCreateDir, %AppFolder%
 FileCreateDir, %AppSettingsFolder%
 IniWrite, %CheckUpdatesOnStartup%, %AppSettingsIni%, Updates, CheckOnStartup
 return
+DownloadEXERunner:
+if(IsEXERunnerEnabled)
+{
+    ;Delete exe runner
+    IniRead, T_RevertLocation,%AppSettingsIni%, ExeRunner, ExeFileLocation
+    if(T_RevertLocation = "ERROR")
+    {
+        iniread,T_RevertLocation,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
+    }
+    FileMove, %AppFolder%\%ScriptName%.ahk,%T_RevertLocation%\%ScriptName%.ahk ,1
+    if ErrorLevel
+    {
+        MsgBox, Error while moving files
+        return
+    }    
+    FileDelete, %T_RevertLocation%\%ScriptName%.exe
+    if ErrorLevel
+    {
+        FileRecycle, %T_RevertLocation%\%ScriptName%.exe
+        if ErrorLevel
+        {
+            MsgBox, Error while deleting file`nYou need to delete exe file manually`nBut Revert is still successful.
+        }
+    }
+    IniWrite,false,%AppSettingsIni%, ExeRunner, UsingExeRunner
+    GuiControl,1:,DownloadEXERunnerButton,Download EXE Runner
+    IsEXERunnerEnabled := false
+}
+else
+{ 
+    ;Download exe runner
+    T_FileBeforeMoveLocation = %A_ScriptDir%
+    IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
+    IniWrite,%A_ScriptDir%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
+    FileMove, %A_ScriptFullPath%,%AppFolder%\%ScriptName%.ahk ,1
+    GuiControl,1:,DownloadEXERunnerButton,Delete EXE Runner
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe , %T_FileBeforeMoveLocation%\GameScripts.exe
+    IsEXERunnerEnabled := true
+}
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
