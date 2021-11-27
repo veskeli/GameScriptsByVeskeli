@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.383
+version = 0.384
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -60,6 +60,8 @@ global GHUBToolLocation
 global NgrokToolLocation
 global GHUBTool
 global NgrokTool
+global SatisfactorySaveManager
+global SatisfactorySaveManagerLocation
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
@@ -148,6 +150,15 @@ Gui 1:Add, Button, x16 y126 w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton
 Gui 1:Add, Button, x352 y126 w80 h23 gUninstallNgrokTool vUninstallNgrokToolButton +Disabled, Delete
 Gui 1:Add, Button, x160 y126 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y126 w100 h23 gOpenNgrokInGithub, Open in Github
+;Satisfactory Save Manager
+Gui 1:Font, s13
+Gui 1:Add, GroupBox, x8 y167 w430 h69, Satisfactory Save Manager
+Gui 1:Font
+Gui 1:Font, s9, Segoe UI
+Gui 1:Add, Button, x16 y196 w131 h23 gDownloadSatisfactorySaveManager vDownloadSatisfactorySaveManagerButton, Download
+Gui 1:Add, Button, x352 y196 w80 h23 gUninstallSatisfactorySaveManager vUninstallSatisfactorySaveManagerButton +Disabled, Delete
+Gui 1:Add, Button, x160 y196 w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y196 w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows and voicemeeter]///////////////
@@ -330,6 +341,13 @@ IfExist %AppOtherScriptsFolder%\Ngrok.ahk
     GuiControl,1:Enable,UninstallNgrokToolButton
     NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
     NgrokTool := true
+}
+IfExist %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
+{
+    GuiControl,1: , DownloadSatisfactorySaveManagerButton, Run
+    GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
+    SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\Ngrok.ahk
+    SatisfactorySaveManager := true
 }
 IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 {
@@ -986,6 +1004,9 @@ Return
 OpenNgrokInGithub:
     run, https://github.com/veskeli/NgrokAhk
 return
+OpenSatisfactorySaveManagerInGithub:
+    run, https://github.com/veskeli/SatisfactorySaveManager
+return
 DownloadNgrokTool:
 if(!NgrokTool)
 {
@@ -1005,6 +1026,26 @@ else
 return
 UninstallNgrokTool:
 UninstallScript("NgrokTool")
+return
+DownloadSatisfactorySaveManager:
+if(!SatisfactorySaveManager)
+{
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppOtherScriptsFolder%
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/SatisfactorySaveManager/main/SatisfactorySaveManager.ahk, %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
+    ;write save/Update Gui
+    GuiControl,1:, DownloadSatisfactorySaveManagerButton, Run
+    GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
+    SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
+    SatisfactorySaveManager := True
+}
+else
+{
+    run, %SatisfactorySaveManagerLocation%
+}
+return
+UninstallSatisfactorySaveManager:
+UninstallScript("SatisfactorySaveManager")
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1390,6 +1431,19 @@ UninstallScript(tName)
         NgrokTool := False
         GuiControl,1:, DownloadNgrokToolButton, Download
         GuiControl,1:Disable ,UninstallNgrokToolButton
+    }
+    if(tName == "SatisfactorySaveManager")
+    {
+        FileDelete, %SatisfactorySaveManagerLocation%
+        if ErrorLevel
+        {
+            MsgBox,, Error, Error while deleting`nSometimes script cannot delete files`nYou can manually delete if necessary
+            return
+        }
+        SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
+        SatisfactorySaveManager := False
+        GuiControl,1:, DownloadSatisfactorySaveManagerButton, Download
+        GuiControl,1:Disable ,UninstallSatisfactorySaveManagerButton
     }
 }
 ;Example SetDefaultEndpoint(GetDeviceID(Devices, "Speakers"))
