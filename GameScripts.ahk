@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.388
+version = 0.389
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -113,9 +113,9 @@ Gui 1:Add, GroupBox, x16 y216 w385 h80 +Hidden vPin3GroubBox, Pin3
 Gui 1:Add, GroupBox, x16 y304 w385 h80 +Hidden vPin4GroubBox, Pin4
 Gui 1:Add, GroupBox, x16 y392 w385 h80 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s20
-Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, Run
-Gui 1:Add, Button, x128 y148 w137 h45 +Hidden gPin2RunButton vPin2RunButton, Run
-Gui 1:Add, Button, x128 y236 w137 h45 +Hidden gPin3RunButton vPin3RunButton, Run
+Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, % Chr(0x25B6) . " Open"
+Gui 1:Add, Button, x128 y148 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
+Gui 1:Add, Button, x128 y236 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Font
 ;____________________________________________________________
 ;____________________________________________________________
@@ -124,25 +124,27 @@ Gui 1:Tab, 2
 Gui 1:Add, GroupBox, x8 y32 w175 h98, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
 Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on start
-Gui 1:Add, GroupBox, x8 y121 w175 h193, This script settings
+Gui 1:Add, GroupBox, x8 y122 w175 h106, This script settings
 Gui 1:Add, CheckBox, x16 y144 w143 h23 gKeepThisAlwaysOnTop, Keep this always on top
 Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray
 Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
-Gui 1:Add, CheckBox, x11 y224 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
-Gui 1:Add, Button, x16 y248 w128 h23 gcheckForupdates, Check for updates
-Gui 1:Add, Button, x16 y324 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
+Gui 1:Add, GroupBox, x499 y442 w150 h67 +Hidden vDownloadExperimentalBranchGroupbox, Experimental
+Gui 1:Add, Button, x504 y464 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
 Gui 1:Font
+Gui 1:Add, GroupBox, x648 y392 w179 h117, Updates
 Gui 1:Font, s15
-Gui 1:Add, Text, x16 y280 w158 h28 +0x200, Version = %version%
+Gui 1:Add, Text, x664 y472 w158 h28 +0x200, Version = %version%
 Gui 1:Font
+Gui 1:Add, CheckBox, x656 y416 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
+Gui 1:Add, Button, x672 y440 w128 h23 gcheckForupdates, Check for updates
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, GroupBox, x8 y305 w175 h123, Debug
+Gui 1:Add, GroupBox, x8 y339 w175 h89, Debug
 Gui 1:Add, Button, x16 y360 w139 h27 gOpenAppSettingsFolder, Open Settings Folder
 Gui 1:Add, Button, x16 y392 w116 h23 gOpenAppSettingsFile, Open settings File
-Gui 1:Add, GroupBox, x8 y419 w175 h102, Delete Stuff
+Gui 1:Add, GroupBox, x8 y419 w175 h94, Delete Stuff
 Gui 1:Add, Button, x16 y440 w103 h23 gDeleteAppSettings, Delete all settings
 Gui 1:Add, Button, x16 y464 w135 h42 gDeleteAllFiles, Delete all files (including this script)
-Gui 1:Add, GroupBox, x182 y32 w120 h62, Shortcut
+Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
 Gui 1:Add, Button, x512 y48 w67 h28 vDownloadEXERunnerButton gDownloadEXERunner, Download
 Gui 1:Add, GroupBox, x301 y31 w281 h63, exe Shortcut
@@ -267,12 +269,6 @@ Gui 1:Font, s11
 Gui 1:Add, CheckBox, x201 y51 w70 h23 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, Enabled
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
 ;//////////////[Disable buttons]///////////////
 Gui 1:Add, GroupBox, x375 y400 w450 h111, Disable buttons
 Gui 1:Add, CheckBox, x383 y426 w156 h23 gDisableWindowsButton vDisableWindowsCheckbox, Disable Windows button
@@ -369,7 +365,7 @@ IfExist, %AppSettingsIni%
 }
 IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 {
-    GuiControl,1: , DowloadGHUBToolButton, Run
+    GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,UninstallGHUBToolScritpButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := true
@@ -377,7 +373,7 @@ IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 }
 IfExist %AppOtherScriptsFolder%\Ngrok.ahk
 {
-    GuiControl,1: , DownloadNgrokToolButton, Run
+    GuiControl,1: , DownloadNgrokToolButton, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,UninstallNgrokToolButton
     NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
     NgrokTool := true
@@ -385,7 +381,7 @@ IfExist %AppOtherScriptsFolder%\Ngrok.ahk
 }
 IfExist %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
 {
-    GuiControl,1: , DownloadSatisfactorySaveManagerButton, Run
+    GuiControl,1: , DownloadSatisfactorySaveManagerButton, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
     SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     SatisfactorySaveManager := true
@@ -400,9 +396,10 @@ IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
     }
     Else
     {
-        GuiControl,1: , DowloadGHUBToolButton, Run
+        GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
         GuiControl,1: Enable,UninstallGHUBToolScritpButton
         GHUBTool := true
+        GuiControl,1:Show ,PinGHUBToolIMG
     }
 }
 ;Read From registery
@@ -550,6 +547,7 @@ IfExist, %AppSettingsIni%
         {
             MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
             GuiControl,1:show,DownloadExperimentalBranchButton
+            GuiControl,1:Show,DownloadExperimentalBranchGroupbox
             GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
             ;check if there is new stable
             goto CheckForStableVersion
@@ -566,6 +564,7 @@ IfExist, %AppSettingsIni%
             {
                 ;Found experimental version
                 GuiControl,1:show,DownloadExperimentalBranchButton
+                GuiControl,1:Show,DownloadExperimentalBranchGroupbox
             }
             goto checkForupdates
         }
@@ -577,6 +576,7 @@ IfExist, %AppSettingsIni%
         {
             MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
             GuiControl,1:show,DownloadExperimentalBranchButton
+            GuiControl,1:Show,DownloadExperimentalBranchGroupbox
             GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
         }
     }
@@ -1027,7 +1027,7 @@ if (!GHUBTool)
     FileCreateDir, %AppOtherScriptsFolder%
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/LogitechBackupProfilesAhk/master/LogitechBackupProfiles.ahk, %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     ;write save/Update Gui
-    GuiControl,1:, DowloadGHUBToolButton, Run
+    GuiControl,1:, DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,UninstallGHUBToolScritpButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := True
@@ -1061,7 +1061,7 @@ if(!NgrokTool)
     FileCreateDir, %AppOtherScriptsFolder%
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/NgrokAhk/master/Ngrok.ahk, %AppOtherScriptsFolder%\Ngrok.ahk
     ;write save/Update Gui
-    GuiControl,1:, DownloadNgrokToolButton, Run
+    GuiControl,1:, DownloadNgrokToolButton, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,UninstallNgrokToolButton
     NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
     NgrokTool := True
@@ -1085,7 +1085,7 @@ if(!SatisfactorySaveManager)
     FileCreateDir, %AppOtherScriptsFolder%
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/SatisfactorySaveManager/main/SatisfactorySaveManager.ahk, %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     ;write save/Update Gui
-    GuiControl,1:, DownloadSatisfactorySaveManagerButton, Run
+    GuiControl,1:, DownloadSatisfactorySaveManagerButton, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
     SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     SatisfactorySaveManager := True
