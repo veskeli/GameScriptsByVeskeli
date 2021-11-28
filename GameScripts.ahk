@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.386
+version = 0.387
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -44,6 +44,7 @@ MouseClickerToggle = 0
 ;____________________________________________________________
 ;//////////////[variables]///////////////
 CloseToTray := false
+PinSlot := [5]
 ;//////////////[Gui Pictures]///////////////
 PinPic = %GuiPictureFolder%\pin.png
 RemovePinPic = %GuiPictureFolder%\removepin.png
@@ -65,6 +66,7 @@ global GHUBTool
 global NgrokTool
 global SatisfactorySaveManager
 global SatisfactorySaveManagerLocation
+global PinSlot
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
@@ -100,17 +102,21 @@ Gui 1:Add, Button, x568 y56 w80 h23 gRunIpConfig, IPConfig
 Gui 1:Add, Button, x568 y80 w80 h23 gOpenAppdataFolder, Appdata
 Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
-Gui 1:Add, Picture, x48 y112 w349 h294, %GuiPictureFolder%/pintext.png
+Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
 Gui 1:Font, s17
 Gui 1:Add, Text, x272 y440 w353 h50 +0x200, Everything is due to change.
 Gui 1:Font
-;Gui Font, s16
-;Gui Add, GroupBox, x16 y40 w385 h80, Pin1
-;Gui Add, GroupBox, x16 y128 w385 h80, Pin2
-;Gui Add, GroupBox, x16 y216 w385 h80, Pin3
-;Gui Add, GroupBox, x16 y304 w385 h80, Pin4
-;Gui Add, GroupBox, x16 y392 w385 h80, Pin5
-Gui Font
+Gui 1:Font, s16
+Gui 1:Add, GroupBox, x16 y40 w385 h80 +Hidden vPin1GroubBox, Pin1
+Gui 1:Add, GroupBox, x16 y128 w385 h80 +Hidden vPin2GroubBox, Pin2
+Gui 1:Add, GroupBox, x16 y216 w385 h80 +Hidden vPin3GroubBox, Pin3
+Gui 1:Add, GroupBox, x16 y304 w385 h80 +Hidden vPin4GroubBox, Pin4
+Gui 1:Add, GroupBox, x16 y392 w385 h80 +Hidden vPin5GroubBox, Pin5
+Gui 1:Font, s20
+Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, Run
+Gui 1:Add, Button, x128 y148 w137 h45 +Hidden gPin2RunButton vPin2RunButton, Run
+Gui 1:Add, Button, x128 y236 w137 h45 +Hidden gPin3RunButton vPin3RunButton, Run
+Gui 1:Font
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
@@ -151,11 +157,11 @@ Gui 1:Font, s13
 Gui 1:Add, GroupBox, x8 y27 w430 h69, Logitech Backup Tool
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y56 w131 h23 vDowloadGHUBToolButton gDownloadLogitechGHUBTool, Download
+Gui 1:Add, Button, x16 y56 w131 h23 vDowloadGHUBToolButton gDownloadGHUBTool, Download
 Gui 1:Add, Button, x352 y56 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
 Gui 1:Add, Button, x160 y56 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y56 w100 h23 gOpenGHUBToolGithub, Open in Github
-Gui 1:Add, Picture, x413 y39 w18 h18 gPinGHUBTool vPinGHUBToolIMG, %PinPic%
+Gui 1:Add, Picture, x413 y39 w18 h18 gPinGHUBTool vPinGHUBToolIMG +Hidden, %PinPic%
 ;Ngrok tool
 Gui 1:Font, s13
 Gui 1:Add, GroupBox, x8 y97 w430 h69, Ngrok port fowarding Tool
@@ -165,7 +171,7 @@ Gui 1:Add, Button, x16 y126 w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton
 Gui 1:Add, Button, x352 y126 w80 h23 gUninstallNgrokTool vUninstallNgrokToolButton +Disabled, Delete
 Gui 1:Add, Button, x160 y126 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y126 w100 h23 gOpenNgrokInGithub, Open in Github
-Gui 1:Add, Picture, x413 y109 w18 h18 gPinNgrokTool vPinNgrokToolIMG, %PinPic%
+Gui 1:Add, Picture, x413 y109 w18 h18 gPinNgrokTool vPinNgrokToolIMG +Hidden, %PinPic%
 ;Satisfactory Save Manager
 Gui 1:Font, s13
 Gui 1:Add, GroupBox, x8 y167 w430 h69, Satisfactory Save Manager
@@ -175,7 +181,7 @@ Gui 1:Add, Button, x16 y196 w131 h23 gDownloadSatisfactorySaveManager vDownloadS
 Gui 1:Add, Button, x352 y196 w80 h23 gUninstallSatisfactorySaveManager vUninstallSatisfactorySaveManagerButton +Disabled, Delete
 Gui 1:Add, Button, x160 y196 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y196 w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
-Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfactorySaveManagerIMG, %PinPic%
+Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows and voicemeeter]///////////////
@@ -344,6 +350,22 @@ IfExist, %AppSettingsIni%
             ExitApp
         }
     }
+    IniRead, Temp_GHUBToolPin,%AppSettingsIni%,Pinned,% "GHUBTool" . "IsPinned"
+    if(Temp_GHUBToolPin == "true")
+    {
+        GuiControl,1:,% "Pin" . "GHUBTool" . "IMG",%GuiPictureFolder%\removepin.png
+    }
+    IniRead, Temp_NgrokToolPin,%AppSettingsIni%,Pinned,% "NgrokTool" . "IsPinned"
+    if(Temp_NgrokToolPin == "true")
+    {
+        GuiControl,1:,% "Pin" . "NgrokTool" . "IMG",%GuiPictureFolder%\removepin.png
+    }
+    IniRead, Temp_SatisfactorySaveManagerPin,%AppSettingsIni%,Pinned,% "SatisfactorySaveManager" . "IsPinned"
+    if(Temp_SatisfactorySaveManagerPin == "true")
+    {
+        GuiControl,1:,% "Pin" . "SatisfactorySaveManager" . "IMG",%GuiPictureFolder%\removepin.png
+    }
+    UpdateHomeScreen()
 }
 IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 {
@@ -351,6 +373,7 @@ IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GuiControl,1:Enable,UninstallGHUBToolScritpButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := true
+    GuiControl,1:Show ,PinGHUBToolIMG
 }
 IfExist %AppOtherScriptsFolder%\Ngrok.ahk
 {
@@ -358,6 +381,7 @@ IfExist %AppOtherScriptsFolder%\Ngrok.ahk
     GuiControl,1:Enable,UninstallNgrokToolButton
     NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
     NgrokTool := true
+    GuiControl,1:Show ,PinNgrokToolIMG
 }
 IfExist %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
 {
@@ -365,6 +389,7 @@ IfExist %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
     SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     SatisfactorySaveManager := true
+    GuiControl,1:Show ,PinSatisfactorySaveManagerIMG
 }
 IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 {
@@ -537,7 +562,7 @@ IfExist, %AppSettingsIni%
             whr.Send()
             whr.WaitForResponse()
             ExperimentalVersion := whr.ResponseText
-            if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
+            if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found" and ExperimentalVersion != "500: Internal Server Error")
             {
                 ;Found experimental version
                 GuiControl,1:show,DownloadExperimentalBranchButton
@@ -680,6 +705,7 @@ Loop, %dir%\*.*, 2
 }
 Progress, 100
 Progress, Off
+MsgBox,,All Done!,Temp Folder Cleared,5
 return
 OpenCmd:
 run, %ComSpec%
@@ -788,7 +814,7 @@ whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/
 whr.Send()
 whr.WaitForResponse()
 newversion := whr.ResponseText
-if(newversion != "")
+if(newversion != "" and newversion != "404: Not Found" and newversion != "500: Internal Server Error")
 {
     if(newversion > version)
     {
@@ -829,7 +855,7 @@ whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/
 whr.Send()
 whr.WaitForResponse()
 newversion := whr.ResponseText
-if(newversion != "")
+if(newversion != "" and newversion != "404: Not Found" and newversion != "500: Internal Server Error")
 {
     if(newversion >= version)
     {
@@ -868,7 +894,7 @@ whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/
 whr.Send()
 whr.WaitForResponse()
 ExperimentalVersion := whr.ResponseText
-if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found")
+if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found" and ExperimentalVersion != "500: Internal Server Error")
 {
     if(ExperimentalVersion > version)
     {
@@ -994,7 +1020,7 @@ return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
-DownloadLogitechGHUBTool:
+DownloadGHUBTool:
 if (!GHUBTool)
 {
     FileCreateDir, %AppFolder%
@@ -1005,6 +1031,7 @@ if (!GHUBTool)
     GuiControl,1:Enable,UninstallGHUBToolScritpButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := True
+    GuiControl,1:Show ,PinGHUBToolIMG
 }
 Else ;app is already istalled/downloaded
 {
@@ -1038,6 +1065,7 @@ if(!NgrokTool)
     GuiControl,1:Enable,UninstallNgrokToolButton
     NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
     NgrokTool := True
+    GuiControl,1:Show ,PinNgrokToolIMG
 }
 else
 {
@@ -1061,6 +1089,7 @@ if(!SatisfactorySaveManager)
     GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
     SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     SatisfactorySaveManager := True
+    GuiControl,1:Show ,PinSatisfactorySaveManagerIMG
 }
 else
 {
@@ -1072,6 +1101,15 @@ UninstallScript("SatisfactorySaveManager")
 return
 PinSatisfactorySaveManager:
 PinAppOrAction("SatisfactorySaveManager")
+return
+Pin1RunButton:
+RunPinnedApp(1)
+return
+Pin2RunButton:
+RunPinnedApp(2)
+return
+Pin3RunButton:
+RunPinnedApp(3)
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1444,6 +1482,7 @@ UninstallScript(tName)
         GHUBTool := False
         GuiControl,1:, DowloadGHUBToolButton, Download
         GuiControl,1:Disable ,UninstallGHUBToolScritpButton
+        GuiControl,1:Hide ,PinGHUBToolIMG
     }
     if(tName == "NgrokTool")
     {
@@ -1457,6 +1496,7 @@ UninstallScript(tName)
         NgrokTool := False
         GuiControl,1:, DownloadNgrokToolButton, Download
         GuiControl,1:Disable ,UninstallNgrokToolButton
+        GuiControl,1:Hide ,PinNgrokToolIMG
     }
     if(tName == "SatisfactorySaveManager")
     {
@@ -1470,6 +1510,7 @@ UninstallScript(tName)
         SatisfactorySaveManager := False
         GuiControl,1:, DownloadSatisfactorySaveManagerButton, Download
         GuiControl,1:Disable ,UninstallSatisfactorySaveManagerButton
+        GuiControl,1:Hide ,PinSatisfactorySaveManagerIMG
     }
 }
 ;Example SetDefaultEndpoint(GetDeviceID(Devices, "Speakers"))
@@ -1500,13 +1541,13 @@ DownloadAssets()
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     
@@ -1515,16 +1556,121 @@ DownloadAssets()
 }
 PinAppOrAction(AppOrAction)
 {
-    if(AppOrAction == "GHUBTool")
+    IniRead, T_IsPinned,%AppSettingsIni%,Pinned,% AppOrAction . "IsPinned"
+    if(T_IsPinned == "ERROR")
     {
-        GuiControl,,PinGHUBToolIMG,%RemovePinPic%
+        T_IsPinned := false
     }
-    else if (AppOrAction == "NgrokTool")
+    if(T_IsPinned == "true")
     {
-        GuiControl,,PinNgrokToolIMG,%RemovePinPic%
+        GuiControl,1:,% "Pin" . AppOrAction . "IMG",%GuiPictureFolder%\pin.png
+        IniRead, T_PinSlotNum,%AppSettingsIni%,Pinned,%AppOrAction%
+        if(T_PinSlotNum == "ERROR")
+        {
+            return
+        }
+        RemovePinSlot(T_PinSlotNum,AppOrAction)
     }
-    else if (AppOrAction == "SatisfactorySaveManager")
+    else
     {
-        GuiControl,,PinSatisfactorySaveManagerIMG,%RemovePinPic%
+        GuiControl,1:,% "Pin" . AppOrAction . "IMG",%GuiPictureFolder%\removepin.png
+        T_PinSlotNum := GetPinSlot()
+        if(T_PinSlotNum == "-1")
+        {
+            MsgBox, All slots are full
+        }
+        SavePinToSlot(T_PinSlotNum,AppOrAction)
     }
+}
+GetPinSlot()
+{
+    UpdateAllPinSlots()
+    ;Get next free spot
+    loop, 5
+    {
+        if(PinSlot[A_Index] == false)
+        {
+            return A_Index
+        }
+    }
+    return -1
+}
+UpdateAllPinSlots()
+{
+    ;Get all Spots
+    loop, 5
+    {
+        IniRead, T_ReadPin,%AppSettingsIni%,Pinned, % "PinSlot" . A_Index
+        if(T_ReadPin == "" or T_ReadPin == "false" or T_ReadPin == "ERROR")
+        {
+            PinSlot[A_Index] := false
+        }
+        else
+        {
+            PinSlot[A_Index] := true
+        }
+    }
+}
+SavePinToSlot(Slot, Name)
+{
+    IniWrite, true,%AppSettingsIni%,Pinned, % "PinSlot" . Slot
+    IniWrite, %Name%,%AppSettingsIni%,Pinned, % "PinSlot" . Slot . "Name"
+    IniWrite, %Slot%,%AppSettingsIni%,Pinned,%Name%
+    IniWrite, true,%AppSettingsIni%,Pinned, % Name . "IsPinned"
+    UpdateHomeScreen()
+}
+RemovePinSlot(Slot, Name)
+{
+    IniWrite, false,%AppSettingsIni%,Pinned, % "PinSlot" . Slot
+    IniDelete,%AppSettingsIni%,Pinned, % "PinSlot" . Slot . "Name"
+    IniDelete,%AppSettingsIni%,Pinned,%Name%
+    IniWrite, false,%AppSettingsIni%,Pinned, % Name . "IsPinned"
+    UpdateAllPinSlots()
+    ;Reorder slots
+    loop, 4
+    {
+        if(Slot == A_Index)
+        {
+            if(PinSlot[A_Index + 1] == true)
+            {
+                IniRead, T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . A_Index + 1 . "Name"
+                RemovePinSlot(A_Index + 1, T_Name)
+                SavePinToSlot(A_Index, T_Name)
+            }
+        }
+    }
+    UpdateHomeScreen()
+}
+UpdateHomeScreen()
+{
+    UpdateAllPinSlots()
+    ;Reset all first
+    GuiControl,1:Show,pintextIMG
+    loop, 5
+    {
+        GuiControl,1:Hide,% "Pin" . A_Index . "GroubBox"
+        GuiControl,1:,% "Pin" . A_Index . "GroubBox",% "Pin" . A_Index
+        GuiControl,1:Hide,% "Pin" . A_Index . "RunButton"
+    }
+    ;Hide picture if something is pinned
+    if(PinSlot[1] == true)
+    {
+        GuiControl,1:Hide,pintextIMG
+    }
+    ;Handle pinned apps
+    loop, 5
+    {
+        if(PinSlot[A_Index] == true)
+        {
+            IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . A_Index . "Name"
+            GuiControl,1:show,% "Pin" . A_Index . "GroubBox"
+            GuiControl,1:,% "Pin" . A_Index . "GroubBox",%T_Name%
+            GuiControl,1:show,% "Pin" . A_Index . "RunButton"
+        }
+    }
+}
+RunPinnedApp(Slot)
+{
+    IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . Slot . "Name"
+    GoSub, % "Download" . T_Name
 }
