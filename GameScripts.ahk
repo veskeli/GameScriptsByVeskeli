@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.387
+version = 0.388
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -1483,6 +1483,7 @@ UninstallScript(tName)
         GuiControl,1:, DowloadGHUBToolButton, Download
         GuiControl,1:Disable ,UninstallGHUBToolScritpButton
         GuiControl,1:Hide ,PinGHUBToolIMG
+        PinAppOrAction(tName)
     }
     if(tName == "NgrokTool")
     {
@@ -1497,6 +1498,7 @@ UninstallScript(tName)
         GuiControl,1:, DownloadNgrokToolButton, Download
         GuiControl,1:Disable ,UninstallNgrokToolButton
         GuiControl,1:Hide ,PinNgrokToolIMG
+        PinAppOrAction(tName)
     }
     if(tName == "SatisfactorySaveManager")
     {
@@ -1511,6 +1513,7 @@ UninstallScript(tName)
         GuiControl,1:, DownloadSatisfactorySaveManagerButton, Download
         GuiControl,1:Disable ,UninstallSatisfactorySaveManagerButton
         GuiControl,1:Hide ,PinSatisfactorySaveManagerIMG
+        PinAppOrAction(tName)
     }
 }
 ;Example SetDefaultEndpoint(GetDeviceID(Devices, "Speakers"))
