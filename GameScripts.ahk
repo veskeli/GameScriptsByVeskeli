@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.389
+version = 0.3891
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -116,6 +116,15 @@ Gui 1:Font, s20
 Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Add, Button, x128 y148 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Add, Button, x128 y236 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
+Gui 1:Font
+Gui 1:Add, GroupBox, x432 y160 w386 h62, Always on top
+Gui 1:Font
+Gui 1:Font, s12
+Gui 1:Add, Text, x440 y184 w61 h23 +0x200, Hotkey:
+Gui 1:Font
+Gui 1:Font, s9, Segoe UI
+Gui 1:Add, Hotkey, x504 y184 w120 h21 +Disabled
+;Gui 1:Add, Picture, x632 y182 w50 h25, 
 Gui 1:Font
 ;____________________________________________________________
 ;____________________________________________________________
@@ -244,7 +253,7 @@ Gui 1:Add, CheckBox, x743 y132 w70 h23 gMouseClickerEnabled vMouseClickerCheckbo
 Gui 1:Font
 Gui 1:Font, s11
 ;//////////////[Auto Run/Walk]///////////////
-Gui 1:Add, GroupBox, x375 y168 w450 h78, Auto Run/Walk (Holds "W" so only 3D games)
+Gui 1:Add, GroupBox, x375 y168 w450 h78, Auto Run/Walk (Hold "W" [3D games only])
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, Text, x385 y185 w47 h23 +0x200, Hotkey:
