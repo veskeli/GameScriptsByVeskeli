@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3891
+version = 0.3892
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -104,7 +104,7 @@ Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Vo
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
 Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
 Gui 1:Font, s17
-Gui 1:Add, Text, x272 y440 w353 h50 +0x200, Everything is due to change.
+Gui 1:Add, Text, x272 y440 w353 h50 +0x200, All of this might change.
 Gui 1:Font
 Gui 1:Font, s16
 Gui 1:Add, GroupBox, x16 y40 w385 h80 +Hidden vPin1GroubBox, Pin1
@@ -133,7 +133,7 @@ Gui 1:Tab, 2
 Gui 1:Add, GroupBox, x8 y32 w175 h98, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
 Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on start
-Gui 1:Add, GroupBox, x8 y122 w175 h106, This script settings
+Gui 1:Add, GroupBox, x8 y122 w175 h106, Settings for this script.
 Gui 1:Add, CheckBox, x16 y144 w143 h23 gKeepThisAlwaysOnTop, Keep this always on top
 Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray
 Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
@@ -1542,9 +1542,9 @@ GetDeviceID(Devices, Name)
 }
 DownloadAssets()
 {
-    Progress, b w300, Script will run after all Assets has been downloaded, Downloading Assets..., Downloading Assets...
+    Progress, b w300, Script will run after all the Assets have been downloaded, Downloading Assets..., Downloading Assets...
     T_GUIPicProgress = 0
-    T_GuiPicAddAmount = 25
+    T_GuiPicAddAmount = 17
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     ;SplashTextOn, 300,60,Downloading Gui Pictures, Script will run after all Gui pictures has been downloaded
@@ -1562,7 +1562,13 @@ DownloadAssets()
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/on.png , %GuiPictureFolder%/on.png ;on button
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/off.png , %GuiPictureFolder%/off.png ;off button
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+
     Progress, Off
     ;SplashTextOff
 }
@@ -1685,4 +1691,25 @@ RunPinnedApp(Slot)
 {
     IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . Slot . "Name"
     GoSub, % "Download" . T_Name
+}
+CheckboxToggle(T_Image)
+{
+    T_state := false
+    iniread, T_ImageState,%AppSettingsIni%,CustomCheckbox,T_Image
+    if(T_ImageState == "" or T_ImageState == "false" or T_ImageState == "ERROR")
+    {
+        T_state := false
+    }
+    else
+    {
+        T_state := true
+    }
+    if(T_state)
+    {
+        GuiControl,,T_Image,%GuiPictureFolder%/on.png
+    }
+    else
+    {
+        GuiControl,,T_Image,%GuiPictureFolder%/off.png
+    }
 }
