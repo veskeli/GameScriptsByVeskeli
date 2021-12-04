@@ -31,9 +31,9 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3897
+version = 0.39
 ;//////////////[Experimental]///////////////
-IsThisExperimental := true
+IsThisExperimental := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -105,9 +105,9 @@ Gui 1:Add, Button, x568 y80 w80 h23 gOpenAppdataFolder, Appdata
 ;Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
 Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
-Gui 1:Font, s17
-Gui 1:Add, Text, x272 y440 w353 h50 +0x200, All of this might change.
-Gui 1:Font
+;Gui 1:Font, s17
+;Gui 1:Add, Text, x272 y440 w353 h50 +0x200, All of this might change.
+;Gui 1:Font
 Gui 1:Font, s16
 Gui 1:Add, GroupBox, x16 y40 w385 h80 +Hidden vPin1GroubBox, Pin1
 Gui 1:Add, GroupBox, x16 y128 w385 h80 +Hidden vPin2GroubBox, Pin2
@@ -629,7 +629,7 @@ IfNotExist, %AppSettingsIni%
 ;Last thing is to show changelog
 if(ShowChangelog)
 {
-    UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Changelog/" . version,%AppFolder%/Changelog.txt
+    UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Changelog/" . version,%AppFolder%/Changelog.txt
     FileRead, ChangelogText,%AppFolder%/Changelog.txt
     if(ChangelogText != "" and ChangelogText != "404: Not Found" and ChangelogText != "500: Internal Server Error")
     {
@@ -644,7 +644,7 @@ return
 ;____________________________________________________________
 ;//////////////[Changelog]///////////////
 ShowChangelogButton:
-UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Changelog/" . version,%AppFolder%/Changelog.txt
+UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Changelog/" . version,%AppFolder%/Changelog.txt
 FileRead, ChangelogText,%AppFolder%/Changelog.txt
 if(ChangelogText != "" and ChangelogText != "404: Not Found" and ChangelogText != "500: Internal Server Error")
 {
@@ -1775,19 +1775,19 @@ DownloadAssets()
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/on.png , %GuiPictureFolder%/on.png ;on button
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/on.png , %GuiPictureFolder%/on.png ;on button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Gui/off.png , %GuiPictureFolder%/off.png ;off button
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/off.png , %GuiPictureFolder%/off.png ;off button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
 

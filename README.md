@@ -23,9 +23,12 @@
 
 ## Preview pictures
 
-![Preview](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/GameMode.png)
+![Home](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/Home.png)
 
-![Preview](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/OtherScripts.png)
+![Settings](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/Settings.png)
 
+![OtherScripts](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/OtherScripts.png)
 
-![Preview](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/Windows.png)
+![Windows](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/Windows.png)
+
+![BasicScripts](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/BasicScripts.png)
