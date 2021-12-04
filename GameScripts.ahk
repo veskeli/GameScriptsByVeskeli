@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3896
+version = 0.3897
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -116,8 +116,8 @@ Gui 1:Add, GroupBox, x16 y304 w385 h80 +Hidden vPin4GroubBox, Pin4
 Gui 1:Add, GroupBox, x16 y392 w385 h80 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s20
 Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, % Chr(0x25B6) . " Open"
-Gui 1:Add, Button, x128 y148 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
-Gui 1:Add, Button, x128 y236 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
+Gui 1:Add, Button, x128 y152 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
+Gui 1:Add, Button, x128 y246 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
@@ -150,7 +150,8 @@ Gui 1:Font
 Gui 1:Add, CheckBox, x656 y416 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui 1:Add, Button, x672 y440 w128 h23 gcheckForupdates, Check for updates
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, GroupBox, x8 y339 w175 h80, Debug
+Gui 1:Add, GroupBox, x8 y321 w175 h97, Debug
+Gui 1:Add, Button, x16 y336 w100 h23 gOpenThisInGithub, Open in github
 Gui 1:Add, Button, x16 y360 w139 h27 gOpenAppSettingsFolder, Open Settings Folder
 Gui 1:Add, Button, x16 y392 w116 h23 gOpenAppSettingsFile, Open settings File
 Gui 1:Add, GroupBox, x8 y419 w175 h94, Delete Stuff
@@ -161,6 +162,9 @@ Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
 Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
 Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
 Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
+Gui 1:Font, s14
+Gui 1:Add, Button, x624 y32 w206 h35 gReportAnIssueOrBug, Report an issue or bug
+Gui 1:Font
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
@@ -899,6 +903,12 @@ return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
+ReportAnIssueOrBug:
+run, https://github.com/veskeli/GameScriptsByVeskeli/issues
+return
+OpenThisInGithub:
+run, https://github.com/veskeli/GameScriptsByVeskeli
+return
 RedownloadAssets:
 FileRemoveDir, %GuiPictureFolder%, 1
 Run, %A_ScriptFullPath%
