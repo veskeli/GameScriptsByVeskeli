@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3893
+version = 0.3894
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -89,18 +89,18 @@ else
     MsgBox,,Asset download error,Assets needs to be Redownloaded `n You can re download assets from settings tab
 }
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Tab3, x0 y0 w898 h640, Home|Settings|Other Scripts|Windows|Voicemeeter|Basic Scripts
+Gui 1:Add, Tab3, x0 y0 w898 h640, Home|Settings|Other Scripts|Windows|Basic Scripts
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Home]///////////////
-Gui 1:Tab, 1
+Gui 1:Tab, Home
 Gui 1:Add, GroupBox, x432 y32 w386 h126, Quick actions
 Gui 1:Add, CheckBox, x440 y56 w120 h23 gToggleXboxOverlay1 vXboxOverlayCheckbox1, Xbox Overlay
 Gui 1:Add, CheckBox, x440 y80 w120 h23 gToggleGameDVR1 vToggleGameDVRCheckbox1, Game DVR
 Gui 1:Add, Button, x440 y112 w164 h28 gClearWindowsTempFolder, Clear Windows Temp Folder
 Gui 1:Add, Button, x568 y56 w80 h23 gRunIpConfig, IPConfig
 Gui 1:Add, Button, x568 y80 w80 h23 gOpenAppdataFolder, Appdata
-Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
+;Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
 Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
 Gui 1:Font, s17
@@ -116,7 +116,7 @@ Gui 1:Font, s20
 Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Add, Button, x128 y148 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Add, Button, x128 y236 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
-Gui 1:Font
+Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
 Gui 1:Font, s12
@@ -129,7 +129,7 @@ Gui 1:Font
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
-Gui 1:Tab, 2
+Gui 1:Tab, Settings
 Gui 1:Add, GroupBox, x8 y32 w175 h88, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
 Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on start
@@ -157,11 +157,11 @@ Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
 Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
 Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
-Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is asimple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
+Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
-Gui 1:Tab, 3
+Gui 1:Tab, Other Scripts
 ; Add 70 to Y
 ;Logitech backup tool
 Gui 1:Font, s13
@@ -196,7 +196,7 @@ Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfacto
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows]///////////////
-Gui 1:Tab, 4
+Gui 1:Tab, Windows
 Gui 1:Add, GroupBox, x8 y388 w317 h124, Free Space on your device.
 Gui 1:Add, Text, x24 y408 w278 h23 +0x200,Deletes Windows temporary files that are not in use.
 Gui 1:Font, s11
@@ -218,87 +218,96 @@ Gui 1:Add, Button, x16 y200 w91 h23 gOpenWindowsTempFolder, Windows Temp
 Gui 1:Add, Button, x16 y224 w89 h23 gOpenMyDocuments, My Documents
 Gui 1:Add, Button, x16 y248 w89 h23 gOpenDesktop, Desktop
 Gui 1:Add, GroupBox, x456 y32 w372 h200, Advanced Features
-Gui 1:Add, CheckBox, x682 y28 w134 h23 gToggleadvancedWindowsFeatures vToggleadvancedWindowsFeaturesCheckbox,I know what I'm doing.
+Gui 1:Add, CheckBox, x682 y28 w124 h23 gToggleadvancedWindowsFeatures vToggleadvancedWindowsFeaturesCheckbox,I know what I'm doing.
 Gui 1:Add, CheckBox, x464 y64 w143 h23 +Disabled gToggleClipboardHistory vToggleClipboardHistoryCheckbox, Clipboard histroy Sync
 Gui 1:Add, CheckBox, x464 y88 w180 h23 +Disabled gAutomaticallyBackupRegistery vAutomaticallyBackupRegisteryCheckbox, Automatically backup registery
 Gui 1:Add, CheckBox, x464 y112 w177 h30 +Disabled gClearVirtualMemoryPageFileAtShutdown vClearVirtualMemoryPageFileAtShutdownCheckbox, Clear virtual memorypage file during shutdown
 Gui 1:Add, CheckBox, x464 y144 w230 h48 +Disabled vToggleFeaturedAutoInstallCheckbox, Toggle Windows 10 Featured or Suggested Apps from Automatically Installing
-Gui 1:Add, Button, x464 y200 w171 h23 +Disabled gDisableMostOfAds vDisableMostOfAdsButton, Disable Most Of ads
-Gui 1:Add, Button, x648 y200 w169 h23 +Disabled gRestoreMostOfAds vRestoreMostOfAdsButton, Restore Most Of ads
-Gui 1:Tab, 5
+Gui 1:Add, Button, x464 y200 w171 h23 +Disabled gDisableMostOfAds vDisableMostOfAdsButton, Disable Most windows 10 ads
+Gui 1:Add, Button, x648 y200 w169 h23 +Disabled gRestoreMostOfAds vRestoreMostOfAdsButton, Restore Most windows 10 ads
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Voicemeeter]///////////////
+/*
+Gui 1:Tab, Voicemeeter
 Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
+*/
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Basic scripts]///////////////
-Gui 1:Tab, 6
+Gui 1:Tab, Basic Scripts
+Gui 1:Add, GroupBox, x376 y26 w450 h288, Game Scripts
+Gui 1:Font, s12
+Gui 1:Add, Text, x384 y42 w436 h84, These scripts aren't made for exploitation or cheating. `nThey are simple scripts to use in single/coop games. `nSome anti-cheat software can ban you if you use them to cheat/exploit. Please play fair.
 Gui 1:Font
-Gui 1:Font, s11
 ;//////////////[Mouse Hold]///////////////
-Gui 1:Add, GroupBox, x375 y27 w450 h56, Mouse Hold
-Gui 1:Font
+Gui 1:Add, GroupBox, x376 y128 w450 h56, Mouse Hold
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Text, x381 y48 w83 h23 +0x200, Mouse button:
-Gui 1:Add, DropDownList, x471 y48 w88 gGuiSubmit vMouseHoldList, Left||Middle|Right
-Gui 1:Add, Text, x562 y48 w47 h23 +0x200, Hotkey:
-Gui 1:Add, Hotkey, x614 y48 w120 h21 gGuiSubmit vMouseHoldHotkey
-Gui 1:Add, Button, x737 y37 w80 h23 gSaveMouseHoldSettings, Save Hotkey
+Gui 1:Add, Text, x384 y152 w83 h23 +0x200, Mouse button:
+Gui 1:Add, DropDownList, x472 y152 w94 gGuiSubmit vMouseHoldList, Left||Middle|Right
+Gui 1:Add, Text, x576 y152 w47 h23 +0x200, Hotkey:
+Gui 1:Add, Hotkey, x632 y152 w120 h21 gSaveMouseHoldSettings vMouseHoldHotkey
+;Gui 1:Add, Button, x737 y37 w80 h23 gSaveMouseHoldSettings, Save Hotkey
 Gui 1:Font
-Gui 1:Font, s11
-Gui 1:Add, CheckBox, x740 y61 w70 h18 gMouseHoldEnabled vMouseHoldCheckbox, Enabled
-Gui 1:Font
+;Gui 1:Font, s11
+;Gui 1:Add, CheckBox, x740 y61 w70 h18 gMouseHoldEnabled vMouseHoldCheckbox, Enabled
+;Gui 1:Font
+Gui 1:Add, Picture, x760 y144 w54 h29 vMouseHoldCheckbox gMouseHoldEnabled, %GuiPictureFolder%/off.png
 Gui 1:Font, s11
 ;//////////////[Mouse Clicker]///////////////
-Gui 1:Add, GroupBox, x375 y86 w450 h80, Mouse Clicker
+Gui 1:Add, GroupBox, x376 y184 w450 h80, Mouse Clicker
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Text, x381 y104 w83 h23 +0x200 , Mouse button:
-Gui 1:Add, DropDownList, x471 y104 w88 gGuiSubmit vMouseClickerList, Left||Middle|Right
-Gui 1:Add, Text, x562 y104 w47 h23 +0x200 , Hotkey:
-Gui 1:Add, Hotkey, x614 y104 w120 h21 gGuiSubmit vMouseClickerHotkey
-Gui 1:Add, Button, x737 y104 w80 h23 gSaveMouseClickerSettings, Save Settings
-Gui 1:Add, Text, x383 y134 w62 h23 +0x200 , Timer: (ms)
-Gui 1:Add, Edit, x449 y136 w120 h21 +Number gGuiSubmit vMouseClickerDelay, 150
+Gui 1:Add, Text, x384 y200 w83 h23 +0x200 , Mouse button:
 Gui 1:Font
-Gui 1:Font, s11
-Gui 1:Add, CheckBox, x743 y132 w70 h23 gMouseClickerEnabled vMouseClickerCheckbox, Enabled
-Gui 1:Font
+Gui 1:Add, DropDownList, x464 y200 w104 gGuiSubmit vMouseClickerList, Left||Middle|Right
+Gui 1:Add, Text, x576 y200 w47 h23 +0x200 , Hotkey:
+Gui 1:Add, Hotkey, x624 y200 w120 h21 gSaveMouseClickerSettings vMouseClickerHotkey
+;Gui 1:Add, Button, x737 y104 w80 h23 gSaveMouseClickerSettings, Save Settings
+Gui 1:Add, Text, x384 y232 w62 h23 +0x200 , Timer: (ms)
+Gui 1:Add, Edit, x448 y232 w120 h21 +Number gGuiSubmit vMouseClickerDelay, 150
+;Gui 1:Font, s11
+;Gui 1:Add, CheckBox, x743 y132 w70 h23 gMouseClickerEnabled vMouseClickerCheckbox, Enabled
+;Gui 1:Font
+Gui 1:Add, Picture, x760 y194 w54 h29 gMouseClickerEnabled vMouseClickerCheckbox, %GuiPictureFolder%/off.png
 Gui 1:Font, s11
 ;//////////////[Auto Run/Walk]///////////////
-Gui 1:Add, GroupBox, x375 y168 w450 h78, Auto Run/Walk (Hold "W" [3D games only])
+Gui 1:Add, GroupBox, x376 y264 w450 h50, Auto Run/Walk (Hold "W" [3D games only])
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Text, x385 y185 w47 h23 +0x200, Hotkey:
-Gui 1:Add, Hotkey, x438 y185 w120 h21 gGuiSubmit vToggleRunHotkey
-Gui 1:Add, Button, x737 y185 w80 h23 gSaveToggleRun, Save Hotkey
-Gui 1:Add, CheckBox, x385 y212 w93 h23 +Checked gAutoRunUseShiftButton, Run (Use shift)
+Gui 1:Add, Text, x384 y280 w47 h23 +0x200, Hotkey:
+Gui 1:Add, Hotkey, x440 y280 w120 h21 gSaveToggleRun vToggleRunHotkey
+;Gui 1:Add, Button, x737 y185 w80 h23 gSaveToggleRun, Save Hotkey
+Gui 1:Add, CheckBox, x576 y280 w93 h23 +Checked gAutoRunUseShiftButton vAutoRunUseShiftButtonVar, Run (Use shift)
 ;Gui 1:Add, CheckBox, x564 y183 w171 h23 gGuiSubmit vTurnOffAutoRunByMovement, Turn off by any movement
-Gui 1:Font
-Gui 1:Font, s11
-Gui 1:Add, CheckBox, x745 y214 w70 h23 gEnableAutoRun vAutoRunCheckbox, Enabled
-Gui 1:Font
-Gui 1:Font, s11
+;Gui 1:Font, s11
+;Gui 1:Add, CheckBox, x745 y214 w70 h23 gEnableAutoRun vAutoRunCheckbox, Enabled
+;Gui 1:Font
+Gui 1:Add, Picture, x762 y274 w54 h29 gEnableAutoRun vAutoRunCheckbox, %GuiPictureFolder%/off.png
 ;//////////////[Always on top]///////////////
+Gui 1:Font, s11
 Gui 1:Add, GroupBox, x2 y27 w367 h55, Toggle any application to Always on top by hotkey
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, Text, x9 y50 w47 h23 +0x200, Hotkey:
-Gui 1:Add, Hotkey, x59 y50 w120 h21 vAlwaysOnTopHotkey gGuiSubmit
-Gui 1:Add, Button, x281 y49 w80 h23 gSaveAlwaysOnTopHotkey, Save Hotkey
-Gui 1:Font
-Gui 1:Font, s11
-Gui 1:Add, CheckBox, x201 y51 w70 h23 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, Enabled
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
+Gui 1:Add, Hotkey, x59 y50 w120 h21 vAlwaysOnTopHotkey gSaveAlwaysOnTopHotkey
+Gui 1:Add, Picture, x201 y48 w50 h25 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, %GuiPictureFolder%/off.png
+;Gui 1:Add, Button, x281 y49 w80 h23 gSaveAlwaysOnTopHotkey, Save Hotkey
+;Gui 1:Font
+;Gui 1:Font, s11
+;Gui 1:Add, CheckBox, x201 y51 w70 h23 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, Enabled
+;Gui 1:Font
 ;//////////////[Disable buttons]///////////////
-Gui 1:Add, GroupBox, x375 y400 w450 h111, Disable buttons
-Gui 1:Add, CheckBox, x383 y426 w156 h23 gDisableWindowsButton vDisableWindowsCheckbox, Disable Windows button
-Gui 1:Add, CheckBox, x383 y450 w120 h23 gDisableCapsLockButton vDisableCapsLockCheckbox, Disable Caps Lock
-Gui 1:Add, CheckBox, x542 y426 w74 h23 gEnableWindowsRebind vRebindWindowsCheckbox, Rebind to:
-Gui 1:Add, Hotkey, x622 y427 w120 h21 gGuiSubmit vRebindWindowsButton ;Windows
-Gui 1:Add, CheckBox, x542 y450 w77 h23 gEnableCapsLockRebind vRebindCapsLockCheckbox, Rebind to:
-Gui 1:Add, Hotkey, x622 y451 w120 h21 gGuiSubmit vRebindCapsLockButton ;capslock
-Gui 1:Add, Button, x732 y478 w80 h23 gSaveRebindHotkeys, Save Hotkeys
-Gui 1:Add, CheckBox, x385 y479 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
+Gui 1:Font, s9, Segoe UI
+Gui 1:Add, GroupBox, x3 y99 w366 h111, Disable or Rebind buttons
+Gui 1:Add, CheckBox, x16 y120 w156 h23 gDisableWindowsButton vDisableWindowsCheckbox, Disable Windows button
+Gui 1:Add, CheckBox, x16 y144 w120 h23 gDisableCapsLockButton vDisableCapsLockCheckbox, Disable Caps Lock
+Gui 1:Add, CheckBox, x176 y120 w74 h23 gEnableWindowsRebind vRebindWindowsCheckbox, Rebind to:
+Gui 1:Add, Hotkey, x256 y120 w110 h21 gGuiSubmit vRebindWindowsButton ;Windows
+Gui 1:Add, CheckBox, x176 y144 w77 h23 gEnableCapsLockRebind vRebindCapsLockCheckbox, Rebind to:
+Gui 1:Add, Hotkey, x256 y144 w110 h21 gGuiSubmit vRebindCapsLockButton ;capslock
+;Gui 1:Add, Button, x732 y478 w80 h23 gSaveRebindHotkeys, Save Hotkeys
+Gui 1:Add, CheckBox, x16 y168 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
 Gui 1:Font
 ;____________________________________________________________
 ;//////////////[Startup stuff]///////////////
@@ -1270,7 +1279,7 @@ return
 ;//////////////[Auto Run/Walk]///////////////
 SaveToggleRun:
 SaveHotkey(ToggleRunHotkey, "AutoRun")
-goto EnableAutoRun
+;goto EnableAutoRun
 return
 EnableAutoRun:
 Gui, 1:Submit, Nohide
@@ -1280,14 +1289,20 @@ if (ToggleRunHotkey == "")
     GuiControl,1:,AutoRunCheckbox,0
     return
 }
-if (AutoRunCheckbox)
+T_AutoRunCheckboxState := CheckboxToggle("AutoRunCheckbox")
+if (T_AutoRunCheckboxState)
 {
     Hotkey, %ToggleRunHotkey%,ToggleAutoRun, ON
     Hotkey, *%ToggleRunHotkey%,ToggleAutoRun, ON
+    GuiControl,Disable,ToggleRunHotkey
+    GuiControl,Disable,AutoRunUseShiftButtonVar
 } 
 else
 {
     Hotkey, %ToggleRunHotkey%,ToggleAutoRun, OFF
+    Hotkey, *%ToggleRunHotkey%,ToggleAutoRun, OFF
+    GuiControl,Enable,ToggleRunHotkey
+    GuiControl,Enable,AutoRunUseShiftButtonVar
 }
 return
 ToggleAutoRun:
@@ -1330,13 +1345,18 @@ if (MouseHoldHotkey == "")
     GuiControl,1:,MouseHoldCheckbox,0
     return
 }
-if (MouseHoldCheckbox)
+T_MouseHoldCheckboxState := CheckboxToggle("MouseHoldCheckbox")
+if (T_MouseHoldCheckboxState)
 {
     Hotkey, %MouseHoldHotkey%,MouseHoldAction, ON
+    GuiControl,1:Disable,MouseHoldHotkey
+    GuiControl,1:Disable,MouseHoldList
 }
 else
 {
     Hotkey, %MouseHoldHotkey%,MouseHoldAction, Off
+    GuiControl,1:Enable,MouseHoldHotkey
+    GuiControl,1:Enable,MouseHoldList
 }
 return
 MouseHoldAction:
@@ -1374,7 +1394,6 @@ else
 return
 SaveMouseHoldSettings:
 SaveHotkey(MouseHoldHotkey, "MouseHoldHotkey")
-;SaveHotkey(MouseHoldList,"MouseHoldButton") ;Save to gamemode. Same as hotkey
 return
 ;____________________________________________________________
 ;//////////////[Mouse Clicker]///////////////
@@ -1386,13 +1405,20 @@ if (MouseClickerHotkey == "")
     GuiControl,1:,MouseClickerCheckbox,0
     return
 }
-if (MouseClickerCheckbox)
+T_MouseClickerCheckboxState := CheckboxToggle("MouseClickerCheckbox")
+if (T_MouseClickerCheckboxState)
 {
     Hotkey, %MouseClickerHotkey%,MouseClickerAction, ON
+    GuiControl,1:Disable,MouseClickerList
+    GuiControl,1:Disable,MouseClickerHotkey
+    GuiControl,1:Disable,MouseClickerDelay
 }
 else
 {
     Hotkey, %MouseClickerHotkey%,MouseClickerAction, Off
+    GuiControl,1:Enable,MouseClickerList
+    GuiControl,1:Enable,MouseClickerHotkey
+    GuiControl,1:Enable,MouseClickerDelay
 }
 return
 MouseClickerAction:
@@ -1405,7 +1431,7 @@ While (MouseClickerToggle)
 return
 SaveMouseClickerSettings:
 SaveHotkey(MouseClickerHotkey, "MouseClickerHotkey")
-SaveHotkey(MouseClickerDelay, "MouseClickerDelay")
+;SaveHotkey(MouseClickerDelay, "MouseClickerDelay")
 return
 ;____________________________________________________________
 ;//////////////[Disable buttons]///////////////
@@ -1491,10 +1517,12 @@ WindowsButtonRebindEnabled := !WindowsButtonRebindEnabled
 if (WindowsButtonRebindEnabled)
 {
     Hotkey, LWin, WindowsButtonRebinded, On
+    GuiControl,1:Disable,RebindWindowsButton
 }
 else
 {
     Hotkey, LWin, WindowsButtonRebinded, Off
+    GuiControl,1:Enable,RebindWindowsButton
 }
 return
 WindowsButtonRebinded:
@@ -1521,10 +1549,12 @@ CapsLockButtonRebindEnabled := !CapsLockButtonRebindEnabled
 if (CapsLockButtonRebindEnabled)
 {
     Hotkey, CapsLock, CapsLockButtonRebinded, On
+    GuiControl,1:Disable,RebindCapsLockButton
 }
 else
 {
     Hotkey, CapsLock, CapsLockButtonRebinded, Off
+    GuiControl,1:Enable,RebindCapsLockButton
 }
 return
 CapsLockButtonRebinded:
@@ -1539,29 +1569,30 @@ return
 ;____________________________________________________________
 ;//////////////[SaveAlwaysOnTopHotkey]///////////////
 SaveAlwaysOnTopHotkey:
-    SaveHotkey(AlwaysOnTopHotkey, "AlwaysOnTopHotkey")
-    goto EnableAlwaysOnTop
+SaveHotkey(AlwaysOnTopHotkey, "AlwaysOnTopHotkey")
 return
 AlwaysOnTopHotkeyPress:
     Winset, Alwaysontop, , A
 return
 EnableAlwaysOnTop:
-Gui, 1:Submit, Nohide
-if (AlwaysOnTopCheckbox)
+T_GetCheckboxStateAlwaysOnTop := CheckboxToggle("AlwaysOnTopCheckbox")
+if (T_GetCheckboxStateAlwaysOnTop)
 {
     Hotkey, %AlwaysOnTopHotkey%,AlwaysOnTopHotkeyPress, ON
+    GuiControl,1:disable,AlwaysOnTopHotkey
 } 
 else
 {
     Hotkey, %AlwaysOnTopHotkey%,AlwaysOnTopHotkeyPress, OFF
+    GuiControl,1:enable,AlwaysOnTopHotkey
 }
 return
 SaveAlwaysOnTopHotkey_Menu:
 SaveHotkey(AlwaysOnTopHotkey_Menu, "AlwaysOnTopHotkey_Menu")
 return
 AlwaysOnTopHotkey_Menu:
-T_GetCheckboxStateAlwaysOnTop := CheckboxToggle("AlwaysOnTopHotkey_MenuButton")
-if (T_GetCheckboxStateAlwaysOnTop)
+T_GetCheckboxStateAlwaysOnTop_Menu := CheckboxToggle("AlwaysOnTopHotkey_MenuButton")
+if (T_GetCheckboxStateAlwaysOnTop_Menu)
 {
     Hotkey, %AlwaysOnTopHotkey_Menu%,AlwaysOnTopHotkeyPress, ON
     GuiControl,1:disable,AlwaysOnTopHotkey_Menu
@@ -1881,16 +1912,7 @@ CheckboxToggle(T_Image)
 }
 UpdateAllCustomCheckboxes()
 {
-    iniread, T_ImageState,%AppSettingsIni%,CustomCheckbox,AlwaysOnTopHotkey_MenuButton
-    if(T_ImageState == "" or T_ImageState == "ERROR" or T_ImageState == "false")
-    {
-        ;off
-    }
-    else
-    {
-        ;GuiControl,1:,AlwaysOnTopHotkey_MenuButton,%GuiPictureFolder%/on.png ;on
-        IniWrite, false,%AppSettingsIni%,CustomCheckbox,AlwaysOnTopHotkey_MenuButton
-    }
+    IniDelete,%AppSettingsIni%,CustomCheckbox
 }
 NotAdminError()
 {
