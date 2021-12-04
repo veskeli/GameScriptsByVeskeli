@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3895
+version = 0.3896
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -45,7 +45,7 @@ MouseClickerToggle = 0
 ;//////////////[variables]///////////////
 CloseToTray := false
 PinSlot := [5]
-ShowChangelog := true
+ShowChangelog := false
 ;//////////////[Gui Pictures]///////////////
 PinPic = %GuiPictureFolder%\pin.png
 RemovePinPic = %GuiPictureFolder%\removepin.png
@@ -135,10 +135,11 @@ Gui 1:Tab, Settings
 Gui 1:Add, GroupBox, x8 y32 w175 h88, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
 Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on start
-Gui 1:Add, GroupBox, x8 y122 w175 h106, Settings for this script.
+Gui 1:Add, GroupBox, x8 y122 w175 h130, Settings for this script.
 Gui 1:Add, CheckBox, x16 y144 w143 h23 gKeepThisAlwaysOnTop, Keep this always on top
 Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray
 Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
+Gui 1:Add, Button, x16 y224 w133 h23 gShowChangelogButton, Show Changelog
 Gui 1:Add, GroupBox, x499 y442 w150 h67 +Hidden vDownloadExperimentalBranchGroupbox, Experimental
 Gui 1:Add, Button, x504 y464 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
 Gui 1:Font
@@ -624,16 +625,31 @@ IfNotExist, %AppSettingsIni%
 ;Last thing is to show changelog
 if(ShowChangelog)
 {
-    whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-    T_ChangelogLink = % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Changelog/" . version . ".txt"
-    whr.Open("GET", T_ChangelogLink, False)
-    whr.Send()
-    whr.WaitForResponse()
-    ChangelogText := whr.ResponseText
+    UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Changelog/" . version,%AppFolder%/Changelog.txt
+    FileRead, ChangelogText,%AppFolder%/Changelog.txt
     if(ChangelogText != "" and ChangelogText != "404: Not Found" and ChangelogText != "500: Internal Server Error")
     {
-        MsgBox,Changelog,%ChangelogText%
+        MsgBox,,Changelog %version%, %ChangelogText%
     }
+    else
+    {
+        FileDelete, %AppFolder%/Changelog.txt
+    }
+}
+return
+;____________________________________________________________
+;//////////////[Changelog]///////////////
+ShowChangelogButton:
+UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Changelog/" . version,%AppFolder%/Changelog.txt
+FileRead, ChangelogText,%AppFolder%/Changelog.txt
+if(ChangelogText != "" and ChangelogText != "404: Not Found" and ChangelogText != "500: Internal Server Error")
+{
+    MsgBox,,Changelog %version%, %ChangelogText%
+}
+else
+{
+    MsgBox,,No Changelog!,The current version doesn't have a changelog.,10
+    FileDelete, %AppFolder%/Changelog.txt
 }
 return
 ;____________________________________________________________
@@ -1576,12 +1592,18 @@ T_GetCheckboxStateAlwaysOnTop := CheckboxToggle("AlwaysOnTopCheckbox")
 if (T_GetCheckboxStateAlwaysOnTop)
 {
     Hotkey, %AlwaysOnTopHotkey%,AlwaysOnTopHotkeyPress, ON
-    GuiControl,1:disable,AlwaysOnTopHotkey
+    GuiControl,1:Disable,AlwaysOnTopHotkey
+    ;Disable duplicate
+    GuiControl,1:Disable,AlwaysOnTopHotkey_Menu
+    GuiControl,1:Disable,AlwaysOnTopHotkey_MenuButton
 } 
 else
 {
     Hotkey, %AlwaysOnTopHotkey%,AlwaysOnTopHotkeyPress, OFF
-    GuiControl,1:enable,AlwaysOnTopHotkey
+    GuiControl,1:Enable,AlwaysOnTopHotkey
+    ;Enable duplicate
+    GuiControl,1:Enable,AlwaysOnTopHotkey_Menu
+    GuiControl,1:Enable,AlwaysOnTopHotkey_MenuButton
 }
 return
 SaveAlwaysOnTopHotkey_Menu:
@@ -1592,12 +1614,18 @@ T_GetCheckboxStateAlwaysOnTop_Menu := CheckboxToggle("AlwaysOnTopHotkey_MenuButt
 if (T_GetCheckboxStateAlwaysOnTop_Menu)
 {
     Hotkey, %AlwaysOnTopHotkey_Menu%,AlwaysOnTopHotkeyPress, ON
-    GuiControl,1:disable,AlwaysOnTopHotkey_Menu
+    GuiControl,1:Disable,AlwaysOnTopHotkey_Menu
+    ;Disable duplicate
+    GuiControl,1:Disable,AlwaysOnTopHotkey
+    GuiControl,1:Disable,AlwaysOnTopCheckbox
 } 
 else
 {
     Hotkey, %AlwaysOnTopHotkey_Menu%,AlwaysOnTopHotkeyPress, OFF
-    GuiControl,1:enable,AlwaysOnTopHotkey_Menu
+    GuiControl,1:Enable,AlwaysOnTopHotkey_Menu
+    ;Enable duplicate
+    GuiControl,1:Enable,AlwaysOnTopHotkey
+    GuiControl,1:Enable,AlwaysOnTopCheckbox
 }
 return
 ;____________________________________________________________
