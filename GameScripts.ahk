@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3894
+version = 0.3895
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -45,6 +45,7 @@ MouseClickerToggle = 0
 ;//////////////[variables]///////////////
 CloseToTray := false
 PinSlot := [5]
+ShowChangelog := true
 ;//////////////[Gui Pictures]///////////////
 PinPic = %GuiPictureFolder%\pin.png
 RemovePinPic = %GuiPictureFolder%\removepin.png
@@ -75,6 +76,7 @@ IfExist %AppUpdateFile%
 {
     FileDelete, %AppUpdateFile% ;delete old file after update
     FileRemoveDir, %AppFolder%\temp ;Delete temp directory
+    ShowChangelog := true
 }
 IfNotExist %GuiPictureFolder%
 {
@@ -247,11 +249,7 @@ Gui 1:Add, Text, x384 y152 w83 h23 +0x200, Mouse button:
 Gui 1:Add, DropDownList, x472 y152 w94 gGuiSubmit vMouseHoldList, Left||Middle|Right
 Gui 1:Add, Text, x576 y152 w47 h23 +0x200, Hotkey:
 Gui 1:Add, Hotkey, x632 y152 w120 h21 gSaveMouseHoldSettings vMouseHoldHotkey
-;Gui 1:Add, Button, x737 y37 w80 h23 gSaveMouseHoldSettings, Save Hotkey
 Gui 1:Font
-;Gui 1:Font, s11
-;Gui 1:Add, CheckBox, x740 y61 w70 h18 gMouseHoldEnabled vMouseHoldCheckbox, Enabled
-;Gui 1:Font
 Gui 1:Add, Picture, x760 y144 w54 h29 vMouseHoldCheckbox gMouseHoldEnabled, %GuiPictureFolder%/off.png
 Gui 1:Font, s11
 ;//////////////[Mouse Clicker]///////////////
@@ -263,12 +261,8 @@ Gui 1:Font
 Gui 1:Add, DropDownList, x464 y200 w104 gGuiSubmit vMouseClickerList, Left||Middle|Right
 Gui 1:Add, Text, x576 y200 w47 h23 +0x200 , Hotkey:
 Gui 1:Add, Hotkey, x624 y200 w120 h21 gSaveMouseClickerSettings vMouseClickerHotkey
-;Gui 1:Add, Button, x737 y104 w80 h23 gSaveMouseClickerSettings, Save Settings
 Gui 1:Add, Text, x384 y232 w62 h23 +0x200 , Timer: (ms)
 Gui 1:Add, Edit, x448 y232 w120 h21 +Number gGuiSubmit vMouseClickerDelay, 150
-;Gui 1:Font, s11
-;Gui 1:Add, CheckBox, x743 y132 w70 h23 gMouseClickerEnabled vMouseClickerCheckbox, Enabled
-;Gui 1:Font
 Gui 1:Add, Picture, x760 y194 w54 h29 gMouseClickerEnabled vMouseClickerCheckbox, %GuiPictureFolder%/off.png
 Gui 1:Font, s11
 ;//////////////[Auto Run/Walk]///////////////
@@ -277,12 +271,7 @@ Gui 1:Font
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, Text, x384 y280 w47 h23 +0x200, Hotkey:
 Gui 1:Add, Hotkey, x440 y280 w120 h21 gSaveToggleRun vToggleRunHotkey
-;Gui 1:Add, Button, x737 y185 w80 h23 gSaveToggleRun, Save Hotkey
 Gui 1:Add, CheckBox, x576 y280 w93 h23 +Checked gAutoRunUseShiftButton vAutoRunUseShiftButtonVar, Run (Use shift)
-;Gui 1:Add, CheckBox, x564 y183 w171 h23 gGuiSubmit vTurnOffAutoRunByMovement, Turn off by any movement
-;Gui 1:Font, s11
-;Gui 1:Add, CheckBox, x745 y214 w70 h23 gEnableAutoRun vAutoRunCheckbox, Enabled
-;Gui 1:Font
 Gui 1:Add, Picture, x762 y274 w54 h29 gEnableAutoRun vAutoRunCheckbox, %GuiPictureFolder%/off.png
 ;//////////////[Always on top]///////////////
 Gui 1:Font, s11
@@ -292,11 +281,6 @@ Gui 1:Font, s9, Segoe UI
 Gui 1:Add, Text, x9 y50 w47 h23 +0x200, Hotkey:
 Gui 1:Add, Hotkey, x59 y50 w120 h21 vAlwaysOnTopHotkey gSaveAlwaysOnTopHotkey
 Gui 1:Add, Picture, x201 y48 w50 h25 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, %GuiPictureFolder%/off.png
-;Gui 1:Add, Button, x281 y49 w80 h23 gSaveAlwaysOnTopHotkey, Save Hotkey
-;Gui 1:Font
-;Gui 1:Font, s11
-;Gui 1:Add, CheckBox, x201 y51 w70 h23 gEnableAlwaysOnTop vAlwaysOnTopCheckbox, Enabled
-;Gui 1:Font
 ;//////////////[Disable buttons]///////////////
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x3 y99 w366 h111, Disable or Rebind buttons
@@ -306,7 +290,6 @@ Gui 1:Add, CheckBox, x176 y120 w74 h23 gEnableWindowsRebind vRebindWindowsCheckb
 Gui 1:Add, Hotkey, x256 y120 w110 h21 gGuiSubmit vRebindWindowsButton ;Windows
 Gui 1:Add, CheckBox, x176 y144 w77 h23 gEnableCapsLockRebind vRebindCapsLockCheckbox, Rebind to:
 Gui 1:Add, Hotkey, x256 y144 w110 h21 gGuiSubmit vRebindCapsLockButton ;capslock
-;Gui 1:Add, Button, x732 y478 w80 h23 gSaveRebindHotkeys, Save Hotkeys
 Gui 1:Add, CheckBox, x16 y168 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
 Gui 1:Font
 ;____________________________________________________________
@@ -584,7 +567,7 @@ IfExist, %AppSettingsIni%
             GuiControl,1:Show,DownloadExperimentalBranchGroupbox
             GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
             ;check if there is new stable
-            goto CheckForStableVersion
+            GoSub CheckForStableVersion
         }
         else
         {
@@ -600,7 +583,7 @@ IfExist, %AppSettingsIni%
                 GuiControl,1:show,DownloadExperimentalBranchButton
                 GuiControl,1:Show,DownloadExperimentalBranchGroupbox
             }
-            goto checkForupdates
+            GoSub checkForupdates
         }
     }
     else
@@ -636,6 +619,20 @@ IfNotExist, %AppSettingsIni%
         {
             IniWrite, 1, %AppSettingsIni%, Intro, SkipIntro
         }
+    }
+}
+;Last thing is to show changelog
+if(ShowChangelog)
+{
+    whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+    T_ChangelogLink = % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/Changelog/" . version . ".txt"
+    whr.Open("GET", T_ChangelogLink, False)
+    whr.Send()
+    whr.WaitForResponse()
+    ChangelogText := whr.ResponseText
+    if(ChangelogText != "" and ChangelogText != "404: Not Found" and ChangelogText != "500: Internal Server Error")
+    {
+        MsgBox,Changelog,%ChangelogText%
     }
 }
 return
