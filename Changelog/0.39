@@ -1,0 +1,25 @@
+The whole app has been rewritten for a better user experience.
+
+New features:
++ Show Changelog
++ New Home screen
+    + Pin other scripts to the home screen
+    + Quick actions
++ Satisfactory Save Manager [Other Scripts]
+
+Changes:
++ Gaming scripts and other scripts are now in the same tab
++ GameMode is now "Basic scripts"
++ Basic Scripts tab rework
++ Settings tab rework
++ Other scripts tab rework
++ windows tab rework
+
+Removed:
++ Numpad Macro Deck (For stability issues.)
+    Numpad macro deck might be coming back but removed because it's unstable.
++ "Capture only in game" [Basic scripts]
++ Some settings from the settings tab(Not in use or unstable)
++ Factorio script [Gaming scrpts](Not in use)
++ Better Discord Troubleshooter [Other Scripts](Not released yet)
++ Some windows settings from the windows tab(Not in use or unstable)
