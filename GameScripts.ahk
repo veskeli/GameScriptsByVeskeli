@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3892
+version = 0.3893
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -89,7 +89,7 @@ else
     MsgBox,,Asset download error,Assets needs to be Redownloaded `n You can re download assets from settings tab
 }
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Tab3, x0 y0 w898 h640, Home|Settings|Other Scripts|Windows and Voicemeeter|Basic Scripts
+Gui 1:Add, Tab3, x0 y0 w898 h640, Home|Settings|Other Scripts|Windows|Voicemeeter|Basic Scripts
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Home]///////////////
@@ -117,20 +117,20 @@ Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, % Ch
 Gui 1:Add, Button, x128 y148 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Add, Button, x128 y236 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
 Gui 1:Font
-Gui 1:Add, GroupBox, x432 y160 w386 h62, Always on top
+Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
 Gui 1:Font, s12
 Gui 1:Add, Text, x440 y184 w61 h23 +0x200, Hotkey:
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Hotkey, x504 y184 w120 h21 +Disabled
-;Gui 1:Add, Picture, x632 y182 w50 h25, 
+Gui 1:Add, Hotkey, x504 y184 w120 h21 vAlwaysOnTopHotkey_Menu gSaveAlwaysOnTopHotkey_Menu
+Gui 1:Add, Picture, x632 y182 w50 h25 gAlwaysOnTopHotkey_Menu vAlwaysOnTopHotkey_MenuButton, %GuiPictureFolder%/off.png
 Gui 1:Font
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
 Gui 1:Tab, 2
-Gui 1:Add, GroupBox, x8 y32 w175 h98, Admin
+Gui 1:Add, GroupBox, x8 y32 w175 h88, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
 Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on start
 Gui 1:Add, GroupBox, x8 y122 w175 h106, Settings for this script.
@@ -147,7 +147,7 @@ Gui 1:Font
 Gui 1:Add, CheckBox, x656 y416 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui 1:Add, Button, x672 y440 w128 h23 gcheckForupdates, Check for updates
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, GroupBox, x8 y339 w175 h89, Debug
+Gui 1:Add, GroupBox, x8 y339 w175 h80, Debug
 Gui 1:Add, Button, x16 y360 w139 h27 gOpenAppSettingsFolder, Open Settings Folder
 Gui 1:Add, Button, x16 y392 w116 h23 gOpenAppSettingsFile, Open settings File
 Gui 1:Add, GroupBox, x8 y419 w175 h94, Delete Stuff
@@ -155,9 +155,9 @@ Gui 1:Add, Button, x16 y440 w103 h23 gDeleteAppSettings, Delete all settings
 Gui 1:Add, Button, x16 y464 w135 h42 gDeleteAllFiles, Delete all files (including this script)
 Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
-Gui 1:Add, Button, x512 y48 w67 h28 vDownloadEXERunnerButton gDownloadEXERunner, Download
-Gui 1:Add, GroupBox, x301 y31 w281 h63, exe Shortcut
-Gui 1:Add, Text, x305 y48 w208 h40, Changes current ahk file with .exe`n(ahk files cannot be pinned to taskbar)
+Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
+Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
+Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is asimple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
@@ -195,31 +195,42 @@ Gui 1:Add, Button, x248 y196 w100 h23 gOpenSatisfactorySaveManagerInGithub, Open
 Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
 ;____________________________________________________________
 ;____________________________________________________________
-;//////////////[Windows and voicemeeter]///////////////
+;//////////////[Windows]///////////////
 Gui 1:Tab, 4
-Gui 1:Add, GroupBox, x8 y32 w332 h256, Windows
-Gui 1:Add, GroupBox, x8 y48 w193 h99, Clear Stuff
-Gui 1:Add, Button, x16 y72 w171 h30 gClearWindowsTempFolder, Clear Windows temp folder
-Gui 1:Add, Button, x16 y104 w171 h34 gClearAllRecentDocumentsInWordpad, Clear all recent documents in wordpad
-Gui 1:Add, GroupBox, x200 y48 w140 h99, Open stuff
-Gui 1:Add, Button, x208 y64 w80 h23 gOpenCmd, Open CMD
-Gui 1:Add, Button, x208 y88 w126 h23 gOpenCmdAsAdmin, Open CMD as admin
-Gui 1:Add, Button, x208 y112 w80 h23 gRunIpConfig, IPConfig
-Gui 1:Add, GroupBox, x8 y139 w193 h149, Toggle windows game settings
-Gui 1:Add, CheckBox, x16 y160 w131 h23 gToggleXboxOverlay vXboxOverlayCheckbox, Xbox Overlay
-Gui 1:Add, CheckBox, x16 y184 w120 h23 gToggleGameDVR vToggleGameDVRCheckbox, Game DVR
-Gui 1:Add, CheckBox, x16 y208 w120 h23 gToggleGameMode vToggleGameModeCheckbox, Game Mode
-Gui 1:Add, GroupBox, x200 y139 w140 h149, Open Folders
-Gui 1:Add, Button, x208 y160 w90 h23 gOpenAppdataFolder, Appdata
-Gui 1:Add, Button, x208 y184 w90 h23 gOpenStartupFolder, Startup
-Gui 1:Add, Button, x208 y208 w91 h23 gOpenWindowsTempFolder, Windows Temp
-Gui 1:Add, Button, x208 y232 w89 h23 gOpenMyDocuments, My Documents
-Gui 1:Add, Button, x208 y256 w89 h23 gOpenDesktop, Desktop
+Gui 1:Add, GroupBox, x8 y388 w317 h124, Free Space on your device.
+Gui 1:Add, Text, x24 y408 w278 h23 +0x200,Deletes Windows temporary files that are not in use.
+Gui 1:Font, s11
+Gui 1:Add, Button, x16 y440 w264 h30 gClearWindowsTempFolder, Clear Windows temporary folder
+Gui 1:Font
+Gui 1:Add, Button, x16 y478 w265 h28 gClearAllRecentDocumentsInWordpad, Clear all recent documents in wordpad
+Gui 1:Add, GroupBox, x8 y32 w140 h99,Open command prompt
+Gui 1:Add, Button, x16 y48 w80 h23 gOpenCmd, Open CMD
+Gui 1:Add, Button, x16 y72 w126 h23 gOpenCmdAsAdmin, Open CMD as admin
+Gui 1:Add, Button, x16 y96 w80 h23 gRunIpConfig, IPConfig
+Gui 1:Add, GroupBox, x152 y32 w164 h99, Toggle windows game settings
+Gui 1:Add, CheckBox, x160 y48 w131 h23 gToggleXboxOverlay vXboxOverlayCheckbox, Xbox Overlay
+Gui 1:Add, CheckBox, x160 y72 w120 h23 gToggleGameDVR vToggleGameDVRCheckbox, Game DVR
+Gui 1:Add, CheckBox, x160 y96 w120 h23 gToggleGameMode vToggleGameModeCheckbox, Game Mode
+Gui 1:Add, GroupBox, x8 y136 w140 h149, Open Folders
+Gui 1:Add, Button, x16 y152 w90 h23 gOpenAppdataFolder, Appdata
+Gui 1:Add, Button, x16 y176 w90 h23 gOpenStartupFolder, Startup
+Gui 1:Add, Button, x16 y200 w91 h23 gOpenWindowsTempFolder, Windows Temp
+Gui 1:Add, Button, x16 y224 w89 h23 gOpenMyDocuments, My Documents
+Gui 1:Add, Button, x16 y248 w89 h23 gOpenDesktop, Desktop
+Gui 1:Add, GroupBox, x456 y32 w372 h200, Advanced Features
+Gui 1:Add, CheckBox, x682 y28 w134 h23 gToggleadvancedWindowsFeatures vToggleadvancedWindowsFeaturesCheckbox,I know what I'm doing.
+Gui 1:Add, CheckBox, x464 y64 w143 h23 +Disabled gToggleClipboardHistory vToggleClipboardHistoryCheckbox, Clipboard histroy Sync
+Gui 1:Add, CheckBox, x464 y88 w180 h23 +Disabled gAutomaticallyBackupRegistery vAutomaticallyBackupRegisteryCheckbox, Automatically backup registery
+Gui 1:Add, CheckBox, x464 y112 w177 h30 +Disabled gClearVirtualMemoryPageFileAtShutdown vClearVirtualMemoryPageFileAtShutdownCheckbox, Clear virtual memorypage file during shutdown
+Gui 1:Add, CheckBox, x464 y144 w230 h48 +Disabled vToggleFeaturedAutoInstallCheckbox, Toggle Windows 10 Featured or Suggested Apps from Automatically Installing
+Gui 1:Add, Button, x464 y200 w171 h23 +Disabled gDisableMostOfAds vDisableMostOfAdsButton, Disable Most Of ads
+Gui 1:Add, Button, x648 y200 w169 h23 +Disabled gRestoreMostOfAds vRestoreMostOfAdsButton, Restore Most Of ads
+Gui 1:Tab, 5
 Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Basic scripts]///////////////
-Gui 1:Tab, 5
+Gui 1:Tab, 6
 Gui 1:Font
 Gui 1:Font, s11
 ;//////////////[Mouse Hold]///////////////
@@ -298,6 +309,10 @@ if(A_IsAdmin)
 }
 IfExist, %AppHotkeysIni% 
 {
+    ;//////////////[Menu Tab]///////////////
+    IniRead, Temp_AlwayOnTopHotkey_Menu, %AppHotkeysIni%, GameMode, AlwaysOnTopHotkey_Menu
+	GuiControl,1:,AlwaysOnTopHotkey_Menu,%Temp_AlwayOnTopHotkey_Menu%
+    ;//////////////[Basic Scripts]///////////////
     ;Always on top hotkey
     IniRead, Temp_AlwayOnTopHotkey, %AppHotkeysIni%, GameMode, AlwaysOnTopHotkey
 	GuiControl,1:,AlwaysOnTopHotkey,%Temp_AlwayOnTopHotkey%
@@ -371,6 +386,7 @@ IfExist, %AppSettingsIni%
         GuiControl,1:,% "Pin" . "SatisfactorySaveManager" . "IMG",%GuiPictureFolder%\removepin.png
     }
     UpdateHomeScreen()
+    UpdateAllCustomCheckboxes()
 }
 IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 {
@@ -704,7 +720,7 @@ else
 }
 return
 ClearWindowsTempFolder:
-Progress, b w300, Wait while script is deleting temp files, Deleting Temp Files..., Deleting Temp Files...
+Progress, b w300, Wait while the script is deleting temporary files., Deleting Temporary Files..., Deleting Temporary Files...
 dir= %A_Temp%
 FileDelete, %dir%\*.*
 Loop, %dir%\*.*, 2
@@ -714,7 +730,7 @@ Loop, %dir%\*.*, 2
 }
 Progress, 100
 Progress, Off
-MsgBox,,All Done!,Temp Folder Cleared,5
+MsgBox,,All Done!,Unused temporary files deleted.,5
 return
 OpenCmd:
 run, %ComSpec%
@@ -731,6 +747,130 @@ return
 OpenSounds:
 Run, mmsys.cpl
 return
+ToggleadvancedWindowsFeatures:
+Gui, 1:Submit, Nohide
+if(ToggleadvancedWindowsFeaturesCheckbox)
+{
+    GuiControl,1:Enable,ToggleClipboardHistoryCheckbox
+    GuiControl,1:Enable,AutomaticallyBackupRegisteryCheckbox
+    GuiControl,1:Enable,ClearVirtualMemoryPageFileAtShutdownCheckbox
+    GuiControl,1:Enable,ToggleFeaturedAutoInstallCheckbox
+    GuiControl,1:Enable,DisableMostOfAdsButton
+    GuiControl,1:Enable,RestoreMostOfAdsButton
+}
+else
+{
+    GuiControl,1:Disable,ToggleClipboardHistoryCheckbox
+    GuiControl,1:Disable,AutomaticallyBackupRegisteryCheckbox
+    GuiControl,1:Disable,ClearVirtualMemoryPageFileAtShutdownCheckbox
+    GuiControl,1:Disable,ToggleFeaturedAutoInstallCheckbox
+    GuiControl,1:Disable,DisableMostOfAdsButton
+    GuiControl,1:Disable,RestoreMostOfAdsButton
+}
+return
+ToggleClipboardHistory:
+Gui, 1:Submit, Nohide
+if(ToggleClipboardHistoryCheckbox)
+{
+    if(!A_IsAdmin)
+    {
+        NotAdminError()
+        GuiControl,1:,ToggleClipboardHistoryCheckbox,0
+        return
+    } 
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System,AllowClipboardHistory,1
+}
+else
+{
+    if(!A_IsAdmin)
+    {
+        NotAdminError()
+        GuiControl,1:,ToggleClipboardHistoryCheckbox,1
+        return
+    }
+    regDelete,HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System,AllowClipboardHistory
+}
+AutomaticallyBackupRegistery:
+Gui, 1:Submit, Nohide
+if(AutomaticallyBackupRegisteryCheckbox)
+{
+    if(!A_IsAdmin)
+    {
+        NotAdminError()
+        GuiControl,1:,AutomaticallyBackupRegisteryCheckbox,0
+        return
+    }
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager,EnablePeriodicBackup,1
+}
+else
+{
+    if(!A_IsAdmin)
+    {
+        NotAdminError()
+        GuiControl,1:,AutomaticallyBackupRegisteryCheckbox,1
+        return
+    }
+    regDelete,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Configuration Manager,EnablePeriodicBackup
+}
+return
+ClearVirtualMemoryPageFileAtShutdown:
+Gui, 1:Submit, Nohide
+if(ClearVirtualMemoryPageFileAtShutdownCheckbox)
+{
+    if(!A_IsAdmin)
+    {
+        NotAdminError()
+        GuiControl,1:,ClearVirtualMemoryPageFileAtShutdownCheckbox,0
+        return
+    }
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management,ClearPageFileAtShutdown,1
+}
+else
+{
+    if(!A_IsAdmin)
+    {
+        NotAdminError()
+        GuiControl,1:,ClearVirtualMemoryPageFileAtShutdownCheckbox,1
+        return
+    }
+    regWrite,REG_DWORD,HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management,ClearPageFileAtShutdown,0
+}
+return
+DisableMostOfAds:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SystemPaneSuggestionsEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced,ShowSyncProviderNotifications,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SoftLandingEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenOverlayEnabled,0
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SubscribedContent-310093Enabled,0
+UpdateSettingsFromRegistery()
+return
+RestoreMostOfAds:
+regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SystemPaneSuggestionsEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced,ShowSyncProviderNotifications,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SoftLandingEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,RotatingLockScreenOverlayEnabled,1
+regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SubscribedContent-310093Enabled,1
+UpdateSettingsFromRegistery()
+Return
+ToggleFeaturedAutoInstall:
+Gui, 1:Submit, Nohide
+if(ToggleFeaturedAutoInstallCheckbox)
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,1
+}
+else
+{
+    regWrite,REG_DWORD,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager,SilentInstalledAppsEnabled,0
+}
+UpdateSettingsFromRegistery()
+return
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Voicemeeter]///////////////
 SetVoicemeeterAsDefaultAudioDevice:
 SetDefaultEndpoint(GetDeviceID(Devices, "VoiceMeeter Aux Input"))
 return
@@ -1416,6 +1556,22 @@ else
     Hotkey, %AlwaysOnTopHotkey%,AlwaysOnTopHotkeyPress, OFF
 }
 return
+SaveAlwaysOnTopHotkey_Menu:
+SaveHotkey(AlwaysOnTopHotkey_Menu, "AlwaysOnTopHotkey_Menu")
+return
+AlwaysOnTopHotkey_Menu:
+T_GetCheckboxStateAlwaysOnTop := CheckboxToggle("AlwaysOnTopHotkey_MenuButton")
+if (T_GetCheckboxStateAlwaysOnTop)
+{
+    Hotkey, %AlwaysOnTopHotkey_Menu%,AlwaysOnTopHotkeyPress, ON
+    GuiControl,1:disable,AlwaysOnTopHotkey_Menu
+} 
+else
+{
+    Hotkey, %AlwaysOnTopHotkey_Menu%,AlwaysOnTopHotkeyPress, OFF
+    GuiControl,1:enable,AlwaysOnTopHotkey_Menu
+}
+return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Functions]///////////////
@@ -1695,21 +1851,53 @@ RunPinnedApp(Slot)
 CheckboxToggle(T_Image)
 {
     T_state := false
-    iniread, T_ImageState,%AppSettingsIni%,CustomCheckbox,T_Image
-    if(T_ImageState == "" or T_ImageState == "false" or T_ImageState == "ERROR")
+    iniread, T_ImageState,%AppSettingsIni%,CustomCheckbox,%T_Image%
+    if(T_ImageState == "" or T_ImageState == "ERROR")
     {
-        T_state := false
+        T_state := true
+        ;Save state
+        IniWrite, true,%AppSettingsIni%,CustomCheckbox,%T_Image%
+    }
+    else if(T_ImageState == "false")
+    {
+        T_state := true
+        IniWrite, true,%AppSettingsIni%,CustomCheckbox,%T_Image%
     }
     else
     {
-        T_state := true
+        T_state := false
+        IniWrite, false,%AppSettingsIni%,CustomCheckbox,%T_Image%
     }
     if(T_state)
     {
-        GuiControl,,T_Image,%GuiPictureFolder%/on.png
+        GuiControl,1:,% T_Image,%GuiPictureFolder%/on.png
+        return true
     }
     else
     {
-        GuiControl,,T_Image,%GuiPictureFolder%/off.png
+        GuiControl,1:,% T_Image,%GuiPictureFolder%/off.png
+        return false
+    }
+}
+UpdateAllCustomCheckboxes()
+{
+    iniread, T_ImageState,%AppSettingsIni%,CustomCheckbox,AlwaysOnTopHotkey_MenuButton
+    if(T_ImageState == "" or T_ImageState == "ERROR" or T_ImageState == "false")
+    {
+        ;off
+    }
+    else
+    {
+        ;GuiControl,1:,AlwaysOnTopHotkey_MenuButton,%GuiPictureFolder%/on.png ;on
+        IniWrite, false,%AppSettingsIni%,CustomCheckbox,AlwaysOnTopHotkey_MenuButton
+    }
+}
+NotAdminError()
+{
+    MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
+    IfMsgBox, ok
+    {
+        Run *RunAs %A_ScriptFullPath%
+        ExitApp
     }
 }
