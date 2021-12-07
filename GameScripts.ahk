@@ -31,9 +31,9 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.391
+version = 0.392
 ;//////////////[Experimental]///////////////
-IsThisExperimental := false
+IsThisExperimental := true
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -160,7 +160,7 @@ Gui 1:Add, Button, x16 y464 w135 h42 gDeleteAllFiles, Delete all files (includin
 Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
 Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
-Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner +Disabled, Download EXE Runner
+Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
 Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 Gui 1:Font, s14
 Gui 1:Add, Button, x624 y32 w206 h35 gReportAnIssueOrBug, Report an issue or bug
@@ -962,15 +962,15 @@ if(IsEXERunnerEnabled)
     {
         MsgBox, Error while moving files
         return
-    }    
+    }
     FileDelete, %T_RevertLocation%\%ScriptName%.exe
     if ErrorLevel
     {
-        FileRecycle, %T_RevertLocation%\%ScriptName%.exe
-        if ErrorLevel
-        {
-            MsgBox, Error while deleting file`nYou need to delete exe file manually`nBut Revert is still successful.
-        }
+        ;FileRecycle, %T_RevertLocation%\%ScriptName%.exe
+        ;if ErrorLevel
+        ;{
+        MsgBox, Error while deleting file`nYou need to delete exe file manually`nBut Revert is still successful.
+        ;}
     }
     IniWrite,false,%AppSettingsIni%, ExeRunner, UsingExeRunner
     GuiControl,1:,DownloadEXERunnerButton,Download EXE Runner
@@ -978,12 +978,20 @@ if(IsEXERunnerEnabled)
 }
 else
 { 
+    IniRead, T_RevertLocation,%AppSettingsIni%, ExeRunner, ExeFileLocation
+    if(T_RevertLocation == "" or T_RevertLocation == "ERROR")
+    {
+        T_FileBeforeMoveLocation = %A_ScriptDir%
+    }
+    else
+    {
+        T_FileBeforeMoveLocation = %T_RevertLocation%
+    }
     ;Download exe runner
-    T_FileBeforeMoveLocation = %A_ScriptDir%
     IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
     IniWrite,%A_ScriptDir%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
     FileMove, %A_ScriptFullPath%,%AppFolder%\%ScriptName%.ahk ,1
-    GuiControl,1:,DownloadEXERunnerButton,Delete EXE Runner
+    GuiControl,1:,DownloadEXERunnerButton,Revert
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe , %T_FileBeforeMoveLocation%\GameScripts.exe
     IsEXERunnerEnabled := true
 }
