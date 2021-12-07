@@ -31,9 +31,9 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.392
+version = 0.393
 ;//////////////[Experimental]///////////////
-IsThisExperimental := true
+IsThisExperimental := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -69,6 +69,7 @@ global SatisfactorySaveManager
 global SatisfactorySaveManagerLocation
 global PinSlot
 ;____________________________________________________________
+UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
 ;//////////////[Startup checks]///////////////
@@ -150,7 +151,8 @@ Gui 1:Font
 Gui 1:Add, CheckBox, x656 y416 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui 1:Add, Button, x672 y440 w128 h23 gcheckForupdates, Check for updates
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, GroupBox, x8 y321 w175 h97, Debug
+Gui 1:Add, GroupBox, x8 y295 w175 h123, Debug
+Gui 1:Add, Button, x16 y312 w110 h23 gOpenScriptFolder, Open Script Folder
 Gui 1:Add, Button, x16 y336 w100 h23 gOpenThisInGithub, Open in github
 Gui 1:Add, Button, x16 y360 w139 h27 gOpenAppSettingsFolder, Open Settings Folder
 Gui 1:Add, Button, x16 y392 w116 h23 gOpenAppSettingsFile, Open settings File
@@ -554,8 +556,6 @@ else
         Gui 1:Show, w835 h517,I don't have a problem with caffeine. I have a problem without it.
     }
 }
-
-UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[Check for updates]///////////////
 IfExist, %AppSettingsIni%
@@ -698,9 +698,21 @@ return
 OpenStartMenu:
 run, %A_StartMenu%
 return
-ToggleXboxOverlay1:
+ToggleXboxOverlay1: ; Home screen
 Gui, 1:Submit, Nohide
 GuiControl,1:,XboxOverlayCheckbox,%XboxOverlayCheckbox1%
+goto ToggleXboxOverlay
+return
+ToggleXboxOverlay2: ;tray
+Gui, 1:Submit, Nohide
+if(XboxOverlayCheckbox == 1)
+{
+    GuiControl,1:,XboxOverlayCheckbox,0
+}
+else
+{
+    GuiControl,1:,XboxOverlayCheckbox,1
+}
 goto ToggleXboxOverlay
 return
 ToggleXboxOverlay:
@@ -709,10 +721,12 @@ GuiControl,1:,XboxOverlayCheckbox1,%XboxOverlayCheckbox%
 if(XboxOverlayCheckbox)
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,1
+    Menu,QuickActions,Check,Xbox Overlay
 }
 else
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,0
+    Menu,QuickActions,UnCheck,Xbox Overlay
 }
 return
 ToggleGameMode:
@@ -733,16 +747,30 @@ Gui, 1:Submit, Nohide
 GuiControl,1:,ToggleGameDVRCheckbox,%ToggleGameDVRCheckbox1%
 Goto ToggleGameDVR
 return
+ToggleGameDVR2:
+Gui, 1:Submit, Nohide
+if(ToggleGameDVRCheckbox == 1)
+{
+    GuiControl,1:,ToggleGameDVRCheckbox,0
+}
+else
+{
+    GuiControl,1:,ToggleGameDVRCheckbox,1
+}
+Goto ToggleGameDVR
+return
 ToggleGameDVR:
 Gui, 1:Submit, Nohide
 GuiControl,1:,ToggleGameDVRCheckbox1,%ToggleGameDVRCheckbox%
 if(ToggleGameDVRCheckbox)
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
+    Menu,QuickActions,Check,Game DVR
 }
 else
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
+    Menu,QuickActions,UnCheck,Game DVR
 }
 return
 ClearWindowsTempFolder:
@@ -936,6 +964,9 @@ else
     IniWrite, false,%AppSettingsIni%,Settings,CloseToTray
 }
 return
+OpenScriptFolder:
+run, %A_ScriptDir%
+return
 OpenAppSettingsFolder:
 run, %AppFolder%
 return
@@ -966,33 +997,22 @@ if(IsEXERunnerEnabled)
     FileDelete, %T_RevertLocation%\%ScriptName%.exe
     if ErrorLevel
     {
-        ;FileRecycle, %T_RevertLocation%\%ScriptName%.exe
-        ;if ErrorLevel
-        ;{
         MsgBox, Error while deleting file`nYou need to delete exe file manually`nBut Revert is still successful.
-        ;}
     }
     IniWrite,false,%AppSettingsIni%, ExeRunner, UsingExeRunner
     GuiControl,1:,DownloadEXERunnerButton,Download EXE Runner
     IsEXERunnerEnabled := false
+    IniDelete,%AppSettingsIni%, ExeRunner
 }
 else
-{ 
-    IniRead, T_RevertLocation,%AppSettingsIni%, ExeRunner, ExeFileLocation
-    if(T_RevertLocation == "" or T_RevertLocation == "ERROR")
-    {
-        T_FileBeforeMoveLocation = %A_ScriptDir%
-    }
-    else
-    {
-        T_FileBeforeMoveLocation = %T_RevertLocation%
-    }
+{
+    T_FileBeforeMoveLocation = %A_ScriptDir%
     ;Download exe runner
     IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
     IniWrite,%A_ScriptDir%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
     FileMove, %A_ScriptFullPath%,%AppFolder%\%ScriptName%.ahk ,1
     GuiControl,1:,DownloadEXERunnerButton,Revert
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe , %T_FileBeforeMoveLocation%\GameScripts.exe
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe, %T_FileBeforeMoveLocation%\GameScripts.exe
     IsEXERunnerEnabled := true
 }
 ;____________________________________________________________
@@ -1664,6 +1684,11 @@ UpdateTrayicon()
         Menu,Tray,NoStandard
         Menu,Tray,Add,Show GUI,OpenMainGui
         Menu,Tray,Add
+        Menu,QuickActions,Add,Xbox Overlay,ToggleXboxOverlay2
+        Menu,QuickActions,Add,Game DVR,ToggleGameDVR2
+        Menu,QuickActions,Add,Clear Windows Temp Folder,ClearWindowsTempFolder
+        Menu,Tray,Add, Quick Actions, :QuickActions
+        Menu,Tray,Add
         Menu,Tray,Add,Open Appdata Folder,OpenAppdataFolder
         Menu,Tray,Add,Run IpConfig,RunIpConfig
         Menu,Tray,Add,Open Sounds,OpenSounds
@@ -1685,11 +1710,13 @@ UpdateSettingsFromRegistery()
     {
         GuiControl,1:,XboxOverlayCheckbox,1
         GuiControl,1:,XboxOverlayCheckbox1,1
+        Menu,QuickActions,Check,Xbox Overlay
     }
     else
     {
         GuiControl,1:,XboxOverlayCheckbox,0
         GuiControl,1:,XboxOverlayCheckbox1,0
+        Menu,QuickActions,UnCheck,Xbox Overlay
     }
     ;Game mode
     regRead,T_GameModeConfig,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode
@@ -1708,11 +1735,13 @@ UpdateSettingsFromRegistery()
     {
         GuiControl,1:,ToggleGameDVRCheckbox,1
         GuiControl,1:,ToggleGameDVRCheckbox1,1
+        Menu,QuickActions,Check,Game DVR
     }
     else
     {
         GuiControl,1:,ToggleGameDVRCheckbox,0
         GuiControl,1:,ToggleGameDVRCheckbox1,0
+        Menu,QuickActions,UnCheck,Game DVR
     }
 }
 UninstallScript(tName)
