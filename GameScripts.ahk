@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.39
+version = 0.391
 ;//////////////[Experimental]///////////////
 IsThisExperimental := false
 ;//////////////[Action variables]///////////////
@@ -160,7 +160,7 @@ Gui 1:Add, Button, x16 y464 w135 h42 gDeleteAllFiles, Delete all files (includin
 Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
 Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
-Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
+Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner +Disabled, Download EXE Runner
 Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 Gui 1:Font, s14
 Gui 1:Add, Button, x624 y32 w206 h35 gReportAnIssueOrBug, Report an issue or bug
@@ -1309,7 +1309,6 @@ Gui, 1:Submit, Nohide
 if (ToggleRunHotkey == "")
 {
     MsgBox,,Hotkey Empty, Hotkey Is Empty,15
-    GuiControl,1:,AutoRunCheckbox,0
     return
 }
 T_AutoRunCheckboxState := CheckboxToggle("AutoRunCheckbox")
@@ -1365,7 +1364,6 @@ Gui, 1:Submit, Nohide
 if (MouseHoldHotkey == "")
 {
     MsgBox,,Hotkey Empty, Hotkey Is Empty,15
-    GuiControl,1:,MouseHoldCheckbox,0
     return
 }
 T_MouseHoldCheckboxState := CheckboxToggle("MouseHoldCheckbox")
@@ -1425,7 +1423,6 @@ Gui, 1:Submit, Nohide
 if (MouseClickerHotkey == "")
 {
     MsgBox,,Hotkey Empty, Hotkey Is Empty,15
-    GuiControl,1:,MouseClickerCheckbox,0
     return
 }
 T_MouseClickerCheckboxState := CheckboxToggle("MouseClickerCheckbox")
@@ -1598,6 +1595,12 @@ AlwaysOnTopHotkeyPress:
     Winset, Alwaysontop, , A
 return
 EnableAlwaysOnTop:
+Gui,Submit,Nohide
+if(AlwaysOnTopHotkey == "")
+{
+    MsgBox,,Hotkey Empty, Hotkey Is Empty,15
+    return
+}
 T_GetCheckboxStateAlwaysOnTop := CheckboxToggle("AlwaysOnTopCheckbox")
 if (T_GetCheckboxStateAlwaysOnTop)
 {
@@ -1620,6 +1623,11 @@ SaveAlwaysOnTopHotkey_Menu:
 SaveHotkey(AlwaysOnTopHotkey_Menu, "AlwaysOnTopHotkey_Menu")
 return
 AlwaysOnTopHotkey_Menu:
+if(AlwaysOnTopHotkey_Menu == "")
+{
+    MsgBox,,Hotkey Empty, Hotkey Is Empty,15
+    return
+}
 T_GetCheckboxStateAlwaysOnTop_Menu := CheckboxToggle("AlwaysOnTopHotkey_MenuButton")
 if (T_GetCheckboxStateAlwaysOnTop_Menu)
 {
