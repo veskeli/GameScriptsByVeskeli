@@ -4,16 +4,14 @@
 
 2. Install AutoHotkey
 
-3. Download GameScriptsByVeskeli.ahk
+3. Download [Game Scripts installer](https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.394/GameScriptsInstaller.ahk)
 
-4. Move GameScriptsByVeskeli.ahk where you want it. (For example desktop)
+4. Run Game Scripts installer
 
-5. Run GameScriptsByVeskeli.ahk
-
-6. Enjoy
+5. Enjoy
 
 [![https://www.autohotkey.com/](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/Ahk.png)](https://www.autohotkey.com/)
-[![https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.36/GameScripts.ahk](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/MyScript.png)](https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.32/GameScripts.ahk)
+[![https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.36/GameScripts.ahk](https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/rm/MyScript.png)](https://github.com/veskeli/GameScriptsByVeskeli/releases/download/0.394/GameScriptsInstaller.ahk)
 
 ### What it does
 + Basic scripts in one app
