@@ -31,9 +31,9 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.393
+version = 0.394
 ;//////////////[Experimental]///////////////
-IsThisExperimental := false
+IsThisExperimental := true
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -135,7 +135,7 @@ Gui 1:Font
 Gui 1:Tab, Settings
 Gui 1:Add, GroupBox, x8 y32 w175 h88, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
-Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on start
+Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on script start
 Gui 1:Add, GroupBox, x8 y122 w175 h130, Settings for this script.
 Gui 1:Add, CheckBox, x16 y144 w143 h23 gKeepThisAlwaysOnTop, Keep this always on top
 Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray
@@ -151,14 +151,14 @@ Gui 1:Font
 Gui 1:Add, CheckBox, x656 y416 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui 1:Add, Button, x672 y440 w128 h23 gcheckForupdates, Check for updates
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, GroupBox, x8 y295 w175 h123, Debug
+Gui 1:Add, GroupBox, x8 y295 w170 h123, Debug
 Gui 1:Add, Button, x16 y312 w110 h23 gOpenScriptFolder, Open Script Folder
 Gui 1:Add, Button, x16 y336 w100 h23 gOpenThisInGithub, Open in github
 Gui 1:Add, Button, x16 y360 w139 h27 gOpenAppSettingsFolder, Open Settings Folder
 Gui 1:Add, Button, x16 y392 w116 h23 gOpenAppSettingsFile, Open settings File
-Gui 1:Add, GroupBox, x8 y419 w175 h94, Delete Stuff
+Gui 1:Add, GroupBox, x8 y419 w170 h80, Delete Stuff
 Gui 1:Add, Button, x16 y440 w103 h23 gDeleteAppSettings, Delete all settings
-Gui 1:Add, Button, x16 y464 w135 h42 gDeleteAllFiles, Delete all files (including this script)
+Gui 1:Add, Button, x16 y464 w103 h23 gDeleteAllFiles, Uninstall
 Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
 Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
@@ -562,7 +562,8 @@ IfExist, %AppSettingsIni%
 {
     ;Is check for updates enabled
     IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
-    GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
+    if(Temp_CheckUpdatesOnStartup != "ERROR")
+        GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
     if(Temp_CheckUpdatesOnStartup == 1)
     {
         if(IsThisExperimental)
@@ -1208,9 +1209,16 @@ IfMsgBox, Cancel
 }
 else
 {
+    IniRead,T_AppInstallLocation,%AppSettingsIni%, install, InstallFolder
+    if(T_AppInstallLocation != "Error" Or T_AppInstallLocation != "")
+    {
+        FileRemoveDir, %T_AppInstallLocation%,1
+    }
+    IfExist, % A_Desktop . "\" . ScriptName . ".lnk"
+    {
+        FileDelete,% A_Desktop . "\" . ScriptName . ".lnk"
+    }
     FileRemoveDir, %AppFolder%,1
-    ;Reset all settings when settings files are removed
-    GuiControl,1:,CheckUpdatesOnStartup,0
 }
 return
 DeleteAppSettings:
