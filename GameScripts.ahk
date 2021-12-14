@@ -33,7 +33,7 @@ AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;//////////////[Version]///////////////
 version = 0.394
 ;//////////////[Experimental]///////////////
-IsThisExperimental := true
+IsThisExperimental := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -1220,7 +1220,7 @@ else
     }
     FileRemoveDir, %AppFolder%,1
 }
-return
+ExitApp
 DeleteAppSettings:
 MsgBox, 1,Are you sure?,All Settings will be deleted!, 15
 IfMsgBox, Cancel
