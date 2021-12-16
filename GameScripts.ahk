@@ -31,9 +31,9 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3941
+version = 0.395
 ;//////////////[Experimental]///////////////
-IsThisExperimental := true
+IsThisExperimental := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
