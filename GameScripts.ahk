@@ -31,7 +31,7 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.394
+version = 0.395
 ;//////////////[Experimental]///////////////
 IsThisExperimental := false
 ;//////////////[Action variables]///////////////
@@ -67,6 +67,8 @@ global GHUBTool
 global NgrokTool
 global SatisfactorySaveManager
 global SatisfactorySaveManagerLocation
+global MinecraftServerManager
+global MinecraftServerManagerLocation
 global PinSlot
 ;____________________________________________________________
 UpdateTrayicon()
@@ -202,6 +204,16 @@ Gui 1:Add, Button, x352 y196 w80 h23 gUninstallSatisfactorySaveManager vUninstal
 Gui 1:Add, Button, x160 y196 w80 h23 +disabled, Settings
 Gui 1:Add, Button, x248 y196 w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
 Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
+;Minecraft Simple Server Manager
+Gui 1:Font, s13
+Gui 1:Add, GroupBox, x8 y237 w430 h69, Minecraft Simple Server Manager[Early Access]
+Gui 1:Font
+Gui 1:Font, s9, Segoe UI
+Gui 1:Add, Button, x16 y266 w131 h23 gDownloadMinecraftServerManager vDowloadMinecraftServerManagerButton, Download
+Gui 1:Add, Button, x352 y266 w80 h23 gUninstallMinecraftServerManager vUninstallMinecraftServerManagerButton +Disabled, Delete
+Gui 1:Add, Button, x160 y266 w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y266 w100 h23 gOpenMinecraftServerManagerInGithub, Open in Github
+Gui 1:Add, Picture, x413 y249 w18 h18 gPinMinecraftServerManager vPinMinecraftServerManagerIMG +Hidden, %PinPic%
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows]///////////////
@@ -384,6 +396,11 @@ IfExist, %AppSettingsIni%
     {
         GuiControl,1:,% "Pin" . "SatisfactorySaveManager" . "IMG",%GuiPictureFolder%\removepin.png
     }
+    IniRead, Temp_MinecraftServerManagerPin,%AppSettingsIni%,Pinned,% "MinecraftServerManager" . "IsPinned"
+    if(Temp_MinecraftServerManagerPin == "true")
+    {
+        GuiControl,1:,% "Pin" . "MinecraftServerManager" . "IMG",%GuiPictureFolder%\removepin.png
+    }
     UpdateHomeScreen()
     UpdateAllCustomCheckboxes()
 }
@@ -410,6 +427,14 @@ IfExist %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
     SatisfactorySaveManager := true
     GuiControl,1:Show ,PinSatisfactorySaveManagerIMG
+}
+IfExist %AppOtherScriptsFolder%\SimpleMinecraftServerManager.ahk
+{
+    GuiControl,1: , DowloadMinecraftServerManagerButton, % Chr(0x25B6) . " Open"
+    GuiControl,1:Enable,UninstallMinecraftServerManagerButton
+    MinecraftServerManagerLocation = %AppOtherScriptsFolder%\SimpleMinecraftServerManager.ahk
+    MinecraftServerManager := true
+    GuiControl,1:Show ,PinMinecraftServerManagerIMG
 }
 IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
 {
@@ -606,25 +631,22 @@ IfExist, %AppSettingsIni%
 }
 ;____________________________________________________________
 ;//////////////[Intro]///////////////
-IfNotExist, %AppSettingsIni%
+IniRead, Temp_IntroCheck, %AppSettingsIni%, Intro, SkipIntro
+if (Temp_IntroCheck != 1)
 {
-    IniRead, Temp_IntroCheck, %AppSettingsIni%, Intro, SkipIntro
-    if (Temp_IntroCheck != 1)
+    MsgBox, 4,Check updates on start?, Would you like to enable auto updates.
+    IfMsgBox Yes
     {
-        MsgBox, 4,Check updates on start?, Would you like to enable auto updates.
-        IfMsgBox Yes
-        {
-            Gui, 1:Submit, Nohide
-            FileCreateDir, %AppFolder%
-            FileCreateDir, %AppSettingsFolder%
-            IniWrite, 1, %AppSettingsIni%, Updates, CheckOnStartup
-            GuiControl,1:,CheckUpdatesOnStartup,1
-            IniWrite, 1, %AppSettingsIni%, Intro, SkipIntro
-        }
-        else
-        {
-            IniWrite, 1, %AppSettingsIni%, Intro, SkipIntro
-        }
+        Gui, 1:Submit, Nohide
+        FileCreateDir, %AppFolder%
+        FileCreateDir, %AppSettingsFolder%
+        IniWrite, 1, %AppSettingsIni%, Updates, CheckOnStartup
+        GuiControl,1:,CheckUpdatesOnStartup,1
+        IniWrite, 1, %AppSettingsIni%, Intro, SkipIntro
+    }
+    else
+    {
+        IniWrite, 1, %AppSettingsIni%, Intro, SkipIntro
     }
 }
 ;Last thing is to show changelog
@@ -1268,6 +1290,34 @@ Return
 OpenNgrokInGithub:
     run, https://github.com/veskeli/NgrokAhk
 return
+DownloadMinecraftServerManager:
+if (!MinecraftServerManager)
+{
+    FileCreateDir, %AppFolder%
+    FileCreateDir, %AppOtherScriptsFolder%
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/SimpleMinecraftServerManager/main/SimpleMinecraftServerManager.ahk, %AppOtherScriptsFolder%\SimpleMinecraftServerManager.ahk
+    ;write save/Update Gui
+    GuiControl,1:, DowloadMinecraftServerManagerButton, % Chr(0x25B6) . " Open"
+    GuiControl,1:Enable,UninstallMinecraftServerManagerButton
+    MinecraftServerManagerLocation = %AppOtherScriptsFolder%\SimpleMinecraftServerManager.ahk
+    MinecraftServerManager := True
+    GuiControl,1:Show ,PinMinecraftServerManagerIMG
+}
+Else ;app is already istalled/downloaded
+{
+    run, %MinecraftServerManagerLocation%
+}
+Return
+UninstallMinecraftServerManager:
+UninstallScript("MinecraftServerManager")
+Return
+PinMinecraftServerManager:
+PinAppOrAction("MinecraftServerManager")
+return
+;Minecraft server manager
+OpenMinecraftServerManagerInGithub:
+    run, https://github.com/veskeli/SimpleMinecraftServerManager
+return
 OpenSatisfactorySaveManagerInGithub:
     run, https://github.com/veskeli/SatisfactorySaveManager
 return
@@ -1767,7 +1817,7 @@ UninstallScript(tName)
         GuiControl,1:, DowloadGHUBToolButton, Download
         GuiControl,1:Disable ,UninstallGHUBToolScritpButton
         GuiControl,1:Hide ,PinGHUBToolIMG
-        PinAppOrAction(tName)
+        RemovePinAppOrAction(tName)
     }
     if(tName == "NgrokTool")
     {
@@ -1782,7 +1832,7 @@ UninstallScript(tName)
         GuiControl,1:, DownloadNgrokToolButton, Download
         GuiControl,1:Disable ,UninstallNgrokToolButton
         GuiControl,1:Hide ,PinNgrokToolIMG
-        PinAppOrAction(tName)
+        RemovePinAppOrAction(tName)
     }
     if(tName == "SatisfactorySaveManager")
     {
@@ -1797,7 +1847,21 @@ UninstallScript(tName)
         GuiControl,1:, DownloadSatisfactorySaveManagerButton, Download
         GuiControl,1:Disable ,UninstallSatisfactorySaveManagerButton
         GuiControl,1:Hide ,PinSatisfactorySaveManagerIMG
-        PinAppOrAction(tName)
+        RemovePinAppOrAction(tName)
+    }
+    if(tName == "MinecraftServerManager")
+    {
+        FileDelete, %MinecraftServerManagerLocation%
+        if ErrorLevel
+        {
+            MsgBox,, Error, Error while deleting`nSometimes script cannot delete files`nYou can manually delete if necessary
+            return
+        }
+        MinecraftServerManager := False
+        GuiControl,1:, DowloadMinecraftServerManagerButton, Download
+        GuiControl,1:Disable ,UninstallMinecraftServerManagerButton
+        GuiControl,1:Hide ,PinMinecraftServerManagerIMG
+        RemovePinAppOrAction(tName)
     }
 }
 ;Example SetDefaultEndpoint(GetDeviceID(Devices, "Speakers"))
@@ -1874,6 +1938,21 @@ PinAppOrAction(AppOrAction)
         }
         SavePinToSlot(T_PinSlotNum,AppOrAction)
     }
+}
+RemovePinAppOrAction(AppOrAction)
+{
+    IniRead, T_IsPinned,%AppSettingsIni%,Pinned,% AppOrAction . "IsPinned"
+    if(T_IsPinned == "ERROR")
+    {
+        T_IsPinned := false
+    }
+    GuiControl,1:,% "Pin" . AppOrAction . "IMG",%GuiPictureFolder%\pin.png
+    IniRead, T_PinSlotNum,%AppSettingsIni%,Pinned,%AppOrAction%
+    if(T_PinSlotNum == "ERROR")
+    {
+        return
+    }
+    RemovePinSlot(T_PinSlotNum,AppOrAction)
 }
 GetPinSlot()
 {
