@@ -31,9 +31,9 @@ AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.395
+version = 0.3951
 ;//////////////[Experimental]///////////////
-IsThisExperimental := false
+IsThisExperimental := true
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -1224,6 +1224,11 @@ else
 return
 ;//////////////[Delete files]///////////////
 DeleteAllFiles: ;uninstall
+if(!A_IsAdmin)
+{
+    NotAdminError()
+    Return
+}
 MsgBox, 1,Are you sure?,All files will be deleted!, 15
 IfMsgBox, Cancel
 {
@@ -1240,7 +1245,10 @@ else
     {
         FileDelete,% A_Desktop . "\" . ScriptName . ".lnk"
     }
-    FileRemoveDir, %AppFolder%,1
+    IfExist, %AppFolder%
+        FileRemoveDir, %AppFolder% ,1
+    IfExist, %A_ScriptFullPath%
+        FileDelete, %A_ScriptFullPath%
 }
 ExitApp
 DeleteAppSettings:
@@ -2083,10 +2091,13 @@ UpdateAllCustomCheckboxes()
 }
 NotAdminError()
 {
-    MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
-    IfMsgBox, ok
+    if(!A_IsAdmin)
     {
-        Run *RunAs %A_ScriptFullPath%
-        ExitApp
+        MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
+        IfMsgBox, ok
+        {
+            Run *RunAs %A_ScriptFullPath%
+            ExitApp
+        }
     }
 }
