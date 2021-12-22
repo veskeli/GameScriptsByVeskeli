@@ -1,7 +1,7 @@
 /*
 This is installer for GameScripts
 https://github.com/veskeli/GameScriptsByVeskeli
-version: 0.2
+version: 0.3
 */
 #SingleInstance Force
 #NoEnv
@@ -17,6 +17,11 @@ AppSettingsFolder = %AppFolder%\Settings
 GuiPictureFolder = %AppFolder%\Gui
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 T_SkipShortcut := false
+if(!A_IsAdmin)
+{
+    Run *RunAs %A_ScriptFullPath%
+    ExitApp
+}
 
 Menu Tray, Icon, shell32.dll, 163
 
@@ -100,7 +105,7 @@ if(ErrorLevel)
     {
         if(!A_IsAdmin)
         {
-            Run *Run %A_ScriptFullPath%
+            Run *RunAs %A_ScriptFullPath%
             ExitApp
         }
         Else
@@ -130,7 +135,7 @@ else
             MsgBox, 4,Install Error, Can't create folders. `nfolder: %AppInstallLocation% `nWould you like to run this script as admin?
             IfMsgBox Yes
             {
-                Run *Run %A_ScriptFullPath%
+                Run *RunAs %A_ScriptFullPath%
                 ExitApp
             }
             Else
@@ -157,11 +162,11 @@ if(InstallAsExe)
 {
     IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
     IniWrite,%AppInstallLocation%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe ,% AppInstallLocation . "\" . ScriptName . ".exe"
+    UrlDownloadToFile, https://github.com/veskeli/GameScriptsByVeskeli/raw/main/exe/GameScripts.exe,% AppInstallLocation . "\GameScripts.exe"
 }
 else
 {
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk ,% AppInstallLocation . "\" . ScriptName . ".ahk"
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk,% AppInstallLocation . "\GameScripts.ahk"
 }
 if(ErrorLevel)
 {
