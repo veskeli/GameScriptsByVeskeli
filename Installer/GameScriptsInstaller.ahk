@@ -1,6 +1,7 @@
 /*
 This is installer for GameScripts
 https://github.com/veskeli/GameScriptsByVeskeli
+version: 0.2
 */
 #SingleInstance Force
 #NoEnv
@@ -15,6 +16,7 @@ AppFolder = %A_AppData%\%AppFolderName%
 AppSettingsFolder = %AppFolder%\Settings
 GuiPictureFolder = %AppFolder%\Gui
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
+T_SkipShortcut := false
 
 Menu Tray, Icon, shell32.dll, 163
 
@@ -91,6 +93,27 @@ FileCreateDir,%AppFolder%
 FileCreateDir,%AppSettingsFolder%
 ;Download main script to Appdata
 UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk,% AppFolder . "\" . ScriptName . ".ahk"
+if(ErrorLevel)
+{
+    MsgBox, 4,Install Error, [Main script] URL Download Error `nInstall Can't continue`nWould you like to restart as admin?
+    IfMsgBox Yes
+    {
+        if(!A_IsAdmin)
+        {
+            Run *Run %A_ScriptFullPath%
+            ExitApp
+        }
+        Else
+        {
+            MsgBox,,Error,Script is already running as admin`nTry to download Newer or older installer if this is not working!
+            ExitApp 
+        }
+    }
+    Else
+    {
+        Return
+    }
+}
 if(OnlyDesktop)
 {   
     AppInstallLocation = %A_Desktop%
@@ -100,23 +123,70 @@ else
     AppInstallLocation = %Location%
     IfNotExist, %AppInstallLocation%
         FileCreateDir,%AppInstallLocation%
+    if(ErrorLevel)
+    {
+        if(!A_IsAdmin)
+        {
+            MsgBox, 4,Install Error, Can't create folders. `nfolder: %AppInstallLocation% `nWould you like to run this script as admin?
+            IfMsgBox Yes
+            {
+                Run *Run %A_ScriptFullPath%
+                ExitApp
+            }
+            Else
+            {
+                IfExist, %AppFolder%
+                    FileRemoveDir, %AppFolder%, 1
+                ExitApp
+            }
+        }
+        Else
+        {
+            MsgBox, 4,Install Error, Can't create folders. `nfolder: %AppInstallLocation% `nWould You like to still continue?
+            IfMsgBox No
+            {
+                IfExist, %AppFolder%
+                    FileRemoveDir, %AppFolder%, 1
+                ExitApp
+            }
+        }
+    }
 }
 ;install exe or ahk
 if(InstallAsExe)
 {
     IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
     IniWrite,%AppInstallLocation%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe,% AppInstallLocation . "\" . ScriptName . ".exe"
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe ,% AppInstallLocation . "\" . ScriptName . ".exe"
 }
 else
 {
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk,% AppInstallLocation . "\" . ScriptName . ".ahk"
+    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk ,% AppInstallLocation . "\" . ScriptName . ".ahk"
+}
+if(ErrorLevel)
+{
+    MsgBox, 4,Install Error, [Exe Runner] URL Download failed. `nWould you like to continue`nYou can Download [Exe runner] in settings later
+    IfMsgBox No
+    {
+        IfExist, %AppFolder%
+            FileRemoveDir, %AppFolder%, 1
+        if(!OnlyDesktop)
+        {
+            IfExist,% A_ProgramFiles . "\" . AppFolderName
+                FileRemoveDir, % A_ProgramFiles . "\" . AppFolderName, 1
+        }
+        Return
+    }
+    Else
+    {
+        T_SkipShortcut := true
+    }
 }
 IniWrite,%AppInstallLocation%,%AppSettingsIni%, install, InstallFolder
 ;create shortcut
-if(ShortCutToDesktop)
+if(ShortCutToDesktop and T_SkipShortcut != true)
 {
-    FileCreateShortcut,% Location . "\" . ScriptName . ".exe",% A_Desktop . "\" . ScriptName . ".lnk"
+    FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% A_Desktop . "\" . ScriptName . ".lnk"
 }
 ;Would you like to open the script?
 MsgBox, 4,Install successful, Would you like to open the script?
