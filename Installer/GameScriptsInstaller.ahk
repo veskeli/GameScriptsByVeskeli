@@ -1,7 +1,7 @@
 /*
 This is installer for GameScripts
 https://github.com/veskeli/GameScriptsByVeskeli
-version: 0.3
+version: 0.4
 */
 #SingleInstance Force
 #NoEnv
@@ -16,7 +16,7 @@ AppFolder = %A_AppData%\%AppFolderName%
 AppSettingsFolder = %AppFolder%\Settings
 GuiPictureFolder = %AppFolder%\Gui
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
-T_SkipShortcut := false
+T_SkipShortcut = false
 if(!A_IsAdmin)
 {
     Run *RunAs %A_ScriptFullPath%
@@ -37,7 +37,7 @@ Gui Add, GroupBox, x3 y8 w491 h77, Where should GameScript be installed?
 Gui Add, Button, x400 y56 w86 h23 vChangeLocation gChangeFolder, Change
 Gui Add, CheckBox, x144 y168 w149 h23 +Disabled, Install Script Repair tool
 Gui Add, Text, x8 y56 w302 h23 +0x200, (Main Script and settings are always stored in AppData.)
-Gui Add, Button, x320 y208 w90 h23 gInstallScript, Install
+Gui Add, Button, x320 y208 w90 h23 vInstallScriptButton gInstallScript, Install
 Gui Add, Button, x416 y208 w80 h23 gCancelInstall, Cancel
 Gui Add, Text, x0 y200 w505 h2 +0x10
 Gui Add, CheckBox, x296 y168 w183 h23 +Checked vDeleteThis, Delete this script after install
@@ -93,6 +93,22 @@ else
 Return
 InstallScript:
 Gui, Submit, Nohide
+;Disable all Buttons
+SetControlState("Disable")
+;Check if already installed
+IfExist, %AppSettingsFolder%
+{
+    IniRead, InstalledCheck, %AppSettingsIni%, install, installFolder, Default
+    if(InstalledCheck != "Error" or InstalledCheck != "")
+    {
+        MsgBox, 4,Already installed, Already installed!`ncontinue?
+        IfMsgBox No
+        {
+            SetControlState("Enable")
+            Return
+        }
+    }
+}
 ;Create all folders
 FileCreateDir,%AppFolder%
 FileCreateDir,%AppSettingsFolder%
@@ -116,6 +132,7 @@ if(ErrorLevel)
     }
     Else
     {
+        SetControlState("Enable")
         Return
     }
 }
@@ -170,7 +187,7 @@ else
 }
 if(ErrorLevel)
 {
-    MsgBox, 4,Install Error, [Exe Runner] URL Download failed. `nWould you like to continue`nYou can Download [Exe runner] in settings later
+    MsgBox, 4,Install Error, [Exe Runner] URL Download failed. `nWould you like to continue?`nYou can Download [Exe runner] in settings later
     IfMsgBox No
     {
         IfExist, %AppFolder%
@@ -180,6 +197,7 @@ if(ErrorLevel)
             IfExist,% A_ProgramFiles . "\" . AppFolderName
                 FileRemoveDir, % A_ProgramFiles . "\" . AppFolderName, 1
         }
+        SetControlState("Enable")
         Return
     }
     Else
@@ -189,9 +207,10 @@ if(ErrorLevel)
 }
 IniWrite,%AppInstallLocation%,%AppSettingsIni%, install, InstallFolder
 ;create shortcut
-if(ShortCutToDesktop and T_SkipShortcut != true)
+if(ShortCutToDesktop)
 {
-    FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% A_Desktop . "\" . ScriptName . ".lnk"
+    if(!T_SkipShortcut)
+        FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% A_Desktop . "\" . ScriptName . ".lnk"
 }
 ;Would you like to open the script?
 MsgBox, 4,Install successful, Would you like to open the script?
@@ -210,4 +229,49 @@ if(DeleteThis)
     FileDelete, %A_ScriptFullPath%
     ExitApp
 }
+SetControlState("Enable")
 Return
+SetControlState(State)
+{
+    GuiControl, %State%,ShortCutToDesktop
+    GuiControl, %State%,InstallAsAhk
+    GuiControl, %State%,InstallAsExe
+    GuiControl, %State%,Location
+    GuiControl, %State%,ChangeLocation
+    GuiControl, %State%,InstallScriptButton
+    GuiControl, %State%,DeleteThis
+    GuiControl, %State%,OnlyDesktop
+    if(State == "Enable")
+        UpdateLocks()
+}
+UpdateLocks()
+{
+    Gui, Submit, Nohide
+    if(OnlyDesktop)
+    {
+        GuiControl,Disable,Location
+        GuiControl,Disable,ChangeLocation
+        GuiControl,Disable,ShortCutToDesktop
+        GuiControl,,ShortCutToDesktop,0
+    }
+    else
+    {
+        GuiControl,Enable,Location
+        GuiControl,Enable,ChangeLocation
+        GuiControl,Enable,ShortCutToDesktop
+        if(ShortcutState == 0)
+            GuiControl,,ShortCutToDesktop,%ShortcutState%
+        Else
+            GuiControl,,ShortCutToDesktop,1
+    }
+    if(InstallAsExe)
+    {
+        GuiControl,Enable,ShortCutToDesktop
+        GuiControl,,ShortCutToDesktop,%ShortcutState%
+    }
+    else
+    {
+        GuiControl,Disable,ShortCutToDesktop
+        GuiControl,,ShortCutToDesktop,0
+    }
+}
