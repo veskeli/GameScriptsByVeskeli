@@ -1,7 +1,7 @@
 /*
 This is installer for GameScripts
 https://github.com/veskeli/GameScriptsByVeskeli
-version: 0.4
+version: 0.5
 */
 #SingleInstance Force
 #NoEnv
@@ -17,12 +17,28 @@ AppSettingsFolder = %AppFolder%\Settings
 GuiPictureFolder = %AppFolder%\Gui
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 T_SkipShortcut = false
+FixUserLocation = false
 if(!A_IsAdmin)
 {
+    IniWrite, %A_Appdata%, %A_ScriptDir%\GameSciptTemp.ini, AppData, Correct
+    IniWrite, %A_UserName%, %A_ScriptDir%\GameSciptTemp.ini, AppData, CorrectUser
+    IniWrite, %A_Desktop%, %A_ScriptDir%\GameSciptTemp.ini, AppData, CorrectDesktop
     Run *RunAs %A_ScriptFullPath%
     ExitApp
 }
-
+IfExist, %A_ScriptDir%\GameSciptTemp.ini
+{
+    IniRead, CorrectAppDataFolder,%A_ScriptDir%\GameSciptTemp.ini, AppData, Correct
+    IniRead, CorrectDesktop,%A_ScriptDir%\GameSciptTemp.ini, AppData, CorrectDesktop
+    IniRead, CorrectUser,%A_ScriptDir%\GameSciptTemp.ini, AppData, CorrectUser
+    FileDelete, %A_ScriptDir%\GameSciptTemp.ini
+}
+if(CorrectAppDataFolder != "Error" and CorrectAppDataFolder != "")
+    AppFolder = %CorrectAppDataFolder%\%AppFolderName%
+if(CorrectUser != A_UserName)
+{
+    FixUserLocation := true
+}
 Menu Tray, Icon, shell32.dll, 163
 
 Gui -MinimizeBox -MaximizeBox
@@ -206,11 +222,27 @@ if(ErrorLevel)
     }
 }
 IniWrite,%AppInstallLocation%,%AppSettingsIni%, install, InstallFolder
+;Use correct appdata
+if(FixUserLocation)
+{
+    IniWrite, %CorrectAppDataFolder%,%AppSettingsIni%,Appdata,Correct
+    IniWrite, %CorrectDesktop%,%AppSettingsIni%,Appdata,CorrectDesktop
+    IniWrite, true,%AppSettingsIni%,Appdata,UseCorrectFolder
+}
 ;create shortcut
 if(ShortCutToDesktop)
 {
-    if(!T_SkipShortcut)
-        FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% A_Desktop . "\" . ScriptName . ".lnk"
+    if(T_SkipShortcut != "true")
+    {
+        if(FixUserLocation)
+        {
+            FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% CorrectDesktop . "\" . ScriptName . ".lnk"
+        }
+        Else
+        {
+            FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% A_Desktop . "\" . ScriptName . ".lnk"
+        }
+    }
 }
 ;Would you like to open the script?
 MsgBox, 4,Install successful, Would you like to open the script?
