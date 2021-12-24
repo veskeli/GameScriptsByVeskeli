@@ -29,9 +29,16 @@ AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 ;//////////////[Other Scripts]///////////////
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
+;//////////////[Tabs]///////////////
+HomeTAB := true
+SettingsTAB := true
+OtherScriptsTAB := true
+WindowsTAB := true
+BasicScriptsTAB := true
+VoicemeeterTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3951
+version = 0.3952
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -70,6 +77,32 @@ global SatisfactorySaveManagerLocation
 global MinecraftServerManager
 global MinecraftServerManagerLocation
 global PinSlot
+global HomeTAB
+global SettingsTAB
+global OtherScriptsTAB
+global windowsTAB
+global BasicScriptsTAB
+global VoicemeeterTAB
+IniRead, T_HomeTab, %AppSettingsIni%,Tabs,Home
+IniRead, T_SettingsTab, %AppSettingsIni%,Tabs,Settings
+IniRead, T_OtherScriptsTab, %AppSettingsIni%,Tabs,OtherScripts
+IniRead, T_WindowsTab, %AppSettingsIni%,Tabs,Windows
+IniRead, T_BasicScriptsTab, %AppSettingsIni%,Tabs,BasicScripts
+IniRead, T_VoicemeeterTab, %AppSettingsIni%,Tabs,Voicemeeter
+if(T_HomeTab == "0")
+    HomeTAB := false
+if(T_SettingsTab == "0")
+    SettingsTAB := false
+if(T_OtherScriptsTab == "0")
+    OtherScriptsTAB := false
+if(T_WindowsTab == "0")
+    WindowsTAB := false
+if(T_BasicScriptsTab == "0")
+    BasicScriptsTAB := false
+if(!IsThisExperimental)
+    T_VoicemeeterTab := 0
+if(T_VoicemeeterTab == "0")
+    VoicemeeterTAB := false
 ;____________________________________________________________
 UpdateTrayicon()
 ;____________________________________________________________
@@ -94,10 +127,26 @@ else
     MsgBox,,Asset download error,Assets needs to be Redownloaded `n You can re download assets from settings tab
 }
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Tab3, x0 y0 w898 h640, Home|Settings|Other Scripts|Windows|Basic Scripts
+TabHandle = 
+if(HomeTAB)
+    TabHandle = % TabHandle . "|" . "Home"
+if(SettingsTAB)
+    TabHandle = % TabHandle . "|" . "Settings"
+if(OtherScriptsTAB)
+    TabHandle = % TabHandle . "|" . "Other Scripts"
+if(WindowsTAB)
+    TabHandle = % TabHandle . "|" . "Windows"
+if(BasicScriptsTAB)
+    TabHandle = % TabHandle . "|" . "Basic Scripts"
+if(VoicemeeterTAB)
+    TabHandle = % TabHandle . "|" . "Voicemeeter[Early Access]"
+StringTrimLeft, TabHandle, TabHandle, 1
+Gui 1:Add, Tab3, x0 y0 w898 h640, %TabHandle% ;Home|Settings|Other Scripts|Windows|Basic Scripts
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Home]///////////////
+if(HomeTAB)
+{
 Gui 1:Tab, Home
 Gui 1:Add, GroupBox, x432 y32 w386 h126, Quick actions
 Gui 1:Add, CheckBox, x440 y56 w120 h23 gToggleXboxOverlay1 vXboxOverlayCheckbox1, Xbox Overlay
@@ -105,22 +154,16 @@ Gui 1:Add, CheckBox, x440 y80 w120 h23 gToggleGameDVR1 vToggleGameDVRCheckbox1, 
 Gui 1:Add, Button, x440 y112 w164 h28 gClearWindowsTempFolder, Clear Windows Temp Folder
 Gui 1:Add, Button, x568 y56 w80 h23 gRunIpConfig, IPConfig
 Gui 1:Add, Button, x568 y80 w80 h23 gOpenAppdataFolder, Appdata
-;Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
+if(VoicemeeterTAB)
+    Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
 Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
-;Gui 1:Font, s17
-;Gui 1:Add, Text, x272 y440 w353 h50 +0x200, All of this might change.
-;Gui 1:Font
 Gui 1:Font, s16
 Gui 1:Add, GroupBox, x16 y40 w385 h80 +Hidden vPin1GroubBox, Pin1
-Gui 1:Add, GroupBox, x16 y128 w385 h80 +Hidden vPin2GroubBox, Pin2
-Gui 1:Add, GroupBox, x16 y216 w385 h80 +Hidden vPin3GroubBox, Pin3
-Gui 1:Add, GroupBox, x16 y304 w385 h80 +Hidden vPin4GroubBox, Pin4
-Gui 1:Add, GroupBox, x16 y392 w385 h80 +Hidden vPin5GroubBox, Pin5
-Gui 1:Font, s20
-Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, % Chr(0x25B6) . " Open"
-Gui 1:Add, Button, x128 y152 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
-Gui 1:Add, Button, x128 y246 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
+Gui 1:Add, GroupBox, x16 y124 w385 h80 +Hidden vPin2GroubBox, Pin2
+Gui 1:Add, GroupBox, x16 y208 w385 h80 +Hidden vPin3GroubBox, Pin3
+Gui 1:Add, GroupBox, x16 y292 w385 h80 +Hidden vPin4GroubBox, Pin4
+Gui 1:Add, GroupBox, x16 y376 w385 h80 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
@@ -131,18 +174,22 @@ Gui 1:Font, s9, Segoe UI
 Gui 1:Add, Hotkey, x504 y184 w120 h21 vAlwaysOnTopHotkey_Menu gSaveAlwaysOnTopHotkey_Menu
 Gui 1:Add, Picture, x632 y182 w50 h25 gAlwaysOnTopHotkey_Menu vAlwaysOnTopHotkey_MenuButton, %GuiPictureFolder%/off.png
 Gui 1:Font
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
+if(SettingsTAB)
+{
 Gui 1:Tab, Settings
 Gui 1:Add, GroupBox, x8 y32 w175 h88, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
 Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on script start
-Gui 1:Add, GroupBox, x8 y122 w175 h130, Settings for this script.
+Gui 1:Add, GroupBox, x8 y122 w175 h160, Settings for this script.
 Gui 1:Add, CheckBox, x16 y144 w143 h23 gKeepThisAlwaysOnTop, Keep this always on top
 Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray
 Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
 Gui 1:Add, Button, x16 y224 w133 h23 gShowChangelogButton, Show Changelog
+Gui 1:Add, Button, x16 y252 w133 h23 gCustomizeTabs, Customize Tabs
 Gui 1:Add, GroupBox, x499 y442 w150 h67 +Hidden vDownloadExperimentalBranchGroupbox, Experimental
 Gui 1:Add, Button, x504 y464 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
 Gui 1:Font
@@ -168,55 +215,91 @@ Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunne
 Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 Gui 1:Font, s14
 Gui 1:Add, Button, x624 y32 w206 h35 gReportAnIssueOrBug, Report an issue or bug
+if(IsThisExperimental)
+{
+    T_Experimentalchanges=
+    (
+    Current Experimental changes:
+    + Uninstaller changes
+    + This text (show only when experimental)
+    + Use Correct appdata folder when admin
+    + Use Correct desktop when creating shortcut
+    + Made better code for home screen pinned apps.
+    + Made script smaller
+    + Added code to remove/add Tabs
+    + Added button to remove/add Tabs
+    )
+    Gui 1:Font, s11
+    Gui 1:Add, Text, x509 y70 w314 h311, %T_Experimentalchanges%
+}
 Gui 1:Font
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
+if(OtherScriptsTAB)
+{
 Gui 1:Tab, Other Scripts
 ; Add 70 to Y
 ;Logitech backup tool
+OSYOffsetB = 56 ;Other Scripts Y Offset Button
+OSYOffsetP = 39 ;Other Scripts Y Offset Picture
+OSYOffsetG = 27 ;Other Scripts Y Offset GroupBox
+OSAddY = 70 ;How far down next goes
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y27 w430 h69, Logitech Backup Tool
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Logitech Backup Tool
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y56 w131 h23 vDowloadGHUBToolButton gDownloadGHUBTool, Download
-Gui 1:Add, Button, x352 y56 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
-Gui 1:Add, Button, x160 y56 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y56 w100 h23 gOpenGHUBToolGithub, Open in Github
-Gui 1:Add, Picture, x413 y39 w18 h18 gPinGHUBTool vPinGHUBToolIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 vDowloadGHUBToolButton gDownloadGHUBTool, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallGHUBToolScriptButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenGHUBToolGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinGHUBToolIMG +Hidden, %PinPic%
 ;Ngrok tool
+OSYOffsetB += OSAddY
+OSYOffsetP += OSAddY
+OSYOffsetG += OSAddY
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y97 w430 h69, Ngrok port fowarding Tool
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Ngrok port fowarding Tool
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y126 w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton, Download
-Gui 1:Add, Button, x352 y126 w80 h23 gUninstallNgrokTool vUninstallNgrokToolButton +Disabled, Delete
-Gui 1:Add, Button, x160 y126 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y126 w100 h23 gOpenNgrokInGithub, Open in Github
-Gui 1:Add, Picture, x413 y109 w18 h18 gPinNgrokTool vPinNgrokToolIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallNgrokToolButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenNgrokInGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinNgrokToolIMG +Hidden, %PinPic%
 ;Satisfactory Save Manager
+OSYOffsetB += OSAddY
+OSYOffsetP += OSAddY
+OSYOffsetG += OSAddY
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y167 w430 h69, Satisfactory Save Manager
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Satisfactory Save Manager
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y196 w131 h23 gDownloadSatisfactorySaveManager vDownloadSatisfactorySaveManagerButton, Download
-Gui 1:Add, Button, x352 y196 w80 h23 gUninstallSatisfactorySaveManager vUninstallSatisfactorySaveManagerButton +Disabled, Delete
-Gui 1:Add, Button, x160 y196 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y196 w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
-Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadSatisfactorySaveManager vDownloadSatisfactorySaveManagerButton, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallSatisfactorySaveManagerButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
 ;Minecraft Simple Server Manager
+OSYOffsetB += OSAddY
+OSYOffsetP += OSAddY
+OSYOffsetG += OSAddY
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y237 w430 h69, Minecraft Simple Server Manager[Early Access]
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Minecraft Simple Server Manager[Early Access]
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y266 w131 h23 gDownloadMinecraftServerManager vDowloadMinecraftServerManagerButton, Download
-Gui 1:Add, Button, x352 y266 w80 h23 gUninstallMinecraftServerManager vUninstallMinecraftServerManagerButton +Disabled, Delete
-Gui 1:Add, Button, x160 y266 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y266 w100 h23 gOpenMinecraftServerManagerInGithub, Open in Github
-Gui 1:Add, Picture, x413 y249 w18 h18 gPinMinecraftServerManager vPinMinecraftServerManagerIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadMinecraftServerManager vDowloadMinecraftServerManagerButton, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallMinecraftServerManagerButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenMinecraftServerManagerInGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinMinecraftServerManagerIMG +Hidden, %PinPic%
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows]///////////////
+if(WindowsTAB)
+{
 Gui 1:Tab, Windows
 Gui 1:Add, GroupBox, x8 y388 w317 h124, Free Space on your device.
 Gui 1:Add, Text, x24 y408 w278 h23 +0x200,Deletes Windows temporary files that are not in use.
@@ -246,16 +329,20 @@ Gui 1:Add, CheckBox, x464 y112 w177 h30 +Disabled gClearVirtualMemoryPageFileAtS
 Gui 1:Add, CheckBox, x464 y144 w230 h48 +Disabled vToggleFeaturedAutoInstallCheckbox, Toggle Windows 10 Featured or Suggested Apps from Automatically Installing
 Gui 1:Add, Button, x464 y200 w171 h23 +Disabled gDisableMostOfAds vDisableMostOfAdsButton, Disable Most windows 10 ads
 Gui 1:Add, Button, x648 y200 w169 h23 +Disabled gRestoreMostOfAds vRestoreMostOfAdsButton, Restore Most windows 10 ads
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Voicemeeter]///////////////
-/*
+if(VoicemeeterTAB)
+{
 Gui 1:Tab, Voicemeeter
 Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
-*/
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Basic scripts]///////////////
+if(BasicScriptsTAB)
+{
 Gui 1:Tab, Basic Scripts
 Gui 1:Add, GroupBox, x376 y26 w450 h288, Game Scripts
 Gui 1:Font, s12
@@ -311,6 +398,7 @@ Gui 1:Add, CheckBox, x176 y144 w77 h23 gEnableCapsLockRebind vRebindCapsLockChec
 Gui 1:Add, Hotkey, x256 y144 w110 h21 gGuiSubmit vRebindCapsLockButton ;capslock
 Gui 1:Add, CheckBox, x16 y168 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
 Gui 1:Font
+}
 ;____________________________________________________________
 ;//////////////[Startup stuff]///////////////
 if(A_IsAdmin)
@@ -407,7 +495,7 @@ IfExist, %AppSettingsIni%
 IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 {
     GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallGHUBToolScritpButton
+    GuiControl,1:Enable,UninstallGHUBToolScriptButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := true
     GuiControl,1:Show ,PinGHUBToolIMG
@@ -446,9 +534,19 @@ IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
     Else
     {
         GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-        GuiControl,1: Enable,UninstallGHUBToolScritpButton
+        GuiControl,1: Enable,UninstallGHUBToolScriptButton
         GHUBTool := true
         GuiControl,1:Show ,PinGHUBToolIMG
+    }
+}
+;Use correct appdata if Admin
+if(A_IsAdmin)
+{
+    IniRead, UseCorrectFolder,%AppSettingsIni%,Appdata,UseCorrectFolder
+    if(UseCorrectFolder == "true")
+    {
+        IniRead, CorrectAppdataFolder,%AppSettingsIni%,Appdata,Correct
+        AppFolder = %CorrectAppdataFolder%\%AppFolderName%
     }
 }
 ;Read From registery
@@ -649,6 +747,7 @@ if (Temp_IntroCheck != 1)
         IniWrite, 1, %AppSettingsIni%, Intro, SkipIntro
     }
 }
+;____________________________________________________________
 ;Last thing is to show changelog
 if(ShowChangelog)
 {
@@ -1215,7 +1314,16 @@ if(IsEXERunnerEnabled)
     {
         iniread,T_RevertLocation,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
     }
-    FileCreateShortcut,"T_RevertLocation\%ScriptName%.exe", %A_Desktop%\%ScriptName%.lnk
+    IniRead, UseCorrectFolder,%AppSettingsIni%,Appdata,UseCorrectFolder
+    if(UseCorrectFolder == "true")
+    {
+        IniRead, CorrectDesktop,%AppSettingsIni%,Appdata,CorrectDesktop
+        FileCreateShortcut,% T_RevertLocation . "\" . ScriptName . ".exe", %CorrectDesktop%\%ScriptName%.lnk
+    }
+    Else
+    {
+        FileCreateShortcut,% T_RevertLocation . "\" . ScriptName . ".exe", %A_Desktop%\%ScriptName%.lnk
+    }
 }
 else
 {
@@ -1264,6 +1372,48 @@ else
     GuiControl,1:,CheckUpdatesOnStartup,0
 }
 return
+CustomizeTabs:
+    Gui 2:Destroy ;Destroy if already existing
+    Gui 2:Add, GroupBox, x8 y4 w594 h60, Show tabs
+    Gui 2:Add, CheckBox, +Checked +Disabled x16 y24 w60 h23 vHomeTabC, Home
+    Gui 2:Add, CheckBox, +Checked +Disabled x80 y24 w67 h23 vSettingsTabC, Settings
+    Gui 2:Add, CheckBox, +Checked x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
+    Gui 2:Add, CheckBox, +Checked x256 y24 w73 h23 vWindowsTabC, Windows
+    Gui 2:Add, CheckBox, +Checked x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
+    Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Early Access]
+    Gui 2:Add, Button, x432 y64 w80 h23 gHandleTabSave, Save
+    Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
+    Gui 2:Show, w609 h96, Customize Tabs
+    if(!IsThisExperimental)
+    {
+        GuiControl, 2:Disable, VoicemeeterTabC
+        GuiControl, 2:, VoicemeeterTabC,0
+    }
+Return
+CancelCustomize:
+2GuiClose:
+2GuiGuiExit:
+    Gui 2:Destroy
+Return
+HandleTabSave:
+Gui, 2:Submit,NoHide
+IniWrite, %HomeTabC%, %AppSettingsIni%,Tabs,Home
+IniWrite, %SettingsTabC%, %AppSettingsIni%,Tabs,Settings
+IniWrite, %OtherScriptsTabC%, %AppSettingsIni%,Tabs,OtherScripts
+IniWrite, %WindowsTabC%, %AppSettingsIni%,Tabs,Windows
+IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
+IniWrite, %VoicemeeterTabC%, %AppSettingsIni%,Tabs,Voicemeeter
+MsgBox, 4,Restart needed,Restart is needed to settings take effect`nRestart now?
+IfMsgBox Yes
+{
+    Run, %A_ScriptFullPath%
+    ExitApp
+}
+Else
+{
+    Gui 2:Destroy
+}
+Return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
@@ -1275,7 +1425,7 @@ if (!GHUBTool)
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/LogitechBackupProfilesAhk/master/LogitechBackupProfiles.ahk, %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     ;write save/Update Gui
     GuiControl,1:, DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallGHUBToolScritpButton
+    GuiControl,1:Enable,UninstallGHUBToolScriptButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := True
     GuiControl,1:Show ,PinGHUBToolIMG
@@ -1285,12 +1435,6 @@ Else ;app is already istalled/downloaded
     run, %GHUBToolLocation%
 }
 Return
-UninstallGHUBToolScript:
-UninstallScript("GHUBTool")
-Return
-PinGHUBTool:
-PinAppOrAction("GHUBTool")
-return
 OpenGHUBToolGithub:
 run, https://github.com/veskeli/LogitechBackupProfilesAhk
 Return
@@ -1316,12 +1460,6 @@ Else ;app is already istalled/downloaded
     run, %MinecraftServerManagerLocation%
 }
 Return
-UninstallMinecraftServerManager:
-UninstallScript("MinecraftServerManager")
-Return
-PinMinecraftServerManager:
-PinAppOrAction("MinecraftServerManager")
-return
 ;Minecraft server manager
 OpenMinecraftServerManagerInGithub:
     run, https://github.com/veskeli/SimpleMinecraftServerManager
@@ -1347,12 +1485,6 @@ else
     run, %NgrokToolLocation%
 }
 return
-UninstallNgrokTool:
-UninstallScript("NgrokTool")
-return
-PinNgrokTool:
-PinAppOrAction("NgrokTool")
-return
 DownloadSatisfactorySaveManager:
 if(!SatisfactorySaveManager)
 {
@@ -1371,20 +1503,19 @@ else
     run, %SatisfactorySaveManagerLocation%
 }
 return
-UninstallSatisfactorySaveManager:
-UninstallScript("SatisfactorySaveManager")
+UninstallScriptButton:
+StringTrimLeft, AppToUninstall, A_GuiControl, 9
+StringTrimRight, AppToUninstall, AppToUninstall, 6
+UninstallScript(AppToUninstall)
 return
-PinSatisfactorySaveManager:
-PinAppOrAction("SatisfactorySaveManager")
+PinAppToHomeScreen:
+StringTrimLeft, AppToPin, A_GuiControl, 3
+StringTrimRight, AppToPin, AppToPin, 3
+PinAppOrAction(AppToPin)
 return
-Pin1RunButton:
-RunPinnedApp(1)
-return
-Pin2RunButton:
-RunPinnedApp(2)
-return
-Pin3RunButton:
-RunPinnedApp(3)
+PinRunButton:
+T_RunButtonIndex := RegExReplace(A_GuiControl, "\D")
+RunPinnedApp(T_RunButtonIndex)
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1812,7 +1943,7 @@ UpdateSettingsFromRegistery()
 }
 UninstallScript(tName)
 {
-    if (tName == "GHUBTool")
+    if(tName == "GHUBToolScript")
     {
         FileDelete, %GHUBToolLocation%
         if ErrorLevel
@@ -1823,8 +1954,9 @@ UninstallScript(tName)
         GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
         GHUBTool := False
         GuiControl,1:, DowloadGHUBToolButton, Download
-        GuiControl,1:Disable ,UninstallGHUBToolScritpButton
+        GuiControl,1:Disable ,UninstallGHUBToolScriptButton
         GuiControl,1:Hide ,PinGHUBToolIMG
+        StringTrimRight, tName, tName, 6
         RemovePinAppOrAction(tName)
     }
     if(tName == "NgrokTool")
@@ -2038,6 +2170,7 @@ UpdateHomeScreen()
         GuiControl,1:Hide,pintextIMG
     }
     ;Handle pinned apps
+    PinYLocation = 68
     loop, 5
     {
         if(PinSlot[A_Index] == true)
@@ -2045,7 +2178,21 @@ UpdateHomeScreen()
             IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . A_Index . "Name"
             GuiControl,1:show,% "Pin" . A_Index . "GroubBox"
             GuiControl,1:,% "Pin" . A_Index . "GroubBox",%T_Name%
-            GuiControl,1:show,% "Pin" . A_Index . "RunButton"
+            ;GuiControl,1:show,% "Pin" . A_Index . "RunButton"
+            GuiControlGet,IsButtonCreated,,% "Pin" . A_Index . "RunButton"
+            if(ErrorLevel)
+            {
+                ;If button not found create one
+                DeclareGlobal("Pin" A_Index "RunButton")
+                Gui 1:Tab, Home
+                Gui 1:Font, s18
+                Gui 1:Add, Button, x50 y%PinYLocation% w137 h45 gPinRunButton vPin%A_Index%RunButton, % Chr(0x25B6) . " Open"
+            }
+            Else
+            {
+                GuiControl,1:show,% "Pin" . A_Index . "RunButton"
+            }
+            PinYLocation += 84
         }
     }
 }
@@ -2053,6 +2200,12 @@ RunPinnedApp(Slot)
 {
     IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . Slot . "Name"
     GoSub, % "Download" . T_Name
+}
+DeclareGlobal(globalvar) ;For loop global vars 
+{
+   global
+   (%globalvar%)
+   return 
 }
 CheckboxToggle(T_Image)
 {
