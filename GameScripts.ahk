@@ -36,9 +36,10 @@ OtherScriptsTAB := true
 WindowsTAB := true
 BasicScriptsTAB := true
 VoicemeeterTAB := true
+DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3952
+version = 0.3953
 ;//////////////[Experimental]///////////////
 IsThisExperimental := true
 ;//////////////[Action variables]///////////////
@@ -83,12 +84,15 @@ global OtherScriptsTAB
 global windowsTAB
 global BasicScriptsTAB
 global VoicemeeterTAB
+;____________________________________________________________
+;//////////////[Tab Control]///////////////
 IniRead, T_HomeTab, %AppSettingsIni%,Tabs,Home
 IniRead, T_SettingsTab, %AppSettingsIni%,Tabs,Settings
 IniRead, T_OtherScriptsTab, %AppSettingsIni%,Tabs,OtherScripts
 IniRead, T_WindowsTab, %AppSettingsIni%,Tabs,Windows
 IniRead, T_BasicScriptsTab, %AppSettingsIni%,Tabs,BasicScripts
 IniRead, T_VoicemeeterTab, %AppSettingsIni%,Tabs,Voicemeeter
+IniRead, T_DiscordMusicBotTab, %AppSettingsIni%,Tabs,DiscordMusicBot
 if(T_HomeTab == "0")
     HomeTAB := false
 if(T_SettingsTab == "0")
@@ -103,6 +107,10 @@ if(!IsThisExperimental)
     T_VoicemeeterTab := 0
 if(T_VoicemeeterTab == "0")
     VoicemeeterTAB := false
+if(!IsThisExperimental)
+    T_DiscordMusicBotTab := 0
+if(T_DiscordMusicBotTab == "0")
+    DiscordMusicBotTAB := false
 ;____________________________________________________________
 UpdateTrayicon()
 ;____________________________________________________________
@@ -139,7 +147,9 @@ if(WindowsTAB)
 if(BasicScriptsTAB)
     TabHandle = % TabHandle . "|" . "Basic Scripts"
 if(VoicemeeterTAB)
-    TabHandle = % TabHandle . "|" . "Voicemeeter[Early Access]"
+    TabHandle = % TabHandle . "|" . "Voicemeeter[Alpha]"
+if(DiscordMusicBotTAB)
+    TabHandle = % TabHandle . "|" . "Discord Music[Pre Alpha]"
 StringTrimLeft, TabHandle, TabHandle, 1
 Gui 1:Add, Tab3, x0 y0 w898 h640, %TabHandle% ;Home|Settings|Other Scripts|Windows|Basic Scripts
 ;____________________________________________________________
@@ -228,6 +238,8 @@ if(IsThisExperimental)
     + Made script smaller
     + Added code to remove/add Tabs
     + Added button to remove/add Tabs
+    + Added voicemeeter tab [Alpha]
+    + Added Discord Music Bot Tab [Pre Alpha]
     )
     Gui 1:Font, s11
     Gui 1:Add, Text, x509 y70 w314 h311, %T_Experimentalchanges%
@@ -337,6 +349,43 @@ if(VoicemeeterTAB)
 {
 Gui 1:Tab, Voicemeeter
 Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
+}
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Discord music bot]///////////////
+if(DiscordMusicBotTAB)
+{
+Gui 1:Tab, Discord Music
+Gui 1:Font, s14
+Gui 1:Add, Text, x8 y24 w162 h23 +0x200, Not working yet ;Discord music Bot
+Gui 1:Font
+Gui 1:Add, Button, x232 y28 w80 h23 +Disabled, Play all    
+Gui 1:Add, Button, x320 y28 w80 h23 +Disabled, Stop    
+Gui 1:Add, DropDownList, x472 y28 w120 +Disabled, Chip||
+Gui 1:Font, s12
+Gui 1:Add, Text, x435 y28 w36 h23 +0x200, Bot:
+Gui 1:Add, Text, x624 y28 w53 h23 +0x200, Prefix:
+Gui 1:Font, s9, Segoe UI
+Gui 1:Add, ComboBox, x680 y28 w120 +Disabled, ch!||
+Gui 1:Add, Text, x0 y56 w837 h2 +0x10
+
+DLYO = 64 ;Discord link Y Offset
+DLYOAdd = 30 ;Discord link Y offset add
+DLHMR = 15 ;Discord link How Many Rows 
+Loop %DLHMR%
+{
+    Gui 1:Add, Text, x8 y%DLYO% w32 h23 +0x200, Link:
+    Gui 1:Add, Edit, x40 y%DLYO% w480 h21   
+    Gui 1:Add, Button, x528 y%DLYO% w80 h23 +Disabled, Add to queue
+    DLYO += DLYOAdd
+}
+DLYO = 64 ;Discord link Y Offset
+Loop %DLHMR%
+{
+    Gui 1:Add, Radio, x616 y%DLYO% w42 h23 v%A_Index%LinkRadio, %A_Index%.
+    DLYO += DLYOAdd
+}
+GuiControl, 1:, 1LinkRadio,1 ;Check first radio button
 }
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1374,13 +1423,14 @@ else
 return
 CustomizeTabs:
     Gui 2:Destroy ;Destroy if already existing
-    Gui 2:Add, GroupBox, x8 y4 w594 h60, Show tabs
+    Gui 2:Add, GroupBox, x8 y4 w594 h100, Show tabs
     Gui 2:Add, CheckBox, +Checked +Disabled x16 y24 w60 h23 vHomeTabC, Home
     Gui 2:Add, CheckBox, +Checked +Disabled x80 y24 w67 h23 vSettingsTabC, Settings
     Gui 2:Add, CheckBox, +Checked x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
     Gui 2:Add, CheckBox, +Checked x256 y24 w73 h23 vWindowsTabC, Windows
     Gui 2:Add, CheckBox, +Checked x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
-    Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Early Access]
+    Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
+    Gui 2:Add, CheckBox, +Checked x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
     Gui 2:Add, Button, x432 y64 w80 h23 gHandleTabSave, Save
     Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
     Gui 2:Show, w609 h96, Customize Tabs
@@ -1388,6 +1438,8 @@ CustomizeTabs:
     {
         GuiControl, 2:Disable, VoicemeeterTabC
         GuiControl, 2:, VoicemeeterTabC,0
+        GuiControl, 2:Disable, DiscordMusicBotTabC
+        GuiControl, 2:, DiscordMusicBotTabC,0
     }
 Return
 CancelCustomize:
@@ -1403,6 +1455,7 @@ IniWrite, %OtherScriptsTabC%, %AppSettingsIni%,Tabs,OtherScripts
 IniWrite, %WindowsTabC%, %AppSettingsIni%,Tabs,Windows
 IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
 IniWrite, %VoicemeeterTabC%, %AppSettingsIni%,Tabs,Voicemeeter
+IniWrite, %DiscordMusicBotTabC%, %AppSettingsIni%,Tabs,DiscordMusicBot
 MsgBox, 4,Restart needed,Restart is needed to settings take effect`nRestart now?
 IfMsgBox Yes
 {
