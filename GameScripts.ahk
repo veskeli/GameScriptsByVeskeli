@@ -39,9 +39,10 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3953
-;//////////////[Experimental]///////////////
+version = 0.3954
+;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := true
+IsThisPreRelease := false
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -200,8 +201,10 @@ Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayChec
 Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
 Gui 1:Add, Button, x16 y224 w133 h23 gShowChangelogButton, Show Changelog
 Gui 1:Add, Button, x16 y252 w133 h23 gCustomizeTabs, Customize Tabs
-Gui 1:Add, GroupBox, x499 y442 w150 h67 +Hidden vDownloadExperimentalBranchGroupbox, Experimental
-Gui 1:Add, Button, x504 y464 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
+;Gui 1:Add, GroupBox, x499 y442 w150 h67 +Hidden vDownloadExperimentalBranchGroupbox, Experimental
+;Gui 1:Add, Button, x504 y464 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
+Gui 1:Add, GroupBox, x499 y442 w150 h67,Download Manager
+Gui 1:Add, Button, x504 y464 w138 h36 gShowDownloadManager, Download Manager
 Gui 1:Font
 Gui 1:Add, GroupBox, x648 y392 w179 h117, Updates
 Gui 1:Font, s15
@@ -240,6 +243,7 @@ if(IsThisExperimental)
     + Added button to remove/add Tabs
     + Added voicemeeter tab [Alpha]
     + Added Discord Music Bot Tab [Pre Alpha]
+    + Added Download Manager
     )
     Gui 1:Font, s11
     Gui 1:Add, Text, x509 y70 w314 h311, %T_Experimentalchanges%
@@ -741,8 +745,8 @@ IfExist, %AppSettingsIni%
         if(IsThisExperimental)
         {
             MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
-            GuiControl,1:show,DownloadExperimentalBranchButton
-            GuiControl,1:Show,DownloadExperimentalBranchGroupbox
+            ;GuiControl,1:show,DownloadExperimentalBranchButton
+            ;GuiControl,1:Show,DownloadExperimentalBranchGroupbox
             GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
             ;check if there is new stable
             GoSub CheckForStableVersion
@@ -758,8 +762,8 @@ IfExist, %AppSettingsIni%
             if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found" and ExperimentalVersion != "500: Internal Server Error")
             {
                 ;Found experimental version
-                GuiControl,1:show,DownloadExperimentalBranchButton
-                GuiControl,1:Show,DownloadExperimentalBranchGroupbox
+                ;GuiControl,1:show,DownloadExperimentalBranchButton
+                ;GuiControl,1:Show,DownloadExperimentalBranchGroupbox
             }
             GoSub checkForupdates
         }
@@ -770,9 +774,9 @@ IfExist, %AppSettingsIni%
         if(IsThisExperimental)
         {
             MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
-            GuiControl,1:show,DownloadExperimentalBranchButton
-            GuiControl,1:Show,DownloadExperimentalBranchGroupbox
-            GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
+            ;GuiControl,1:show,DownloadExperimentalBranchButton
+            ;GuiControl,1:Show,DownloadExperimentalBranchGroupbox
+            ;GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
         }
     }
 }
@@ -1422,25 +1426,25 @@ else
 }
 return
 CustomizeTabs:
-    Gui 2:Destroy ;Destroy if already existing
-    Gui 2:Add, GroupBox, x8 y4 w594 h100, Show tabs
-    Gui 2:Add, CheckBox, +Checked +Disabled x16 y24 w60 h23 vHomeTabC, Home
-    Gui 2:Add, CheckBox, +Checked +Disabled x80 y24 w67 h23 vSettingsTabC, Settings
-    Gui 2:Add, CheckBox, +Checked x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
-    Gui 2:Add, CheckBox, +Checked x256 y24 w73 h23 vWindowsTabC, Windows
-    Gui 2:Add, CheckBox, +Checked x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
-    Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
-    Gui 2:Add, CheckBox, +Checked x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
-    Gui 2:Add, Button, x432 y64 w80 h23 gHandleTabSave, Save
-    Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
-    Gui 2:Show, w609 h96, Customize Tabs
-    if(!IsThisExperimental)
-    {
-        GuiControl, 2:Disable, VoicemeeterTabC
-        GuiControl, 2:, VoicemeeterTabC,0
-        GuiControl, 2:Disable, DiscordMusicBotTabC
-        GuiControl, 2:, DiscordMusicBotTabC,0
-    }
+Gui 2:Destroy ;Destroy if already existing
+Gui 2:Add, GroupBox, x8 y4 w594 h100, Show tabs
+Gui 2:Add, CheckBox, +Checked +Disabled x16 y24 w60 h23 vHomeTabC, Home
+Gui 2:Add, CheckBox, +Checked +Disabled x80 y24 w67 h23 vSettingsTabC, Settings
+Gui 2:Add, CheckBox, +Checked x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
+Gui 2:Add, CheckBox, +Checked x256 y24 w73 h23 vWindowsTabC, Windows
+Gui 2:Add, CheckBox, +Checked x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
+Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
+Gui 2:Add, CheckBox, +Checked x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
+Gui 2:Add, Button, x432 y64 w80 h23 gHandleTabSave, Save
+Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
+Gui 2:Show, w609 h96, Customize Tabs
+if(!IsThisExperimental)
+{
+    GuiControl, 2:Disable, VoicemeeterTabC
+    GuiControl, 2:, VoicemeeterTabC,0
+    GuiControl, 2:Disable, DiscordMusicBotTabC
+    GuiControl, 2:, DiscordMusicBotTabC,0
+}
 Return
 CancelCustomize:
 2GuiClose:
@@ -2307,3 +2311,233 @@ NotAdminError()
         }
     }
 }
+;____________________________________________________________
+;//////////////[updater]///////////////
+GetNewVersion(T_Branch)
+{
+    if(T_Branch == "main" or T_Branch == "Experimental" or T_Branch == "PreRelease") ;Check that branch is correctly typed
+    {
+        ;Build link
+        VersionLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/version.txt"
+        ;Get Version Text
+        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr.Open("GET", VersionLink, False)
+        whr.Send()
+        whr.WaitForResponse()
+        T_NewVersion := whr.ResponseText
+        ;Check that not empty or not found
+        if(T_NewVersion != "" and T_NewVersion != "404: Not Found" and T_NewVersion != "500: Internal Server Error")
+        {
+            Return T_NewVersion
+        }
+        else if (T_NewVersion == "404: Not Found")
+        {
+            ;MsgBox, 404: Not Found `nBranch is not live yet!
+            return "ERROR"
+        }
+        else
+        {
+            return "ERROR"
+        }
+    }
+}
+UpdateScript(T_CheckForUpdates,T_Branch)
+{
+    if(T_Branch == "main" or T_Branch == "Experimental" or T_Branch == "PreRelease")  ;Check that branch is correctly typed
+    {
+        newversion := GetNewVersion(T_Branch)
+        if(newversion == "ERROR")
+        {
+            MsgBox,,Update ERROR!,New Version Error!`nError while getting new version,15
+            return
+        }
+        if(T_CheckForUpdates) ;If normal Check and update
+        {
+            if(newversion > version)
+            {
+                MsgBox, 1,Update,New version is %newversion% `nOld is %version% `nUpdate now?
+                IfMsgBox, Yes
+                {
+                    ;Download update
+                    SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
+                    FileCreateDir, %AppFolder%\temp
+                    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+                    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
+                    DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/GameScripts.ahk"
+                    UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
+                    SplashTextOff
+                    loop
+                    {
+                        IfExist %A_ScriptFullPath%
+                        {
+                            Run, %A_ScriptFullPath%
+                            ExitApp
+                        }
+                    }
+                    ExitApp
+                }
+            }
+        }
+        else    ;Force update/Download
+        {
+            ;Download update
+            SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
+            FileCreateDir, %AppFolder%\temp
+            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
+            DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/GameScripts.ahk"
+            UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
+            SplashTextOff
+            loop
+            {
+                IfExist %A_ScriptFullPath%
+                {
+                    Run, %A_ScriptFullPath%
+                    ExitApp
+                }
+            }
+            ExitApp
+        }
+    }
+}
+ForceUpdate(T_Version)
+{
+
+}
+;____________________________________________________________
+;//////////////[ShowDownloadManager]///////////////
+ShowDownloadManager:
+Gui 2:Destroy ;Destroy if already existing
+Gui 2:Add, Tab3, x0 y0 w516 h234, Instance1||
+Gui 2:Tab, 1
+DMYOAdd = 32 ;Dowload Manager Y Offsets Add
+DMYON = 48 ;Dowload Manager Y Offsets Normal
+loop 3
+{
+    if(A_Index == 1)
+    {
+        T_DMBranchName := "main"
+        T_DMBranchNameCustom := "Main"
+    }
+    else if(A_Index == 2)
+    {
+        T_DMBranchName := "PreRelease"
+        T_DMBranchNameCustom := "Pre Release"
+    }
+    else if(A_Index == 3)
+    {
+        T_DMBranchName := "Experimental"
+        T_DMBranchNameCustom := "Experimental"
+    }
+    Gui 2:Add, Text, x8 y%DMYON% w77 h23 +0x200, %T_DMBranchNameCustom%:
+    Gui 2:Add, DropDownList, x88 y%DMYON% w120 vDMDropDown%T_DMBranchName% +Disabled, ||
+    Gui 2:Add, Button, x216 y%DMYON% w80 h23 vDMDownload%T_DMBranchName% gDMForceDownload +Disabled, Download
+    Gui 2:Add, Button, x304 y%DMYON% w101 h23 vDMLatest%T_DMBranchName%Button gDownloadLatestBranch, Download Latest
+    Gui 2:Add, Text, x408 y%DMYON% w120 h23 +0x200 vDMLatest%T_DMBranchName%, Latest:
+    DMYON += DMYOAdd
+}
+Gui 2:Add, GroupBox, x16 y144 w472 h58, Current Script:
+Gui 2:Font, s12
+Gui 2:Add, Text, x24 y168 w120 h23 +0x200, Version: %Version%
+Gui 2:Add, Text, x152 y168 w203 h23 +0x200 vDMBranch, Branch: Main
+Gui 2:Add, Text, x376 y168 w94 h23 +0x200, Instance: 1
+Gui 2:Font
+Gui 2:Add, Button, x0 y24 w80 h20 +Disabled, New Instance
+;Check current Branch
+if(IsThisExperimental)
+{
+    GuiControl,2:,DMBranch,Branch: Experimental
+    T_IsThisVersion := GetNewVersion("Experimental")
+    if(Version == T_IsThisVersion)
+    {
+        GuiControl,2:,DMLatestExperimentalButton,Currently Installed
+        GuiControl,2:Disable,DMLatestExperimentalButton
+    }
+}
+else if(IsThisPreRelease)
+{
+    GuiControl,2:,DMBranch,Branch: Pre Release
+    T_IsThisVersion := GetNewVersion("PreRelease")
+    if(Version == T_IsThisVersion)
+    {
+        GuiControl,2:,DMLatestPreReleaseButton,Currently Installed
+        GuiControl,2:Disable,DMLatestPreReleaseButton
+    }
+}
+else
+{
+    GuiControl,2:,DMBranch,Branch: Main
+    T_IsThisVersion := GetNewVersion("main")
+    if(Version == T_IsThisVersion)
+    {
+        GuiControl,2:,DMLatestmainButton,Currently Installed
+        GuiControl,2:Disable,DMLatestmainButton
+    }
+}
+;Check latest versions:
+loop 3
+{
+    T_DMBranchName := BranchName(A_Index)
+    T_DMLatest := GetNewVersion(T_DMBranchName)
+    if(T_DMLatest == "ERROR")
+    {
+        GuiControl,2:,DMLatest%T_DMBranchName%,Network Error
+        GuiControl,2:Disable,DMLatest%T_DMBranchName%Button
+    }
+    else
+    {
+        GuiControl,2:,DMLatest%T_DMBranchName%,% "Latest: " . T_DMLatest
+    }
+}
+;Check all versions
+loop 3
+{
+    T_DMDropDownlistText := 
+    T_DMBranchName := BranchName(A_Index)
+    T_Link := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_DMBranchName . "/DownloadManager/" . T_DMBranchName
+    whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+    whr.Open("GET", T_Link, False)
+    whr.Send()
+    whr.WaitForResponse()
+    AllVersions := whr.ResponseText
+    if(AllVersions != "404: Not Found")
+    {
+        Loop, parse, AllVersions, `n, `r
+        {
+            T_DMDropDownlistText = % T_DMDropDownlistText . "|" . A_LoopField
+        }
+        ;Add selected option (Latest version)
+        T_DMLatest := GetNewVersion(T_DMBranchName)
+        T_DMDropDownlistText = % T_DMLatest . "|" . T_DMDropDownlistText
+        GuiControl,2:,DMDropDown%T_DMBranchName%,%T_DMDropDownlistText%
+        GuiControl,2:Enable,DMDropDown%T_DMBranchName%
+        GuiControl,2:Enable,DMDownload%T_DMBranchName%
+    }
+}
+
+Gui 2:Show, w515 h211, Download Manager
+return
+BranchName(T_Index)
+{
+    if(T_Index == 1)
+    {
+        T_DMBranchName := "main"
+    }
+    else if(T_Index == 2)
+    {
+        T_DMBranchName := "PreRelease"
+    }
+    else if(T_Index == 3)
+    {
+        T_DMBranchName := "Experimental"
+    }
+    return T_DMBranchName
+}
+DownloadLatestBranch:
+StringTrimLeft, ScriptToDownload, A_GuiControl, 8
+StringTrimRight, ScriptToDownload, ScriptToDownload,6
+UpdateScript(false,ScriptToDownload)
+return
+DMForceDownload:
+MsgBox, Not working yet
+return
