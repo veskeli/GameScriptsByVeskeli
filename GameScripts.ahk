@@ -24,6 +24,7 @@ GuiPictureFolder = %AppFolder%\Gui
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppGameScriptSettingsIni = %AppSettingsFolder%\GameScriptSettings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
+AppVersionIdListIni = %AppFolder%\temp\VersionIdList.ini
 ;//////////////[Update]///////////////
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 ;//////////////[Other Scripts]///////////////
@@ -39,7 +40,7 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3954
+version = 0.3955
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := true
 IsThisPreRelease := false
@@ -66,6 +67,7 @@ global AppFolder
 global AppSettingsFolder
 global AppSettingsIni
 global AppHotkeysIni
+global AppVersionIdListIni
 global AppUpdateFile
 global CloseToTray
 global GuiPictureFolder
@@ -2400,9 +2402,25 @@ UpdateScript(T_CheckForUpdates,T_Branch)
         }
     }
 }
-ForceUpdate(T_Version)
+ForceUpdate(newversion,T_Id)
 {
-
+    ;Download update
+    SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
+    FileCreateDir, %AppFolder%\temp
+    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
+    DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Id . "/GameScripts.ahk"
+    UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
+    SplashTextOff
+    loop
+    {
+        IfExist %A_ScriptFullPath%
+        {
+            Run, %A_ScriptFullPath%
+            ExitApp
+        }
+    }
+    ExitApp
 }
 ;____________________________________________________________
 ;//////////////[ShowDownloadManager]///////////////
@@ -2504,11 +2522,19 @@ loop 3
     {
         Loop, parse, AllVersions, `n, `r
         {
-            T_DMDropDownlistText = % T_DMDropDownlistText . "|" . A_LoopField
+            if(T_DMDropDownlistText == "") ;if empty
+            {
+                T_DMDropDownlistText = % A_LoopField
+            }
+            else
+            {
+                T_DMDropDownlistText = % T_DMDropDownlistText . "|" . A_LoopField
+            }
         }
         ;Add selected option (Latest version)
         T_DMLatest := GetNewVersion(T_DMBranchName)
-        T_DMDropDownlistText = % T_DMLatest . "|" . T_DMDropDownlistText
+        T_DMDropDownlistText = % T_DMLatest . "||" . T_DMDropDownlistText
+        GuiControl,2:,DMDropDown%T_DMBranchName%,|
         GuiControl,2:,DMDropDown%T_DMBranchName%,%T_DMDropDownlistText%
         GuiControl,2:Enable,DMDropDown%T_DMBranchName%
         GuiControl,2:Enable,DMDownload%T_DMBranchName%
@@ -2539,5 +2565,32 @@ StringTrimRight, ScriptToDownload, ScriptToDownload,6
 UpdateScript(false,ScriptToDownload)
 return
 DMForceDownload:
-MsgBox, Not working yet
+Gui,Submit,NoHide
+StringTrimLeft, T_DMBranchName, A_GuiControl, 10
+T_DMDropDown2 := DMDropDown%T_DMBranchName%
+if(T_DMDropDown2 == version) ;if current
+{
+    MsgBox,,Current version!,This is %version%!
+    return
+}
+T_LatestVersion2234422 := GetNewVersion(T_DMBranchName)
+if(T_DMDropDown2 == T_LatestVersion2234422) ;if latest
+{
+    UpdateScript(false,T_DMBranchName)
+    return
+}
+FileCreateDir, %AppFolder%\temp
+UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_DMBranchName . "/DownloadManager/VersionIdList.ini",%AppVersionIdListIni%
+if(ErrorLevel)
+{
+    MsgBox,,Id Missing!,Id missing for version: %T_DMDropDown2%
+    return
+}
+IniRead,T_Id,%AppVersionIdListIni%,%T_DMBranchName%,%T_DMDropDown2%
+if(T_Id == "ERROR")
+{
+    MsgBox,,Id Missing!,Id missing for version: %T_DMDropDown2%
+    return
+}
+ForceUpdate(T_DMDropDown2,T_Id)
 return
