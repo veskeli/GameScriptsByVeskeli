@@ -40,7 +40,7 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3955
+version = 0.3956
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := true
 IsThisPreRelease := false
@@ -61,6 +61,7 @@ PinPic = %GuiPictureFolder%\pin.png
 RemovePinPic = %GuiPictureFolder%\removepin.png
 ;____________________________________________________________
 ;//////////////[Global variables]///////////////
+global version
 global ScriptName
 global AppFolderName
 global AppFolder
@@ -115,6 +116,7 @@ if(!IsThisExperimental)
 if(T_DiscordMusicBotTab == "0")
     DiscordMusicBotTAB := false
 ;____________________________________________________________
+CheckAssets()
 UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
@@ -246,9 +248,11 @@ if(IsThisExperimental)
     + Added voicemeeter tab [Alpha]
     + Added Discord Music Bot Tab [Pre Alpha]
     + Added Download Manager
+    + Updater Code is reworked
+    + Faster Updates
     )
     Gui 1:Font, s11
-    Gui 1:Add, Text, x509 y70 w314 h311, %T_Experimentalchanges%
+    Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
 }
 Gui 1:Font
 }
@@ -744,41 +748,17 @@ IfExist, %AppSettingsIni%
         GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
     if(Temp_CheckUpdatesOnStartup == 1)
     {
-        if(IsThisExperimental)
+        if(IsThisExperimental) ;Check for Experimental updates
         {
-            MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
-            ;GuiControl,1:show,DownloadExperimentalBranchButton
-            ;GuiControl,1:Show,DownloadExperimentalBranchGroupbox
-            GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
-            ;check if there is new stable
-            GoSub CheckForStableVersion
+            UpdateScript(true,"Experimental")
         }
-        else
+        else if(IsThisPreRelease) ;Check for pre release updates
         {
-            ;Check for experimental branch
-            whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-            whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/version.txt", False)
-            whr.Send()
-            whr.WaitForResponse()
-            ExperimentalVersion := whr.ResponseText
-            if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found" and ExperimentalVersion != "500: Internal Server Error")
-            {
-                ;Found experimental version
-                ;GuiControl,1:show,DownloadExperimentalBranchButton
-                ;GuiControl,1:Show,DownloadExperimentalBranchGroupbox
-            }
-            GoSub checkForupdates
+            UpdateScript(true,"PreRelease")
         }
-    }
-    else
-    {
-        ;if this is experimental but check updates on start is disabled
-        if(IsThisExperimental)
+        else ;Check for updates
         {
-            MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
-            ;GuiControl,1:show,DownloadExperimentalBranchButton
-            ;GuiControl,1:Show,DownloadExperimentalBranchGroupbox
-            ;GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
+            UpdateScript(true,"main")
         }
     }
 }
@@ -816,6 +796,11 @@ if(ShowChangelog)
     {
         FileDelete, %AppFolder%/Changelog.txt
     }
+}
+;then if experimental show experimental msgbox
+if(IsThisExperimental)
+{
+    MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
 }
 return
 ;____________________________________________________________
@@ -1195,170 +1180,21 @@ else
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
-whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/version.txt", False)
-whr.Send()
-whr.WaitForResponse()
-newversion := whr.ResponseText
-if(newversion != "" and newversion != "404: Not Found" and newversion != "500: Internal Server Error")
-{
-    if(newversion > version)
-    {
-        MsgBox, 1,Update,New version is  %newversion% `nOld is %version% `nUpdate now?
-        IfMsgBox, Cancel
-        {
-            ;temp stuff
-        }
-        else
-        {
-            ;Download update
-            SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
-            FileCreateDir, %AppFolder%
-            FileCreateDir, %AppFolder%\temp
-            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-            sleep 1000
-            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
-            Sleep 1000
-            SplashTextOff
-            loop
-            {
-                IfExist %A_ScriptFullPath%
-                {
-                    Run, %A_ScriptFullPath%
-                    ExitApp
-                }
-            }
-			ExitApp
-        }
-    }
-}
-return
-;//////////////[Experimental Download]///////////////
-CheckForStableVersion:
-whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/version.txt", False)
-whr.Send()
-whr.WaitForResponse()
-newversion := whr.ResponseText
-if(newversion != "" and newversion != "404: Not Found" and newversion != "500: Internal Server Error")
-{
-    if(newversion >= version)
-    {
-        MsgBox, 1,Update,New Stable version is live`nExperimental version: %version%`nStable versio: %newversion%`nUpdate to stable?
-        IfMsgBox, Cancel
-        {
-            ;temp stuff
-        }
-        else
-        {
-            SplashTextOn, 300,50,Downloading...,Downloading new Stable version.`nVersion: %newversion%
-            ;Download update
-            FileCreateDir, %AppFolder%
-            FileCreateDir, %AppFolder%\temp
-            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-            sleep 1000
-            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
-            Sleep 1000
-            SplashTextOff
-            loop
-            {
-                IfExist %A_ScriptFullPath%
-                {
-                    Run, %A_ScriptFullPath%
-                    ExitApp
-                }
-            }
-			ExitApp
-        }
-    }
-}
-;check if there is new experimental version
-whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/version.txt", False)
-whr.Send()
-whr.WaitForResponse()
-ExperimentalVersion := whr.ResponseText
-if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found" and ExperimentalVersion != "500: Internal Server Error")
-{
-    if(ExperimentalVersion > version)
-    {
-        MsgBox, 1,Update,New Experimental version`nCurrent: %version%`nNew:%ExperimentalVersion%`nUpdate now?
-        IfMsgBox, Cancel
-        {
-            ;temp stuff
-        }
-        else
-        {
-            ;Download update
-            SplashTextOn, 300,50,Downloading...,Downloading new Experimental version.`nVersion: %ExperimentalVersion%
-            FileCreateDir, %AppFolder%
-            FileCreateDir, %AppFolder%\temp
-            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-            sleep 1000
-            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
-            Sleep 1000
-            SplashTextOff
-            loop
-            {
-                IfExist %A_ScriptFullPath%
-                {
-                    Run, %A_ScriptFullPath%
-                    ExitApp
-                }
-            }
-			ExitApp
-        }
-    }
-}
-return
-DownloadExperimentalBranch:
 if(IsThisExperimental)
 {
-    ;Download stable
-    SplashTextOn, 240,30,Downloading...,Downloading Stable version.
-    FileCreateDir, %AppFolder%
-    FileCreateDir, %AppFolder%\temp
-    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-    sleep 1000
-    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
-    Sleep 1000
-    SplashTextOff
-    loop
-    {
-        IfExist %A_ScriptFullPath%
-        {
-            Run, %A_ScriptFullPath%
-            ExitApp
-        }
-    }
-    ExitApp
+    T_UserCancel := UpdateScript(true,"Experimental")
+}
+else if(IsThisPreRelease)
+{
+    T_UserCancel := UpdateScript(true,"PreRelease")
 }
 else
 {
-    ;Download Experimental
-    SplashTextOn, 240,30,Downloading...,Downloading Experimental version.
-    FileCreateDir, %AppFolder%
-    FileCreateDir, %AppFolder%\temp
-    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-    sleep 1000
-    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
-    Sleep 1000
-    SplashTextOff
-    loop
-    {
-        IfExist %A_ScriptFullPath%
-        {
-            Run, %A_ScriptFullPath%
-            ExitApp
-        }
-    }
-    ExitApp
+    T_UserCancel := UpdateScript(true,"main")
 }
+if(T_UserCancel == "ERROR")
+    return
+msgbox,,Already Newest version,You are already running the latest version
 return
 ;Shortcut
 Shortcut_to_desktop:
@@ -2085,30 +1921,66 @@ DownloadAssets()
     T_GuiPicAddAmount = 17
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    ;SplashTextOn, 300,60,Downloading Gui Pictures, Script will run after all Gui pictures has been downloaded
     FileCreateDir,%GuiPictureFolder%
-    sleep 100
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
+    IfNotExist %GuiPictureFolder%/GameScripts.ico
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
+    IfNotExist %GuiPictureFolder%/pintext.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
+    IfNotExist %GuiPictureFolder%/pin.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
+    IfNotExist %GuiPictureFolder%/removepin.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/on.png , %GuiPictureFolder%/on.png ;on button
+    IfNotExist %GuiPictureFolder%/on.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/on.png , %GuiPictureFolder%/on.png ;on button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/off.png , %GuiPictureFolder%/off.png ;off button
+    IfNotExist %GuiPictureFolder%/off.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/off.png , %GuiPictureFolder%/off.png ;off button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
 
     Progress, Off
-    ;SplashTextOff
+}
+CheckAssets()
+{
+    IfNotExist %GuiPictureFolder%/GameScripts.ico ;icon
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/pintext.png ;PinText
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/pin.png ;PinText
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/removepin.png ;PinText
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/on.png ;on button
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/off.png ;off button
+    {
+        DownloadAssets()
+        return
+    }
 }
 PinAppOrAction(AppOrAction)
 {
@@ -2357,14 +2229,25 @@ UpdateScript(T_CheckForUpdates,T_Branch)
         {
             if(newversion > version)
             {
-                MsgBox, 1,Update,New version is %newversion% `nOld is %version% `nUpdate now?
+                if(T_Branch == "main")
+                {
+                    UpdateText := % "New version is: " . newversion . "`nOld is: " . version .  "`nUpdate now?"
+                }
+                else if(T_Branch == "PreRelease")
+                {
+                    UpdateText := % "New Pre-Release is: " . newversion . "`nOld is: " . version .  "`nUpdate now?"
+                }
+                else if(T_Branch == "Experimental")
+                {
+                    UpdateText := % "New Experimental version is: " . newversion . "`nOld is: " . version .  "`nUpdate now?"
+                }
+                MsgBox, 1,Update,%UpdateText%
                 IfMsgBox, Yes
                 {
                     ;Download update
                     SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
                     FileCreateDir, %AppFolder%\temp
                     FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-                    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
                     DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/GameScripts.ahk"
                     UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
                     SplashTextOff
@@ -2378,6 +2261,10 @@ UpdateScript(T_CheckForUpdates,T_Branch)
                     }
                     ExitApp
                 }
+                Else
+                {
+                    return "ERROR"
+                }
             }
         }
         else    ;Force update/Download
@@ -2386,7 +2273,6 @@ UpdateScript(T_CheckForUpdates,T_Branch)
             SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
             FileCreateDir, %AppFolder%\temp
             FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
             DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/GameScripts.ahk"
             UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
             SplashTextOff
@@ -2408,7 +2294,6 @@ ForceUpdate(newversion,T_Id)
     SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
     FileCreateDir, %AppFolder%\temp
     FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
     DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Id . "/GameScripts.ahk"
     UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
     SplashTextOff
