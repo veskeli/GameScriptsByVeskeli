@@ -1,0 +1,17 @@
+Added
++ New option in settings [Customize Tabs] 
+    + You can select what tabs are showing
++ New option in settings [Download Manager]
+    + Faster updates
+    + Better asset downloads
+    + Download later versions if the current is not working
+    + Download Experimental Or Pre-Release versions
+Reworked:
++ Updater
++ Other Scripts tab
++ Home screen app pin
++ Tab Control
+Fixed
++ Wrong folder while elevated
++ Script uninstall not working correctly
++ App pin issues

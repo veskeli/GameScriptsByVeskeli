@@ -41,12 +41,12 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3957
+version = 0.396
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := false
-IsThisPreRelease := true
+IsThisPreRelease := false
 TestingGround := false
-PreVersion = 0.396Pre1
+PreVersion = 0.396Pre2
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -106,6 +106,11 @@ if(!TestingGround)
         IsThisExperimental := false
         IsThisPreRelease := true
     }
+}
+else
+{
+    IsThisExperimental := true
+    IsThisPreRelease := false
 }
 ;____________________________________________________________
 ;//////////////[Tab Control]///////////////
