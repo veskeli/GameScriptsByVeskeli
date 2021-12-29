@@ -24,16 +24,29 @@ GuiPictureFolder = %AppFolder%\Gui
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppGameScriptSettingsIni = %AppSettingsFolder%\GameScriptSettings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
+AppVersionIdListIni = %AppFolder%\temp\VersionIdList.ini
+AppPreVersionsIni = %AppFolder%\temp\PreVersions.ini
 ;//////////////[Update]///////////////
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 ;//////////////[Other Scripts]///////////////
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
+;//////////////[Tabs]///////////////
+HomeTAB := true
+SettingsTAB := true
+OtherScriptsTAB := true
+WindowsTAB := true
+BasicScriptsTAB := true
+VoicemeeterTAB := true
+DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.395
-;//////////////[Experimental]///////////////
+version = 0.396
+;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := false
+IsThisPreRelease := false
+TestingGround := false
+PreVersion = 0.396Pre2
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -51,12 +64,15 @@ PinPic = %GuiPictureFolder%\pin.png
 RemovePinPic = %GuiPictureFolder%\removepin.png
 ;____________________________________________________________
 ;//////////////[Global variables]///////////////
+global version
 global ScriptName
 global AppFolderName
 global AppFolder
 global AppSettingsFolder
 global AppSettingsIni
 global AppHotkeysIni
+global AppVersionIdListIni
+global AppPreVersionsIni
 global AppUpdateFile
 global CloseToTray
 global GuiPictureFolder
@@ -70,7 +86,61 @@ global SatisfactorySaveManagerLocation
 global MinecraftServerManager
 global MinecraftServerManagerLocation
 global PinSlot
+global HomeTAB
+global SettingsTAB
+global OtherScriptsTAB
+global windowsTAB
+global BasicScriptsTAB
+global VoicemeeterTAB
+;//////////////[Branch]///////////////
+if(!TestingGround)
+{
+    IniRead, CurrentBranch,%AppSettingsIni%,Branch,Instance1
+    if(CurrentBranch == "Experimental")
+    {
+        IsThisExperimental := true
+        IsThisPreRelease := false
+    }
+    else if(CurrentBranch == "PreRelease")
+    {
+        IsThisExperimental := false
+        IsThisPreRelease := true
+    }
+}
+else
+{
+    IsThisExperimental := true
+    IsThisPreRelease := false
+}
 ;____________________________________________________________
+;//////////////[Tab Control]///////////////
+IniRead, T_HomeTab, %AppSettingsIni%,Tabs,Home
+IniRead, T_SettingsTab, %AppSettingsIni%,Tabs,Settings
+IniRead, T_OtherScriptsTab, %AppSettingsIni%,Tabs,OtherScripts
+IniRead, T_WindowsTab, %AppSettingsIni%,Tabs,Windows
+IniRead, T_BasicScriptsTab, %AppSettingsIni%,Tabs,BasicScripts
+IniRead, T_VoicemeeterTab, %AppSettingsIni%,Tabs,Voicemeeter
+IniRead, T_DiscordMusicBotTab, %AppSettingsIni%,Tabs,DiscordMusicBot
+if(T_HomeTab == "0")
+    HomeTAB := false
+if(T_SettingsTab == "0")
+    SettingsTAB := false
+if(T_OtherScriptsTab == "0")
+    OtherScriptsTAB := false
+if(T_WindowsTab == "0")
+    WindowsTAB := false
+if(T_BasicScriptsTab == "0")
+    BasicScriptsTAB := false
+if(!IsThisExperimental)
+    T_VoicemeeterTab := 0
+if(T_VoicemeeterTab == "0")
+    VoicemeeterTAB := false
+if(!IsThisExperimental)
+    T_DiscordMusicBotTab := 0
+if(T_DiscordMusicBotTab == "0")
+    DiscordMusicBotTAB := false
+;____________________________________________________________
+CheckAssets()
 UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
@@ -94,10 +164,28 @@ else
     MsgBox,,Asset download error,Assets needs to be Redownloaded `n You can re download assets from settings tab
 }
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Tab3, x0 y0 w898 h640, Home|Settings|Other Scripts|Windows|Basic Scripts
+TabHandle = 
+if(HomeTAB)
+    TabHandle = % TabHandle . "|" . "Home"
+if(SettingsTAB)
+    TabHandle = % TabHandle . "|" . "Settings"
+if(OtherScriptsTAB)
+    TabHandle = % TabHandle . "|" . "Other Scripts"
+if(WindowsTAB)
+    TabHandle = % TabHandle . "|" . "Windows"
+if(BasicScriptsTAB)
+    TabHandle = % TabHandle . "|" . "Basic Scripts"
+if(VoicemeeterTAB)
+    TabHandle = % TabHandle . "|" . "Voicemeeter[Alpha]"
+if(DiscordMusicBotTAB)
+    TabHandle = % TabHandle . "|" . "Discord Music[Pre Alpha]"
+StringTrimLeft, TabHandle, TabHandle, 1
+Gui 1:Add, Tab3, x0 y0 w898 h640, %TabHandle% ;Home|Settings|Other Scripts|Windows|Basic Scripts
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Home]///////////////
+if(HomeTAB)
+{
 Gui 1:Tab, Home
 Gui 1:Add, GroupBox, x432 y32 w386 h126, Quick actions
 Gui 1:Add, CheckBox, x440 y56 w120 h23 gToggleXboxOverlay1 vXboxOverlayCheckbox1, Xbox Overlay
@@ -105,22 +193,16 @@ Gui 1:Add, CheckBox, x440 y80 w120 h23 gToggleGameDVR1 vToggleGameDVRCheckbox1, 
 Gui 1:Add, Button, x440 y112 w164 h28 gClearWindowsTempFolder, Clear Windows Temp Folder
 Gui 1:Add, Button, x568 y56 w80 h23 gRunIpConfig, IPConfig
 Gui 1:Add, Button, x568 y80 w80 h23 gOpenAppdataFolder, Appdata
-;Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
+if(VoicemeeterTAB)
+    Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
 Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
-;Gui 1:Font, s17
-;Gui 1:Add, Text, x272 y440 w353 h50 +0x200, All of this might change.
-;Gui 1:Font
 Gui 1:Font, s16
 Gui 1:Add, GroupBox, x16 y40 w385 h80 +Hidden vPin1GroubBox, Pin1
-Gui 1:Add, GroupBox, x16 y128 w385 h80 +Hidden vPin2GroubBox, Pin2
-Gui 1:Add, GroupBox, x16 y216 w385 h80 +Hidden vPin3GroubBox, Pin3
-Gui 1:Add, GroupBox, x16 y304 w385 h80 +Hidden vPin4GroubBox, Pin4
-Gui 1:Add, GroupBox, x16 y392 w385 h80 +Hidden vPin5GroubBox, Pin5
-Gui 1:Font, s20
-Gui 1:Add, Button, x128 y68 w137 h45 +Hidden gPin1RunButton vPin1RunButton, % Chr(0x25B6) . " Open"
-Gui 1:Add, Button, x128 y152 w137 h45 +Hidden gPin2RunButton vPin2RunButton, % Chr(0x25B6) . " Open"
-Gui 1:Add, Button, x128 y246 w137 h45 +Hidden gPin3RunButton vPin3RunButton, % Chr(0x25B6) . " Open"
+Gui 1:Add, GroupBox, x16 y124 w385 h80 +Hidden vPin2GroubBox, Pin2
+Gui 1:Add, GroupBox, x16 y208 w385 h80 +Hidden vPin3GroubBox, Pin3
+Gui 1:Add, GroupBox, x16 y292 w385 h80 +Hidden vPin4GroubBox, Pin4
+Gui 1:Add, GroupBox, x16 y376 w385 h80 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
@@ -131,24 +213,36 @@ Gui 1:Font, s9, Segoe UI
 Gui 1:Add, Hotkey, x504 y184 w120 h21 vAlwaysOnTopHotkey_Menu gSaveAlwaysOnTopHotkey_Menu
 Gui 1:Add, Picture, x632 y182 w50 h25 gAlwaysOnTopHotkey_Menu vAlwaysOnTopHotkey_MenuButton, %GuiPictureFolder%/off.png
 Gui 1:Font
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Settings]///////////////
+if(SettingsTAB)
+{
 Gui 1:Tab, Settings
 Gui 1:Add, GroupBox, x8 y32 w175 h88, Admin
 Gui 1:Add, Button, x16 y56 w152 h23 gRunAsThisAdmin vRunAsThisAdminButton, Run This Script as admin
 Gui 1:Add, CheckBox, x16 y88 w152 h23 gRunAsThisAdminCheckboxButton vRunAsThisAdminCheckbox, Run as admin on script start
-Gui 1:Add, GroupBox, x8 y122 w175 h130, Settings for this script.
+Gui 1:Add, GroupBox, x8 y122 w175 h160, Settings for this script.
 Gui 1:Add, CheckBox, x16 y144 w143 h23 gKeepThisAlwaysOnTop, Keep this always on top
 Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayCheckbox, On Exit close to tray
 Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
 Gui 1:Add, Button, x16 y224 w133 h23 gShowChangelogButton, Show Changelog
-Gui 1:Add, GroupBox, x499 y442 w150 h67 +Hidden vDownloadExperimentalBranchGroupbox, Experimental
-Gui 1:Add, Button, x504 y464 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
+Gui 1:Add, Button, x16 y252 w133 h23 gCustomizeTabs, Customize Tabs
+Gui 1:Add, GroupBox, x499 y442 w150 h67,Download Manager
+Gui 1:Add, Button, x504 y464 w138 h36 gShowDownloadManager vShowDownloadManager, Download Manager
 Gui 1:Font
 Gui 1:Add, GroupBox, x648 y392 w179 h117, Updates
 Gui 1:Font, s15
-Gui 1:Add, Text, x664 y472 w158 h28 +0x200, Version = %version%
+if(!IsThisPreRelease)
+{
+    Gui 1:Add, Text, x664 y472 w158 h28 +0x200, Version = %version%
+}
+else
+{  
+    Gui 1:Font, s13
+    Gui 1:Add, Text, x664 y472 w158 h28 +0x200, Version = %PreVersion%
+}
 Gui 1:Font
 Gui 1:Add, CheckBox, x656 y416 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui 1:Add, Button, x672 y440 w128 h23 gcheckForupdates, Check for updates
@@ -168,55 +262,96 @@ Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunne
 Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 Gui 1:Font, s14
 Gui 1:Add, Button, x624 y32 w206 h35 gReportAnIssueOrBug, Report an issue or bug
+if(IsThisExperimental)
+{
+    T_Experimentalchanges=
+    (
+    Current Experimental changes:
+    + Uninstaller changes
+    + This text (show only when experimental)
+    + Use Correct appdata folder when admin
+    + Use Correct desktop when creating shortcut
+    + Made better code for home screen pinned apps.
+    + Made script smaller
+    + Added code to remove/add Tabs
+    + Added button to remove/add Tabs
+    + Added voicemeeter tab [Alpha]
+    + Added Discord Music Bot Tab [Pre Alpha]
+    + Added Download Manager
+    + Updater Code is reworked
+    + Faster Updates
+    )
+    Gui 1:Font, s11
+    Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
+}
 Gui 1:Font
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
+if(OtherScriptsTAB)
+{
 Gui 1:Tab, Other Scripts
 ; Add 70 to Y
 ;Logitech backup tool
+OSYOffsetB = 56 ;Other Scripts Y Offset Button
+OSYOffsetP = 39 ;Other Scripts Y Offset Picture
+OSYOffsetG = 27 ;Other Scripts Y Offset GroupBox
+OSAddY = 70 ;How far down next goes
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y27 w430 h69, Logitech Backup Tool
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Logitech Backup Tool
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y56 w131 h23 vDowloadGHUBToolButton gDownloadGHUBTool, Download
-Gui 1:Add, Button, x352 y56 w80 h23 gUninstallGHUBToolScript vUninstallGHUBToolScritpButton +Disabled, Delete
-Gui 1:Add, Button, x160 y56 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y56 w100 h23 gOpenGHUBToolGithub, Open in Github
-Gui 1:Add, Picture, x413 y39 w18 h18 gPinGHUBTool vPinGHUBToolIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 vDowloadGHUBToolButton gDownloadGHUBTool, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallGHUBToolScriptButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenGHUBToolGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinGHUBToolIMG +Hidden, %PinPic%
 ;Ngrok tool
+OSYOffsetB += OSAddY
+OSYOffsetP += OSAddY
+OSYOffsetG += OSAddY
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y97 w430 h69, Ngrok port fowarding Tool
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Ngrok port fowarding Tool
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y126 w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton, Download
-Gui 1:Add, Button, x352 y126 w80 h23 gUninstallNgrokTool vUninstallNgrokToolButton +Disabled, Delete
-Gui 1:Add, Button, x160 y126 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y126 w100 h23 gOpenNgrokInGithub, Open in Github
-Gui 1:Add, Picture, x413 y109 w18 h18 gPinNgrokTool vPinNgrokToolIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallNgrokToolButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenNgrokInGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinNgrokToolIMG +Hidden, %PinPic%
 ;Satisfactory Save Manager
+OSYOffsetB += OSAddY
+OSYOffsetP += OSAddY
+OSYOffsetG += OSAddY
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y167 w430 h69, Satisfactory Save Manager
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Satisfactory Save Manager
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y196 w131 h23 gDownloadSatisfactorySaveManager vDownloadSatisfactorySaveManagerButton, Download
-Gui 1:Add, Button, x352 y196 w80 h23 gUninstallSatisfactorySaveManager vUninstallSatisfactorySaveManagerButton +Disabled, Delete
-Gui 1:Add, Button, x160 y196 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y196 w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
-Gui 1:Add, Picture, x413 y179 w18 h18 gPinSatisfactorySaveManager vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadSatisfactorySaveManager vDownloadSatisfactorySaveManagerButton, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallSatisfactorySaveManagerButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
 ;Minecraft Simple Server Manager
+OSYOffsetB += OSAddY
+OSYOffsetP += OSAddY
+OSYOffsetG += OSAddY
 Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y237 w430 h69, Minecraft Simple Server Manager[Early Access]
+Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Minecraft Simple Server Manager[Early Access]
 Gui 1:Font
 Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y266 w131 h23 gDownloadMinecraftServerManager vDowloadMinecraftServerManagerButton, Download
-Gui 1:Add, Button, x352 y266 w80 h23 gUninstallMinecraftServerManager vUninstallMinecraftServerManagerButton +Disabled, Delete
-Gui 1:Add, Button, x160 y266 w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y266 w100 h23 gOpenMinecraftServerManagerInGithub, Open in Github
-Gui 1:Add, Picture, x413 y249 w18 h18 gPinMinecraftServerManager vPinMinecraftServerManagerIMG +Hidden, %PinPic%
+Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadMinecraftServerManager vDowloadMinecraftServerManagerButton, Download
+Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallMinecraftServerManagerButton +Disabled, Delete
+Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
+Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenMinecraftServerManagerInGithub, Open in Github
+Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinMinecraftServerManagerIMG +Hidden, %PinPic%
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Windows]///////////////
+if(WindowsTAB)
+{
 Gui 1:Tab, Windows
 Gui 1:Add, GroupBox, x8 y388 w317 h124, Free Space on your device.
 Gui 1:Add, Text, x24 y408 w278 h23 +0x200,Deletes Windows temporary files that are not in use.
@@ -246,16 +381,57 @@ Gui 1:Add, CheckBox, x464 y112 w177 h30 +Disabled gClearVirtualMemoryPageFileAtS
 Gui 1:Add, CheckBox, x464 y144 w230 h48 +Disabled vToggleFeaturedAutoInstallCheckbox, Toggle Windows 10 Featured or Suggested Apps from Automatically Installing
 Gui 1:Add, Button, x464 y200 w171 h23 +Disabled gDisableMostOfAds vDisableMostOfAdsButton, Disable Most windows 10 ads
 Gui 1:Add, Button, x648 y200 w169 h23 +Disabled gRestoreMostOfAds vRestoreMostOfAdsButton, Restore Most windows 10 ads
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Voicemeeter]///////////////
-/*
+if(VoicemeeterTAB)
+{
 Gui 1:Tab, Voicemeeter
 Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
-*/
+}
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Discord music bot]///////////////
+if(DiscordMusicBotTAB)
+{
+Gui 1:Tab, Discord Music
+Gui 1:Font, s14
+Gui 1:Add, Text, x8 y24 w162 h23 +0x200, Not working yet ;Discord music Bot
+Gui 1:Font
+Gui 1:Add, Button, x232 y28 w80 h23 +Disabled, Play all    
+Gui 1:Add, Button, x320 y28 w80 h23 +Disabled, Stop    
+Gui 1:Add, DropDownList, x472 y28 w120 +Disabled, Chip||
+Gui 1:Font, s12
+Gui 1:Add, Text, x435 y28 w36 h23 +0x200, Bot:
+Gui 1:Add, Text, x624 y28 w53 h23 +0x200, Prefix:
+Gui 1:Font, s9, Segoe UI
+Gui 1:Add, ComboBox, x680 y28 w120 +Disabled, ch!||
+Gui 1:Add, Text, x0 y56 w837 h2 +0x10
+
+DLYO = 64 ;Discord link Y Offset
+DLYOAdd = 30 ;Discord link Y offset add
+DLHMR = 15 ;Discord link How Many Rows 
+Loop %DLHMR%
+{
+    Gui 1:Add, Text, x8 y%DLYO% w32 h23 +0x200, Link:
+    Gui 1:Add, Edit, x40 y%DLYO% w480 h21   
+    Gui 1:Add, Button, x528 y%DLYO% w80 h23 +Disabled, Add to queue
+    DLYO += DLYOAdd
+}
+DLYO = 64 ;Discord link Y Offset
+Loop %DLHMR%
+{
+    Gui 1:Add, Radio, x616 y%DLYO% w42 h23 v%A_Index%LinkRadio, %A_Index%.
+    DLYO += DLYOAdd
+}
+GuiControl, 1:, 1LinkRadio,1 ;Check first radio button
+}
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Basic scripts]///////////////
+if(BasicScriptsTAB)
+{
 Gui 1:Tab, Basic Scripts
 Gui 1:Add, GroupBox, x376 y26 w450 h288, Game Scripts
 Gui 1:Font, s12
@@ -311,6 +487,7 @@ Gui 1:Add, CheckBox, x176 y144 w77 h23 gEnableCapsLockRebind vRebindCapsLockChec
 Gui 1:Add, Hotkey, x256 y144 w110 h21 gGuiSubmit vRebindCapsLockButton ;capslock
 Gui 1:Add, CheckBox, x16 y168 w120 h23 gDisableAltTabButton vDisableAltTabCheckbox, Disable Alt + Tab
 Gui 1:Font
+}
 ;____________________________________________________________
 ;//////////////[Startup stuff]///////////////
 if(A_IsAdmin)
@@ -407,7 +584,7 @@ IfExist, %AppSettingsIni%
 IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
 {
     GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallGHUBToolScritpButton
+    GuiControl,1:Enable,UninstallGHUBToolScriptButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := true
     GuiControl,1:Show ,PinGHUBToolIMG
@@ -446,9 +623,19 @@ IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
     Else
     {
         GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-        GuiControl,1: Enable,UninstallGHUBToolScritpButton
+        GuiControl,1: Enable,UninstallGHUBToolScriptButton
         GHUBTool := true
         GuiControl,1:Show ,PinGHUBToolIMG
+    }
+}
+;Use correct appdata if Admin
+if(A_IsAdmin)
+{
+    IniRead, UseCorrectFolder,%AppSettingsIni%,Appdata,UseCorrectFolder
+    if(UseCorrectFolder == "true")
+    {
+        IniRead, CorrectAppdataFolder,%AppSettingsIni%,Appdata,Correct
+        AppFolder = %CorrectAppdataFolder%\%AppFolderName%
     }
 }
 ;Read From registery
@@ -591,41 +778,17 @@ IfExist, %AppSettingsIni%
         GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
     if(Temp_CheckUpdatesOnStartup == 1)
     {
-        if(IsThisExperimental)
+        if(IsThisExperimental) ;Check for Experimental updates
         {
-            MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
-            GuiControl,1:show,DownloadExperimentalBranchButton
-            GuiControl,1:Show,DownloadExperimentalBranchGroupbox
-            GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
-            ;check if there is new stable
-            GoSub CheckForStableVersion
+            UpdateScript(true,"Experimental")
         }
-        else
+        else if(IsThisPreRelease) ;Check for pre release updates
         {
-            ;Check for experimental branch
-            whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-            whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/version.txt", False)
-            whr.Send()
-            whr.WaitForResponse()
-            ExperimentalVersion := whr.ResponseText
-            if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found" and ExperimentalVersion != "500: Internal Server Error")
-            {
-                ;Found experimental version
-                GuiControl,1:show,DownloadExperimentalBranchButton
-                GuiControl,1:Show,DownloadExperimentalBranchGroupbox
-            }
-            GoSub checkForupdates
+            UpdateScript(true,"PreRelease")
         }
-    }
-    else
-    {
-        ;if this is experimental but check updates on start is disabled
-        if(IsThisExperimental)
+        else ;Check for updates
         {
-            MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
-            GuiControl,1:show,DownloadExperimentalBranchButton
-            GuiControl,1:Show,DownloadExperimentalBranchGroupbox
-            GuiControl,1:,DownloadExperimentalBranchButton, Download Stable version
+            UpdateScript(true,"main")
         }
     }
 }
@@ -649,6 +812,7 @@ if (Temp_IntroCheck != 1)
         IniWrite, 1, %AppSettingsIni%, Intro, SkipIntro
     }
 }
+;____________________________________________________________
 ;Last thing is to show changelog
 if(ShowChangelog)
 {
@@ -662,6 +826,11 @@ if(ShowChangelog)
     {
         FileDelete, %AppFolder%/Changelog.txt
     }
+}
+;then if experimental show experimental msgbox
+if(IsThisExperimental)
+{
+    MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
 }
 return
 ;____________________________________________________________
@@ -1041,170 +1210,21 @@ else
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
-whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/version.txt", False)
-whr.Send()
-whr.WaitForResponse()
-newversion := whr.ResponseText
-if(newversion != "" and newversion != "404: Not Found" and newversion != "500: Internal Server Error")
-{
-    if(newversion > version)
-    {
-        MsgBox, 1,Update,New version is  %newversion% `nOld is %version% `nUpdate now?
-        IfMsgBox, Cancel
-        {
-            ;temp stuff
-        }
-        else
-        {
-            ;Download update
-            SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
-            FileCreateDir, %AppFolder%
-            FileCreateDir, %AppFolder%\temp
-            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-            sleep 1000
-            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
-            Sleep 1000
-            SplashTextOff
-            loop
-            {
-                IfExist %A_ScriptFullPath%
-                {
-                    Run, %A_ScriptFullPath%
-                    ExitApp
-                }
-            }
-			ExitApp
-        }
-    }
-}
-return
-;//////////////[Experimental Download]///////////////
-CheckForStableVersion:
-whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/version.txt", False)
-whr.Send()
-whr.WaitForResponse()
-newversion := whr.ResponseText
-if(newversion != "" and newversion != "404: Not Found" and newversion != "500: Internal Server Error")
-{
-    if(newversion >= version)
-    {
-        MsgBox, 1,Update,New Stable version is live`nExperimental version: %version%`nStable versio: %newversion%`nUpdate to stable?
-        IfMsgBox, Cancel
-        {
-            ;temp stuff
-        }
-        else
-        {
-            SplashTextOn, 300,50,Downloading...,Downloading new Stable version.`nVersion: %newversion%
-            ;Download update
-            FileCreateDir, %AppFolder%
-            FileCreateDir, %AppFolder%\temp
-            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-            sleep 1000
-            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
-            Sleep 1000
-            SplashTextOff
-            loop
-            {
-                IfExist %A_ScriptFullPath%
-                {
-                    Run, %A_ScriptFullPath%
-                    ExitApp
-                }
-            }
-			ExitApp
-        }
-    }
-}
-;check if there is new experimental version
-whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-whr.Open("GET", "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/version.txt", False)
-whr.Send()
-whr.WaitForResponse()
-ExperimentalVersion := whr.ResponseText
-if(ExperimentalVersion != "" and ExperimentalVersion != "404: Not Found" and ExperimentalVersion != "500: Internal Server Error")
-{
-    if(ExperimentalVersion > version)
-    {
-        MsgBox, 1,Update,New Experimental version`nCurrent: %version%`nNew:%ExperimentalVersion%`nUpdate now?
-        IfMsgBox, Cancel
-        {
-            ;temp stuff
-        }
-        else
-        {
-            ;Download update
-            SplashTextOn, 300,50,Downloading...,Downloading new Experimental version.`nVersion: %ExperimentalVersion%
-            FileCreateDir, %AppFolder%
-            FileCreateDir, %AppFolder%\temp
-            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-            sleep 1000
-            UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
-            Sleep 1000
-            SplashTextOff
-            loop
-            {
-                IfExist %A_ScriptFullPath%
-                {
-                    Run, %A_ScriptFullPath%
-                    ExitApp
-                }
-            }
-			ExitApp
-        }
-    }
-}
-return
-DownloadExperimentalBranch:
 if(IsThisExperimental)
 {
-    ;Download stable
-    SplashTextOn, 240,30,Downloading...,Downloading Stable version.
-    FileCreateDir, %AppFolder%
-    FileCreateDir, %AppFolder%\temp
-    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-    sleep 1000
-    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk, %A_ScriptFullPath%
-    Sleep 1000
-    SplashTextOff
-    loop
-    {
-        IfExist %A_ScriptFullPath%
-        {
-            Run, %A_ScriptFullPath%
-            ExitApp
-        }
-    }
-    ExitApp
+    T_UserCancel := UpdateScript(true,"Experimental")
+}
+else if(IsThisPreRelease)
+{
+    T_UserCancel := UpdateScript(true,"PreRelease")
 }
 else
 {
-    ;Download Experimental
-    SplashTextOn, 240,30,Downloading...,Downloading Experimental version.
-    FileCreateDir, %AppFolder%
-    FileCreateDir, %AppFolder%\temp
-    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-    FileRemoveDir, %GuiPictureFolder%, 1 ;Delete Gui 1:pictures
-    sleep 1000
-    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/Experimental/GameScripts.ahk, %A_ScriptFullPath%
-    Sleep 1000
-    SplashTextOff
-    loop
-    {
-        IfExist %A_ScriptFullPath%
-        {
-            Run, %A_ScriptFullPath%
-            ExitApp
-        }
-    }
-    ExitApp
+    T_UserCancel := UpdateScript(true,"main")
 }
+if(T_UserCancel == "ERROR")
+    return
+msgbox,,Already Newest version,You are already running the latest version
 return
 ;Shortcut
 Shortcut_to_desktop:
@@ -1215,7 +1235,16 @@ if(IsEXERunnerEnabled)
     {
         iniread,T_RevertLocation,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
     }
-    FileCreateShortcut,"T_RevertLocation\%ScriptName%.exe", %A_Desktop%\%ScriptName%.lnk
+    IniRead, UseCorrectFolder,%AppSettingsIni%,Appdata,UseCorrectFolder
+    if(UseCorrectFolder == "true")
+    {
+        IniRead, CorrectDesktop,%AppSettingsIni%,Appdata,CorrectDesktop
+        FileCreateShortcut,% T_RevertLocation . "\" . ScriptName . ".exe", %CorrectDesktop%\%ScriptName%.lnk
+    }
+    Else
+    {
+        FileCreateShortcut,% T_RevertLocation . "\" . ScriptName . ".exe", %A_Desktop%\%ScriptName%.lnk
+    }
 }
 else
 {
@@ -1224,6 +1253,11 @@ else
 return
 ;//////////////[Delete files]///////////////
 DeleteAllFiles: ;uninstall
+if(!A_IsAdmin)
+{
+    NotAdminError()
+    Return
+}
 MsgBox, 1,Are you sure?,All files will be deleted!, 15
 IfMsgBox, Cancel
 {
@@ -1240,7 +1274,10 @@ else
     {
         FileDelete,% A_Desktop . "\" . ScriptName . ".lnk"
     }
-    FileRemoveDir, %AppFolder%,1
+    IfExist, %AppFolder%
+        FileRemoveDir, %AppFolder% ,1
+    IfExist, %A_ScriptFullPath%
+        FileDelete, %A_ScriptFullPath%
 }
 ExitApp
 DeleteAppSettings:
@@ -1256,6 +1293,52 @@ else
     GuiControl,1:,CheckUpdatesOnStartup,0
 }
 return
+CustomizeTabs:
+Gui 2:Destroy ;Destroy if already existing
+Gui 2:Add, GroupBox, x8 y4 w594 h100, Show tabs
+Gui 2:Add, CheckBox, +Checked +Disabled x16 y24 w60 h23 vHomeTabC, Home
+Gui 2:Add, CheckBox, +Checked +Disabled x80 y24 w67 h23 vSettingsTabC, Settings
+Gui 2:Add, CheckBox, +Checked x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
+Gui 2:Add, CheckBox, +Checked x256 y24 w73 h23 vWindowsTabC, Windows
+Gui 2:Add, CheckBox, +Checked x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
+Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
+Gui 2:Add, CheckBox, +Checked x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
+Gui 2:Add, Button, x432 y64 w80 h23 gHandleTabSave, Save
+Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
+Gui 2:Show, w609 h96, Customize Tabs
+if(!IsThisExperimental)
+{
+    GuiControl, 2:Disable, VoicemeeterTabC
+    GuiControl, 2:, VoicemeeterTabC,0
+    GuiControl, 2:Disable, DiscordMusicBotTabC
+    GuiControl, 2:, DiscordMusicBotTabC,0
+}
+Return
+CancelCustomize:
+2GuiClose:
+2GuiGuiExit:
+    Gui 2:Destroy
+Return
+HandleTabSave:
+Gui, 2:Submit,NoHide
+IniWrite, %HomeTabC%, %AppSettingsIni%,Tabs,Home
+IniWrite, %SettingsTabC%, %AppSettingsIni%,Tabs,Settings
+IniWrite, %OtherScriptsTabC%, %AppSettingsIni%,Tabs,OtherScripts
+IniWrite, %WindowsTabC%, %AppSettingsIni%,Tabs,Windows
+IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
+IniWrite, %VoicemeeterTabC%, %AppSettingsIni%,Tabs,Voicemeeter
+IniWrite, %DiscordMusicBotTabC%, %AppSettingsIni%,Tabs,DiscordMusicBot
+MsgBox, 4,Restart needed,Restart is needed to settings take effect`nRestart now?
+IfMsgBox Yes
+{
+    Run, %A_ScriptFullPath%
+    ExitApp
+}
+Else
+{
+    Gui 2:Destroy
+}
+Return
 ;____________________________________________________________
 ;____________________________________________________________
 ;//////////////[Other Scripts]///////////////
@@ -1267,7 +1350,7 @@ if (!GHUBTool)
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/LogitechBackupProfilesAhk/master/LogitechBackupProfiles.ahk, %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     ;write save/Update Gui
     GuiControl,1:, DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallGHUBToolScritpButton
+    GuiControl,1:Enable,UninstallGHUBToolScriptButton
     GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
     GHUBTool := True
     GuiControl,1:Show ,PinGHUBToolIMG
@@ -1277,12 +1360,6 @@ Else ;app is already istalled/downloaded
     run, %GHUBToolLocation%
 }
 Return
-UninstallGHUBToolScript:
-UninstallScript("GHUBTool")
-Return
-PinGHUBTool:
-PinAppOrAction("GHUBTool")
-return
 OpenGHUBToolGithub:
 run, https://github.com/veskeli/LogitechBackupProfilesAhk
 Return
@@ -1308,12 +1385,6 @@ Else ;app is already istalled/downloaded
     run, %MinecraftServerManagerLocation%
 }
 Return
-UninstallMinecraftServerManager:
-UninstallScript("MinecraftServerManager")
-Return
-PinMinecraftServerManager:
-PinAppOrAction("MinecraftServerManager")
-return
 ;Minecraft server manager
 OpenMinecraftServerManagerInGithub:
     run, https://github.com/veskeli/SimpleMinecraftServerManager
@@ -1339,12 +1410,6 @@ else
     run, %NgrokToolLocation%
 }
 return
-UninstallNgrokTool:
-UninstallScript("NgrokTool")
-return
-PinNgrokTool:
-PinAppOrAction("NgrokTool")
-return
 DownloadSatisfactorySaveManager:
 if(!SatisfactorySaveManager)
 {
@@ -1363,20 +1428,19 @@ else
     run, %SatisfactorySaveManagerLocation%
 }
 return
-UninstallSatisfactorySaveManager:
-UninstallScript("SatisfactorySaveManager")
+UninstallScriptButton:
+StringTrimLeft, AppToUninstall, A_GuiControl, 9
+StringTrimRight, AppToUninstall, AppToUninstall, 6
+UninstallScript(AppToUninstall)
 return
-PinSatisfactorySaveManager:
-PinAppOrAction("SatisfactorySaveManager")
+PinAppToHomeScreen:
+StringTrimLeft, AppToPin, A_GuiControl, 3
+StringTrimRight, AppToPin, AppToPin, 3
+PinAppOrAction(AppToPin)
 return
-Pin1RunButton:
-RunPinnedApp(1)
-return
-Pin2RunButton:
-RunPinnedApp(2)
-return
-Pin3RunButton:
-RunPinnedApp(3)
+PinRunButton:
+T_RunButtonIndex := RegExReplace(A_GuiControl, "\D")
+RunPinnedApp(T_RunButtonIndex)
 return
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1804,7 +1868,7 @@ UpdateSettingsFromRegistery()
 }
 UninstallScript(tName)
 {
-    if (tName == "GHUBTool")
+    if(tName == "GHUBToolScript")
     {
         FileDelete, %GHUBToolLocation%
         if ErrorLevel
@@ -1815,8 +1879,9 @@ UninstallScript(tName)
         GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
         GHUBTool := False
         GuiControl,1:, DowloadGHUBToolButton, Download
-        GuiControl,1:Disable ,UninstallGHUBToolScritpButton
+        GuiControl,1:Disable ,UninstallGHUBToolScriptButton
         GuiControl,1:Hide ,PinGHUBToolIMG
+        StringTrimRight, tName, tName, 6
         RemovePinAppOrAction(tName)
     }
     if(tName == "NgrokTool")
@@ -1886,30 +1951,66 @@ DownloadAssets()
     T_GuiPicAddAmount = 17
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    ;SplashTextOn, 300,60,Downloading Gui Pictures, Script will run after all Gui pictures has been downloaded
     FileCreateDir,%GuiPictureFolder%
-    sleep 100
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
+    IfNotExist %GuiPictureFolder%/GameScripts.ico
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
+    IfNotExist %GuiPictureFolder%/pintext.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
+    IfNotExist %GuiPictureFolder%/pin.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
+    IfNotExist %GuiPictureFolder%/removepin.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/on.png , %GuiPictureFolder%/on.png ;on button
+    IfNotExist %GuiPictureFolder%/on.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/on.png , %GuiPictureFolder%/on.png ;on button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/off.png , %GuiPictureFolder%/off.png ;off button
+    IfNotExist %GuiPictureFolder%/off.png
+        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/off.png , %GuiPictureFolder%/off.png ;off button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
 
     Progress, Off
-    ;SplashTextOff
+}
+CheckAssets()
+{
+    IfNotExist %GuiPictureFolder%/GameScripts.ico ;icon
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/pintext.png ;PinText
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/pin.png ;PinText
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/removepin.png ;PinText
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/on.png ;on button
+    {
+        DownloadAssets()
+        return
+    }
+    IfNotExist %GuiPictureFolder%/off.png ;off button
+    {
+        DownloadAssets()
+        return
+    }
 }
 PinAppOrAction(AppOrAction)
 {
@@ -2030,6 +2131,7 @@ UpdateHomeScreen()
         GuiControl,1:Hide,pintextIMG
     }
     ;Handle pinned apps
+    PinYLocation = 68
     loop, 5
     {
         if(PinSlot[A_Index] == true)
@@ -2037,7 +2139,21 @@ UpdateHomeScreen()
             IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . A_Index . "Name"
             GuiControl,1:show,% "Pin" . A_Index . "GroubBox"
             GuiControl,1:,% "Pin" . A_Index . "GroubBox",%T_Name%
-            GuiControl,1:show,% "Pin" . A_Index . "RunButton"
+            ;GuiControl,1:show,% "Pin" . A_Index . "RunButton"
+            GuiControlGet,IsButtonCreated,,% "Pin" . A_Index . "RunButton"
+            if(ErrorLevel)
+            {
+                ;If button not found create one
+                DeclareGlobal("Pin" A_Index "RunButton")
+                Gui 1:Tab, Home
+                Gui 1:Font, s18
+                Gui 1:Add, Button, x50 y%PinYLocation% w137 h45 gPinRunButton vPin%A_Index%RunButton, % Chr(0x25B6) . " Open"
+            }
+            Else
+            {
+                GuiControl,1:show,% "Pin" . A_Index . "RunButton"
+            }
+            PinYLocation += 84
         }
     }
 }
@@ -2045,6 +2161,12 @@ RunPinnedApp(Slot)
 {
     IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . Slot . "Name"
     GoSub, % "Download" . T_Name
+}
+DeclareGlobal(globalvar) ;For loop global vars 
+{
+   global
+   (%globalvar%)
+   return 
 }
 CheckboxToggle(T_Image)
 {
@@ -2083,10 +2205,317 @@ UpdateAllCustomCheckboxes()
 }
 NotAdminError()
 {
-    MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
-    IfMsgBox, ok
+    if(!A_IsAdmin)
     {
-        Run *RunAs %A_ScriptFullPath%
-        ExitApp
+        MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
+        IfMsgBox, ok
+        {
+            Run *RunAs %A_ScriptFullPath%
+            ExitApp
+        }
     }
 }
+;____________________________________________________________
+;//////////////[updater]///////////////
+GetNewVersion(T_Branch)
+{
+    if(T_Branch == "main" or T_Branch == "Experimental" or T_Branch == "PreRelease") ;Check that branch is correctly typed
+    {
+        ;Build link
+        VersionLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/version.txt"
+        ;Get Version Text
+        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr.Open("GET", VersionLink, False)
+        whr.Send()
+        whr.WaitForResponse()
+        T_NewVersion := whr.ResponseText
+        ;Check that not empty or not found
+        if(T_NewVersion != "" and T_NewVersion != "404: Not Found" and T_NewVersion != "500: Internal Server Error")
+        {
+            Return T_NewVersion
+        }
+        else if (T_NewVersion == "404: Not Found")
+        {
+            ;MsgBox, 404: Not Found `nBranch is not live yet!
+            return "ERROR"
+        }
+        else
+        {
+            return "ERROR"
+        }
+    }
+}
+UpdateScript(T_CheckForUpdates,T_Branch)
+{
+    if(T_Branch == "main" or T_Branch == "Experimental" or T_Branch == "PreRelease")  ;Check that branch is correctly typed
+    {
+        newversion := GetNewVersion(T_Branch)
+        if(newversion == "ERROR")
+        {
+            MsgBox,,Update ERROR!,New Version Error!`nError while getting new version,15
+            return
+        }
+        if(T_CheckForUpdates) ;If normal Check and update
+        {
+            if(newversion > version)
+            {
+                if(T_Branch == "main")
+                {
+                    UpdateText := % "New version is: " . newversion . "`nOld is: " . version .  "`nUpdate now?"
+                }
+                else if(T_Branch == "PreRelease")
+                {
+                    UpdateText := % "New Pre-Release is: " . newversion . "`nOld is: " . version .  "`nUpdate now?"
+                }
+                else if(T_Branch == "Experimental")
+                {
+                    UpdateText := % "New Experimental version is: " . newversion . "`nOld is: " . version .  "`nUpdate now?"
+                }
+                MsgBox, 1,Update,%UpdateText%
+                IfMsgBox, Yes
+                {
+                    ForceUpdate(newversion,T_Branch,T_Branch)
+                }
+                Else
+                {
+                    return "ERROR"
+                }
+            }
+        }
+        else    ;Force update/Download
+        {
+            ForceUpdate(newversion,T_Branch,T_Branch)
+        }
+    }
+}
+ForceUpdate(newversion,T_Id,T_Branch)
+{
+    ;Save branch
+    IniWrite, %T_Branch%,%AppSettingsIni%,Branch,Instance1
+    ;Download update
+    SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
+    FileCreateDir, %AppFolder%\temp
+    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
+    DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Id . "/GameScripts.ahk"
+    UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
+    SplashTextOff
+    loop
+    {
+        IfExist %A_ScriptFullPath%
+        {
+            Run, %A_ScriptFullPath%
+            ExitApp
+        }
+    }
+    ExitApp
+}
+;____________________________________________________________
+;//////////////[ShowDownloadManager]///////////////
+ShowDownloadManager:
+GuiControl,1:Disable,ShowDownloadManager
+GuiControl,1:,ShowDownloadManager,Preparing versions...
+Gui 2:Destroy ;Destroy if already existing
+Gui 2:Add, Tab3, x0 y0 w516 h234, Instance1||
+Gui 2:Tab, 1
+DMYOAdd = 32 ;Dowload Manager Y Offsets Add
+DMYON = 48 ;Dowload Manager Y Offsets Normal
+loop 3
+{
+    if(A_Index == 1)
+    {
+        T_DMBranchName := "main"
+        T_DMBranchNameCustom := "Main"
+    }
+    else if(A_Index == 2)
+    {
+        T_DMBranchName := "PreRelease"
+        T_DMBranchNameCustom := "Pre Release"
+    }
+    else if(A_Index == 3)
+    {
+        T_DMBranchName := "Experimental"
+        T_DMBranchNameCustom := "Experimental"
+    }
+    Gui 2:Add, Text, x8 y%DMYON% w77 h23 +0x200, %T_DMBranchNameCustom%:
+    Gui 2:Add, DropDownList, x88 y%DMYON% w120 vDMDropDown%T_DMBranchName% +Disabled, ||
+    Gui 2:Add, Button, x216 y%DMYON% w80 h23 vDMDownload%T_DMBranchName% gDMForceDownload +Disabled, Download
+    Gui 2:Add, Button, x304 y%DMYON% w101 h23 vDMLatest%T_DMBranchName%Button gDownloadLatestBranch, Download Latest
+    Gui 2:Add, Text, x408 y%DMYON% w120 h23 +0x200 vDMLatest%T_DMBranchName%, Latest:
+    DMYON += DMYOAdd
+}
+Gui 2:Add, GroupBox, x16 y144 w472 h58, Current Script:
+Gui 2:Font, s12
+Gui 2:Add, Text, x24 y168 w120 h23 +0x200, Version: %Version%
+Gui 2:Add, Text, x152 y168 w203 h23 +0x200 vDMBranch, Branch: Main
+Gui 2:Add, Text, x376 y168 w94 h23 +0x200, Instance: 1
+Gui 2:Font
+Gui 2:Add, Button, x0 y24 w80 h20 +Disabled, New Instance
+;Check current Branch
+if(IsThisExperimental)
+{
+    GuiControl,2:,DMBranch,Branch: Experimental
+    T_IsThisVersion := GetNewVersion("Experimental")
+    if(Version == T_IsThisVersion)
+    {
+        GuiControl,2:,DMLatestExperimentalButton,Currently Installed
+        GuiControl,2:Disable,DMLatestExperimentalButton
+    }
+}
+else if(IsThisPreRelease)
+{
+    GuiControl,2:,DMBranch,Branch: Pre Release
+    T_IsThisVersion := GetNewVersion("PreRelease")
+    if(Version == T_IsThisVersion)
+    {
+        GuiControl,2:,DMLatestPreReleaseButton,Currently Installed
+        GuiControl,2:Disable,DMLatestPreReleaseButton
+    }
+}
+else
+{
+    GuiControl,2:,DMBranch,Branch: Main
+    T_IsThisVersion := GetNewVersion("main")
+    if(Version == T_IsThisVersion)
+    {
+        GuiControl,2:,DMLatestmainButton,Currently Installed
+        GuiControl,2:Disable,DMLatestmainButton
+    }
+}
+;Check latest versions:
+loop 3
+{
+    T_DMBranchName := BranchName(A_Index)
+    T_DMLatest := GetNewVersion(T_DMBranchName)
+    if(T_DMLatest == "ERROR")
+    {
+        GuiControl,2:,DMLatest%T_DMBranchName%,Network Error
+        GuiControl,2:Disable,DMLatest%T_DMBranchName%Button
+    }
+    else
+    {
+        GuiControl,2:,DMLatest%T_DMBranchName%,% "Latest: " . T_DMLatest
+    }
+}
+;Check all versions
+loop 3
+{
+    T_DMDropDownlistText := 
+    T_DMBranchName := BranchName(A_Index)
+    T_Link := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_DMBranchName . "/DownloadManager/" . T_DMBranchName
+    whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+    whr.Open("GET", T_Link, False)
+    whr.Send()
+    whr.WaitForResponse()
+    AllVersions := whr.ResponseText
+    if(AllVersions == "" or AllVersions == "ERROR" or AllVersions == "404: Not Found")
+    {
+        Continue
+    }
+    if(A_Index == 2) ;Get pre versions
+    {
+        FileCreateDir, %AppFolder%\temp
+        UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_DMBranchName . "/DownloadManager/PreVersions.ini",%AppPreVersionsIni%
+    }
+    if(A_Index == 2) ;set pre versions
+    {
+        Loop, parse, AllVersions, `n, `r
+        {
+            if(T_DMDropDownlistText == "") ;if empty
+            {
+                T_PreVersion := 
+                IniRead,T_PreVersion,%AppPreVersionsIni%,PreVersions,%A_LoopField%
+                if(T_PreVersion == "ERROR")
+                {
+                    MsgBox,,Pre version Missing1!,Pre version missing for version: %A_LoopField%
+                }   
+                T_DMDropDownlistText = % A_LoopField . " (" . T_PreVersion . ")"
+            }
+            else
+            {
+                T_PreVersion :=
+                IniRead,T_PreVersion,%AppPreVersionsIni%,PreVersions,%A_LoopField%
+                if(T_PreVersion == "ERROR")
+                {
+                    MsgBox,,Pre version Missing2!,Pre version missing for version: %A_LoopField%
+                }
+                T_DMDropDownlistText = % T_DMDropDownlistText . "|" . A_LoopField . " (" . T_PreVersion . ")"
+            }
+        }
+    }
+    else
+    {
+        Loop, parse, AllVersions, `n, `r
+        {
+            if(T_DMDropDownlistText == "") ;if empty
+            {
+                T_DMDropDownlistText = % A_LoopField
+            }
+            else
+            {
+                T_DMDropDownlistText = % T_DMDropDownlistText . "|" . A_LoopField
+            }
+        }
+    }
+    ;Add selected option (Latest version)
+    T_DMLatest := GetNewVersion(T_DMBranchName)
+    T_DMDropDownlistText = % T_DMLatest . "||" . T_DMDropDownlistText
+    GuiControl,2:,DMDropDown%T_DMBranchName%,|
+    GuiControl,2:,DMDropDown%T_DMBranchName%,%T_DMDropDownlistText%
+    GuiControl,2:Enable,DMDropDown%T_DMBranchName%
+    GuiControl,2:Enable,DMDownload%T_DMBranchName%
+}
+GuiControl,1:Enable,ShowDownloadManager
+GuiControl,1:,ShowDownloadManager,Download Manager
+Gui 2:Show, w515 h211, Download Manager
+return
+BranchName(T_Index)
+{
+    if(T_Index == 1)
+    {
+        T_DMBranchName := "main"
+    }
+    else if(T_Index == 2)
+    {
+        T_DMBranchName := "PreRelease"
+    }
+    else if(T_Index == 3)
+    {
+        T_DMBranchName := "Experimental"
+    }
+    return T_DMBranchName
+}
+DownloadLatestBranch:
+StringTrimLeft, ScriptToDownload, A_GuiControl, 8
+StringTrimRight, ScriptToDownload, ScriptToDownload,6
+UpdateScript(false,ScriptToDownload)
+return
+DMForceDownload:
+Gui,Submit,NoHide
+StringTrimLeft, T_DMBranchName, A_GuiControl, 10
+T_DMDropDown2 := DMDropDown%T_DMBranchName%
+if(T_DMDropDown2 == version) ;if current
+{
+    MsgBox,,Current version!,This is %version%!
+    return
+}
+T_LatestVersion2234422 := GetNewVersion(T_DMBranchName)
+if(T_DMDropDown2 == T_LatestVersion2234422) ;if latest
+{
+    UpdateScript(false,T_DMBranchName)
+    return
+}
+FileCreateDir, %AppFolder%\temp
+UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_DMBranchName . "/DownloadManager/VersionIdList.ini",%AppVersionIdListIni%
+if(ErrorLevel)
+{
+    MsgBox,,Id Missing!,Id missing for version: %T_DMDropDown2%
+    return
+}
+IniRead,T_Id,%AppVersionIdListIni%,%T_DMBranchName%,%T_DMDropDown2%
+if(T_Id == "ERROR")
+{
+    MsgBox,,Id Missing!,Id missing for version: %T_DMDropDown2%
+    return
+}
+ForceUpdate(T_DMDropDown2,T_Id,T_DMBranchName)
+return
