@@ -25,6 +25,7 @@ AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppGameScriptSettingsIni = %AppSettingsFolder%\GameScriptSettings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppVersionIdListIni = %AppFolder%\temp\VersionIdList.ini
+AppPreVersionsIni = %AppFolder%\temp\PreVersions.ini
 ;//////////////[Update]///////////////
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 ;//////////////[Other Scripts]///////////////
@@ -40,10 +41,12 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3956
+version = 0.3957
 ;//////////////[Experimental and Pre Release]///////////////
-IsThisExperimental := true
-IsThisPreRelease := false
+IsThisExperimental := false
+IsThisPreRelease := true
+TestingGround := false
+PreVersion = 0.396Pre1
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -69,6 +72,7 @@ global AppSettingsFolder
 global AppSettingsIni
 global AppHotkeysIni
 global AppVersionIdListIni
+global AppPreVersionsIni
 global AppUpdateFile
 global CloseToTray
 global GuiPictureFolder
@@ -88,6 +92,21 @@ global OtherScriptsTAB
 global windowsTAB
 global BasicScriptsTAB
 global VoicemeeterTAB
+;//////////////[Branch]///////////////
+if(!TestingGround)
+{
+    IniRead, CurrentBranch,%AppSettingsIni%,Branch,Instance1
+    if(CurrentBranch == "Experimental")
+    {
+        IsThisExperimental := true
+        IsThisPreRelease := false
+    }
+    else if(CurrentBranch == "PreRelease")
+    {
+        IsThisExperimental := false
+        IsThisPreRelease := true
+    }
+}
 ;____________________________________________________________
 ;//////////////[Tab Control]///////////////
 IniRead, T_HomeTab, %AppSettingsIni%,Tabs,Home
@@ -205,14 +224,20 @@ Gui 1:Add, CheckBox, x16 y168 w140 h23 gOnExitCloseToTray vOnExitCloseToTrayChec
 Gui 1:Add, Button, x16 y192 w133 h28 gRedownloadAssets, Redownload assets
 Gui 1:Add, Button, x16 y224 w133 h23 gShowChangelogButton, Show Changelog
 Gui 1:Add, Button, x16 y252 w133 h23 gCustomizeTabs, Customize Tabs
-;Gui 1:Add, GroupBox, x499 y442 w150 h67 +Hidden vDownloadExperimentalBranchGroupbox, Experimental
-;Gui 1:Add, Button, x504 y464 w138 h36 gDownloadExperimentalBranch +Hidden vDownloadExperimentalBranchButton, Download experimental version
 Gui 1:Add, GroupBox, x499 y442 w150 h67,Download Manager
-Gui 1:Add, Button, x504 y464 w138 h36 gShowDownloadManager, Download Manager
+Gui 1:Add, Button, x504 y464 w138 h36 gShowDownloadManager vShowDownloadManager, Download Manager
 Gui 1:Font
 Gui 1:Add, GroupBox, x648 y392 w179 h117, Updates
 Gui 1:Font, s15
-Gui 1:Add, Text, x664 y472 w158 h28 +0x200, Version = %version%
+if(!IsThisPreRelease)
+{
+    Gui 1:Add, Text, x664 y472 w158 h28 +0x200, Version = %version%
+}
+else
+{  
+    Gui 1:Font, s13
+    Gui 1:Add, Text, x664 y472 w158 h28 +0x200, Version = %PreVersion%
+}
 Gui 1:Font
 Gui 1:Add, CheckBox, x656 y416 w169 h23 vCheckUpdatesOnStartup gAutoUpdates, Check for updates on startup
 Gui 1:Add, Button, x672 y440 w128 h23 gcheckForupdates, Check for updates
@@ -2244,22 +2269,7 @@ UpdateScript(T_CheckForUpdates,T_Branch)
                 MsgBox, 1,Update,%UpdateText%
                 IfMsgBox, Yes
                 {
-                    ;Download update
-                    SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
-                    FileCreateDir, %AppFolder%\temp
-                    FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-                    DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/GameScripts.ahk"
-                    UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
-                    SplashTextOff
-                    loop
-                    {
-                        IfExist %A_ScriptFullPath%
-                        {
-                            Run, %A_ScriptFullPath%
-                            ExitApp
-                        }
-                    }
-                    ExitApp
+                    ForceUpdate(newversion,T_Branch,T_Branch)
                 }
                 Else
                 {
@@ -2269,27 +2279,14 @@ UpdateScript(T_CheckForUpdates,T_Branch)
         }
         else    ;Force update/Download
         {
-            ;Download update
-            SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
-            FileCreateDir, %AppFolder%\temp
-            FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-            DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/GameScripts.ahk"
-            UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
-            SplashTextOff
-            loop
-            {
-                IfExist %A_ScriptFullPath%
-                {
-                    Run, %A_ScriptFullPath%
-                    ExitApp
-                }
-            }
-            ExitApp
+            ForceUpdate(newversion,T_Branch,T_Branch)
         }
     }
 }
-ForceUpdate(newversion,T_Id)
+ForceUpdate(newversion,T_Id,T_Branch)
 {
+    ;Save branch
+    IniWrite, %T_Branch%,%AppSettingsIni%,Branch,Instance1
     ;Download update
     SplashTextOn, 250,50,Downloading...,Downloading new version.`nVersion: %newversion%
     FileCreateDir, %AppFolder%\temp
@@ -2310,6 +2307,8 @@ ForceUpdate(newversion,T_Id)
 ;____________________________________________________________
 ;//////////////[ShowDownloadManager]///////////////
 ShowDownloadManager:
+GuiControl,1:Disable,ShowDownloadManager
+GuiControl,1:,ShowDownloadManager,Preparing versions...
 Gui 2:Destroy ;Destroy if already existing
 Gui 2:Add, Tab3, x0 y0 w516 h234, Instance1||
 Gui 2:Tab, 1
@@ -2403,7 +2402,42 @@ loop 3
     whr.Send()
     whr.WaitForResponse()
     AllVersions := whr.ResponseText
-    if(AllVersions != "404: Not Found")
+    if(AllVersions == "" or AllVersions == "ERROR" or AllVersions == "404: Not Found")
+    {
+        Continue
+    }
+    if(A_Index == 2) ;Get pre versions
+    {
+        FileCreateDir, %AppFolder%\temp
+        UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_DMBranchName . "/DownloadManager/PreVersions.ini",%AppPreVersionsIni%
+    }
+    if(A_Index == 2) ;set pre versions
+    {
+        Loop, parse, AllVersions, `n, `r
+        {
+            if(T_DMDropDownlistText == "") ;if empty
+            {
+                T_PreVersion := 
+                IniRead,T_PreVersion,%AppPreVersionsIni%,PreVersions,%A_LoopField%
+                if(T_PreVersion == "ERROR")
+                {
+                    MsgBox,,Pre version Missing1!,Pre version missing for version: %A_LoopField%
+                }   
+                T_DMDropDownlistText = % A_LoopField . " (" . T_PreVersion . ")"
+            }
+            else
+            {
+                T_PreVersion :=
+                IniRead,T_PreVersion,%AppPreVersionsIni%,PreVersions,%A_LoopField%
+                if(T_PreVersion == "ERROR")
+                {
+                    MsgBox,,Pre version Missing2!,Pre version missing for version: %A_LoopField%
+                }
+                T_DMDropDownlistText = % T_DMDropDownlistText . "|" . A_LoopField . " (" . T_PreVersion . ")"
+            }
+        }
+    }
+    else
     {
         Loop, parse, AllVersions, `n, `r
         {
@@ -2416,16 +2450,17 @@ loop 3
                 T_DMDropDownlistText = % T_DMDropDownlistText . "|" . A_LoopField
             }
         }
-        ;Add selected option (Latest version)
-        T_DMLatest := GetNewVersion(T_DMBranchName)
-        T_DMDropDownlistText = % T_DMLatest . "||" . T_DMDropDownlistText
-        GuiControl,2:,DMDropDown%T_DMBranchName%,|
-        GuiControl,2:,DMDropDown%T_DMBranchName%,%T_DMDropDownlistText%
-        GuiControl,2:Enable,DMDropDown%T_DMBranchName%
-        GuiControl,2:Enable,DMDownload%T_DMBranchName%
     }
+    ;Add selected option (Latest version)
+    T_DMLatest := GetNewVersion(T_DMBranchName)
+    T_DMDropDownlistText = % T_DMLatest . "||" . T_DMDropDownlistText
+    GuiControl,2:,DMDropDown%T_DMBranchName%,|
+    GuiControl,2:,DMDropDown%T_DMBranchName%,%T_DMDropDownlistText%
+    GuiControl,2:Enable,DMDropDown%T_DMBranchName%
+    GuiControl,2:Enable,DMDownload%T_DMBranchName%
 }
-
+GuiControl,1:Enable,ShowDownloadManager
+GuiControl,1:,ShowDownloadManager,Download Manager
 Gui 2:Show, w515 h211, Download Manager
 return
 BranchName(T_Index)
@@ -2477,5 +2512,5 @@ if(T_Id == "ERROR")
     MsgBox,,Id Missing!,Id missing for version: %T_DMDropDown2%
     return
 }
-ForceUpdate(T_DMDropDown2,T_Id)
+ForceUpdate(T_DMDropDown2,T_Id,T_DMBranchName)
 return
