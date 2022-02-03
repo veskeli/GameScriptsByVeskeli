@@ -13,7 +13,7 @@ SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystrok
 SetMouseDelay, -1 ; Remove short delay done automatically after Click and MouseMove/Click/Drag
 #Persistent
 ;____________________________________________________________
-UpdaterVersion = 0.1
+UpdaterVersion = 0.2
 global UpdaterVersion
 ;____________________________________________________________
 ;//////////////[Folders]///////////////
@@ -48,7 +48,7 @@ IfNotExist %AppUpdaterSettingsFile%
 iniread,version,%AppUpdaterSettingsFile%,Options,Version
 iniread,MainScriptFile,%AppUpdaterSettingsFile%,Options,ScriptFullPath
 iniread,MainScriptBranch,%AppUpdaterSettingsFile%,Options,Branch
-Global version
+global version
 global MainScriptFile
 global MainScriptBranch
 FileDelete,%AppUpdaterSettingsFile%
@@ -97,7 +97,8 @@ UpdateScript(T_CheckForUpdates,T_Branch)
         }
         else    ;Force update/Download
         {
-            TForceUpdate(newversion,T_Branch)
+            msgbox, Force Download Called!?!
+            ;TForceUpdate(newversion,T_Branch)
         }
     }
     else
@@ -113,11 +114,11 @@ GetNewVersion(T_Branch)
     T_NewVersion := ReadFileFromLink(VersionLink)
     if(T_NewVersion == "ERROR")
     {
-        msgbox,,No Internet Connection!,No Internet Connection!
+        ;msgbox,,No Internet Connection!,No Internet Connection!
         return
     }
     ;Check that not empty or not found
-    if(T_NewVersion != "" and T_NewVersion != "404: Not Found" and T_NewVersion != "500: Internal Server Error")
+    if(T_NewVersion != "" and T_NewVersion != "404: Not Found" and T_NewVersion != "500: Internal Server Error" and T_NewVersion != "400: Invalid request")
     {
         Return T_NewVersion
     }
@@ -179,22 +180,14 @@ ForceUpdate(newversion,T_Branch)
 CheckForUpdaterUpdates()
 {
     newversion := GetNewUpdaterVersion(MainScriptBranch)
-        if(newversion == "ERROR")
-        {
-            MsgBox,,Update ERROR!,New Version Error!`nError while getting new version,15
-            return
-        }
-        if(T_CheckForUpdates) ;If normal Check and update
-        {
-            if(newversion > UpdaterVersion)
-            {
-                ForceUpdateUpdater(newversion)
-            }
-        }
-        else    ;Force update/Download
-        {
-            TForceUpdate(newversion,T_Branch)
-        }
+    if(newversion == "ERROR")
+    {
+        ExitApp
+    }
+    if(newversion > UpdaterVersion)
+    {
+        ForceUpdateUpdater(newversion)
+    }
 }
 GetNewUpdaterVersion(T_Branch)
 {

@@ -44,7 +44,7 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3962
+version = 0.3963
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := false
 IsThisPreRelease := false
@@ -62,6 +62,8 @@ IsOffline := false
 ;//////////////[Other Scripts]///////////////
 OSName := [10]
 OSID := [10]
+OSDownloadLink := [10]
+OSGithub := [10]
 ;____________________________________________________________
 ;//////////////[variables]///////////////
 CloseToTray := false
@@ -106,6 +108,9 @@ global OSID
 global OSDownloadLink
 global OSGithub
 global IsOffline
+global CurrentScriptBranch
+global AppUpdaterFile
+global AppUpdaterSettingsFile
 ;//////////////[Set Current Branch]///////////////
 if(!TestingGround)
 {
@@ -291,6 +296,36 @@ if(IsThisExperimental)
     Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
 }
 Gui 1:Font
+}
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Other Sctipts]///////////////
+if(OtherScriptsTAB)
+{
+OtherScriptsNames = 
+(
+LogitechBackupTool
+NgrokPortForwardingTool
+SatisfactorySaveManager
+MinecraftSimpleServerManager
+)
+OSName[1] := "Logitech Backup Tool"
+OSID[1] := "LogitechBackupTool"
+OSDownloadLink[1] := "https://raw.githubusercontent.com/veskeli/LogitechBackupProfilesAhk/master/LogitechBackupProfiles.ahk"
+OSGithub[1] := "https://github.com/veskeli/LogitechBackupProfilesAhk"
+OSName[2] := "Ngrok port Forwarding Tool"
+OSID[2] := "NgrokPortForwardingTool"
+OSDownloadLink[2] := "https://raw.githubusercontent.com/veskeli/NgrokAhk/master/Ngrok.ahk"
+OSGithub[2] := "https://github.com/veskeli/NgrokAhk"
+OSName[3] := "Satisfactory Save Manager"
+OSID[3] := "SatisfactorySaveManager"
+OSDownloadLink[3] := "https://raw.githubusercontent.com/veskeli/SatisfactorySaveManager/main/SatisfactorySaveManager.ahk"
+OSGithub[3] := "https://github.com/veskeli/SatisfactorySaveManager"
+OSName[4] := "Minecraft Simple Server Manager[Early Access]"
+OSID[4] := "MinecraftSimpleServerManager"
+OSDownloadLink[4] := "https://raw.githubusercontent.com/veskeli/SimpleMinecraftServerManager/main/SimpleMinecraftServerManager.ahk"
+OSGithub[4] := "https://github.com/veskeli/SimpleMinecraftServerManager"
+Gosub, BuildOtherScripts
 }
 ;____________________________________________________________
 ;____________________________________________________________
@@ -705,11 +740,6 @@ if(Temp_CheckUpdatesOnStartup == 1)
 
         run, %AppUpdaterFile%
     }
-}
-;//////////////[Build Other Sctipts Tab]///////////////
-if(OtherScriptsTAB)
-{
-    SetTimer, BuildOtherScripts, -10
 }
 return ;//////////////[GUI LAST RETURN]///////////////
 ;____________________________________________________________
@@ -1827,32 +1857,38 @@ DownloadAssets()
 {
     Progress, b w300, Script will run after all the Assets have been downloaded, Downloading Assets..., Downloading Assets...
     T_GUIPicProgress = 0
-    T_GuiPicAddAmount = 17
-    T_GUIPicProgress += T_GuiPicAddAmount
+    LinkCount = 7
+    T_GuiPicAddAmount := 100/LinkCount
+    StartUrl = https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/
     Progress, %T_GUIPicProgress%
     FileCreateDir,%GuiPictureFolder%
     IfNotExist %GuiPictureFolder%/GameScripts.ico
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/GameScripts.ico", %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/pintext.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/pintext.png" , %GuiPictureFolder%/pintext.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/pin.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/pin.png" , %GuiPictureFolder%/pin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/removepin.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/removepin.png" , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/on.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/on.png , %GuiPictureFolder%/on.png ;on button
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/on.png" , %GuiPictureFolder%/on.png ;on button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/off.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/off.png , %GuiPictureFolder%/off.png ;off button
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/off.png" , %GuiPictureFolder%/off.png ;off button
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    ;Updater
+    IfNotExist %AppUpdaterFile%
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Updater.ahk" , %AppUpdaterFile% ;Updater File
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
 
@@ -1862,11 +1898,7 @@ CheckAssets()
 {
     IfNotExist %AppUpdaterFile% ;Updater.ahk
     {
-        MsgBox, 1,Updater Missing,Updater.ahk file is missing`nDownload now?
-        IfMsgBox, ok
-        {
-            DownloadAssets()
-        }
+        DownloadAssets()
         return
     }
     IfNotExist %GuiPictureFolder%/GameScripts.ico ;icon
@@ -2467,23 +2499,6 @@ ForceUpdate(T_DMDropDown2,T_Id,T_DMBranchName)
 return
 ;____________________________________________________________
 ;//////////////[OtherScripts]///////////////
-GetOtherScriptsNames(T_Branch)
-{
-    T_Link := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/OtherScripts/OtherScripts"
-    OtherScriptsNames := ReadFileFromLink(T_Link)
-    if(OtherScriptsNames == "ERROR")
-        return "ERROR"
-    FileCreateDir, %AppFolder%\OtherScripts
-    UrlDownloadToFile,% "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/OtherScripts/OtherScripts.ini",%AppOtherScriptsIni%
-    Loop, parse, OtherScriptsNames, `n, `r
-    {
-        IniRead,T_Name,%AppOtherScriptsIni%,%A_LoopField%,Name
-        IniRead,T_ID,%AppOtherScriptsIni%,%A_LoopField%,ID
-        OSName[A_Index] := T_Name
-        OSID[A_Index] := T_ID
-    }
-    return OtherScriptsNames
-}
 GetInstalledOtherScripts(OtherScriptsNames)
 {
     Loop, parse, OtherScriptsNames, `n, `r
@@ -2503,11 +2518,12 @@ GetInstalledOtherScripts(OtherScriptsNames)
     }
 }
 DownloadOtherScript:
-StringTrimRight,T_DownloadLinkControl,A_GuiControl,8
+StringTrimRight,T_DownloadLinkIndex,A_GuiControl,8
+T_DownloadLinkControl := OSID[T_DownloadLinkIndex]
 IfNotExist, %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
 {
-    IniRead,T_DownloadLink,%AppOtherScriptsIni%,%T_DownloadLinkControl%,DownloadLink
-    UrlDownloadToFile, %T_DownloadLink%,%AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+    T_OtherScriptDownloadLink := OSDownloadLink[T_DownloadLinkIndex]
+    UrlDownloadToFile, %T_OtherScriptDownloadLink%,%AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
     GuiControl,1:, %A_GuiControl%, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,%T_DownloadLinkControl%Delete
     GuiControl,1:Show,Pin%T_DownloadLinkControl%IMG
@@ -2519,8 +2535,8 @@ else
 return
 OpenOtherScriptGithub:
 StringTrimRight,T_GithubControl,A_GuiControl,6
-IniRead,T_Github,%AppOtherScriptsIni%,%T_GithubControl%,Github
-run, %T_Github%
+T_GithubLink := OSGithub[T_GithubControl]
+run, %T_GithubLink%
 return
 DeleteOtherScript:
 StringTrimRight,T_OTherScriptControl,A_GuiControl,6
@@ -2537,17 +2553,6 @@ StringTrimLeft, T_OTherScriptControl, T_OTherScriptControl, 3
 PinAppOrAction(T_OTherScriptControl)
 return
 BuildOtherScripts:
-if(IsOffline)
-{
-    Gui 1:Tab, Other Scripts
-    Gui 1:Font, s20
-    Gui 1:Add, Text, x264 y248 w294 h46 +0x200 vOtherScriptsLoading, No Internet Connection!
-    return
-}
-Gui 1:Tab, Other Scripts
-Gui 1:Font, s20
-Gui 1:Add, Text, x264 y248 w294 h46 +0x200 vOtherScriptsLoading, Loading Other Scripts...
-Gui 1:Font
 ; Add 70 to Y
 ;Logitech backup tool
 OSYOffsetB = 56 ;Other Scripts Y Offset Button
@@ -2555,13 +2560,7 @@ OSYOffsetP = 39 ;Other Scripts Y Offset Picture
 OSYOffsetG = 27 ;Other Scripts Y Offset GroupBox
 OSAddY = 70 ;How far down next goes
 OSXOffset = 2
-OtherScriptsNames := GetOtherScriptsNames(CurrentScriptBranch)
-if(OtherScriptsNames == "ERROR")
-{
-    GuiControl,1:,OtherScriptsLoading,No Internet Connection!
-    return
-}
-
+Gui 1:Tab, Other Scripts
 Loop, parse, OtherScriptsNames, `n, `r
 {
     if(A_Index == 8)
@@ -2585,11 +2584,11 @@ Loop, parse, OtherScriptsNames, `n, `r
     Gui 1:Font
     OSXOffset += 8
     Gui 1:Font, s9, Segoe UI
-    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w131 h23 gDownloadOtherScript v%T_OSID%Download, Download
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w131 h23 gDownloadOtherScript v%A_Index%Download, Download
     OSXOffset += 134
     Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w80 h23 +disabled, Settings
     OSXOffset += 86
-    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w100 h23 gOpenOtherScriptGithub v%T_OSID%Github, Open in Github
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w100 h23 gOpenOtherScriptGithub v%A_Index%Github, Open in Github
     OSXOffset += 100
     Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w80 h23  +Disabled gDeleteOtherScript v%T_OSID%Delete, Delete
     OSXOffset += 61
@@ -2599,6 +2598,5 @@ Loop, parse, OtherScriptsNames, `n, `r
     OSYOffsetP += OSAddY
     OSYOffsetG += OSAddY
 }
-GuiControl,1:Hide,OtherScriptsLoading
 GetInstalledOtherScripts(OtherScriptsNames)
 return
