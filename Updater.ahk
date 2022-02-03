@@ -13,7 +13,7 @@ SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystrok
 SetMouseDelay, -1 ; Remove short delay done automatically after Click and MouseMove/Click/Drag
 #Persistent
 ;____________________________________________________________
-UpdaterVersion = 0.21
+UpdaterVersion = 0.22
 global UpdaterVersion
 ;____________________________________________________________
 ;//////////////[Folders]///////////////
@@ -214,7 +214,7 @@ ForceUpdateUpdater(newversion)
 {
     FileCreateDir, %AppFolder%\temp
     FileMove, %A_ScriptFullPath%, %AppUpdateFile%, 1
-    DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/Updater.ahk"
+    DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . MainScriptBranch . "/Updater.ahk"
     UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
     ExitApp
 }
