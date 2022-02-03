@@ -13,7 +13,7 @@ SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystrok
 SetMouseDelay, -1 ; Remove short delay done automatically after Click and MouseMove/Click/Drag
 #Persistent
 ;____________________________________________________________
-UpdaterVersion = 0.2
+UpdaterVersion = 0.21
 global UpdaterVersion
 ;____________________________________________________________
 ;//////////////[Folders]///////////////
@@ -84,7 +84,7 @@ UpdateScript(T_CheckForUpdates,T_Branch)
                 {
                     UpdateText := % "New Experimental version is: " . newversion . "`nOld is: " . version .  "`nUpdate now?"
                 }
-                MsgBox, 1,Update,%UpdateText%
+                MsgBox, 4,Update,%UpdateText%
                 IfMsgBox, Yes
                 {
                     TForceUpdate(newversion,T_Branch)
@@ -146,6 +146,7 @@ ReadFileFromLink(Link)
 ;Activate Download
 TForceUpdate(newversion,T_Branch)
 {
+    msgbox, starting
     ;Check That if script is running
     SetTitleMatchMode, 2
     DetectHiddenWindows, On
