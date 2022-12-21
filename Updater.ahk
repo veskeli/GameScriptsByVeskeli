@@ -13,7 +13,7 @@ SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystrok
 SetMouseDelay, -1 ; Remove short delay done automatically after Click and MouseMove/Click/Drag
 #Persistent
 ;____________________________________________________________
-UpdaterVersion = 0.24
+UpdaterVersion = 0.25
 global UpdaterVersion
 ;____________________________________________________________
 ;//////////////[Folders]///////////////
@@ -362,20 +362,20 @@ if (FileExist(MainScriptAhkFile))
         }
     }
 }
+Progress, b w300, Creating folders, Installing script..., Installing script...
 ;Create all folders
 FileCreateDir,%AppFolder%
 FileCreateDir,%AppSettingsFolder%
 ;Download main script to Appdata
+Progress, b w300, Downloading main script, Installing script..., Installing script...
+Progress, 30
 try{
     UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk,% AppFolder . "\" . ScriptName . ".ahk"
 }
 Catch
 {
-    if(!A_IsAdmin)
-    {
-
-    }
-    Else
+    Progress, Off
+    if(A_IsAdmin)
     {
         MsgBox,,Error,Script is already running as admin`nTry to download Newer or older installer!
         ExitApp
@@ -392,6 +392,8 @@ Catch
         Return
     }
 }
+Progress, b w300, Creating subfolders, Installing script..., Installing script...
+Progress, 50
 if(OnlyDesktop)
 {   
     AppInstallLocation = %A_Desktop%
@@ -405,7 +407,7 @@ else
             FileCreateDir,%AppInstallLocation%
         }
         Catch{
-
+            Progress, Off
             if(!A_IsAdmin && !FileExist(AppInstallLocation))
             {
                 MsgBox, 4,Install Error, Can't create folders without administrator privilages. `nfolder: %AppInstallLocation% `nWould you like to run this script as admin?
@@ -434,19 +436,26 @@ else
         }
     }
 }
+Progress, b w300, Settings default settings, Installing script..., Installing script...
+Progress, 60
 ;install exe or ahk
 if(InstallAsExe)
 {
+    Progress, b w300, Downloading files..., Installing script..., Installing script...
+    Progress, 80
     IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
     IniWrite,%AppInstallLocation%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
     UrlDownloadToFile, https://github.com/veskeli/GameScriptsByVeskeli/raw/main/exe/GameScripts.exe,% AppInstallLocation . "\GameScripts.exe"
 }
 else
 {
+    Progress, b w300, Downloading files..., Installing script..., Installing script...
+    Progress, 80
     try{
         UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk,% AppInstallLocation . "\GameScripts.ahk"
     }
     Catch{
+        Progress, Off
         MsgBox, 4,Install Error, [Exe Runner] URL Download failed. `nWould you like to continue?`nYou can Download [Exe runner] in settings later
         IfMsgBox No
         {
@@ -490,6 +499,7 @@ if(ShortCutToDesktop)
         }
     }
 }
+Progress, Off
 ;Would you like to open the script?
 MsgBox, 4,Install successful, Would you like to open the script?
 IfMsgBox Yes
