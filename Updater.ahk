@@ -13,7 +13,7 @@ SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystrok
 SetMouseDelay, -1 ; Remove short delay done automatically after Click and MouseMove/Click/Drag
 #Persistent
 ;____________________________________________________________
-UpdaterVersion = 0.22
+UpdaterVersion = 0.23
 global UpdaterVersion
 ;____________________________________________________________
 ;//////////////[Folders]///////////////
@@ -21,9 +21,13 @@ ScriptName = GameScripts
 AppFolderName = AHKGameScriptsByVeskeli
 AppFolder = %A_AppData%\%AppFolderName%
 AppSettingsFolder = %AppFolder%\Settings
+AppUpdaterFile = %AppFolder%\Updater.ahk
 GuiPictureFolder = %AppFolder%\Gui
 MainScriptFile = %AppFolder%\%ScriptName%
+MainScriptAhkFile = %AppFolder%\%ScriptName%.ahk
 AppUpdaterSettingsFile = %AppFolder%\UpdaterInfo.ini
+AppVersionSettingsFile = %AppFolder%\VersionInfo.ini
+AppScriptTempFile = %A_ScriptDir%\GameSciptTemp.ini
 ;//////////////[Other Scripts]///////////////
 AppGamingScriptsFolder = %AppFolder%\GamingScripts
 AppOtherScriptsFolder = %AppFolder%\OtherScripts
@@ -38,24 +42,99 @@ AppOtherScriptsIni = %AppOtherScriptsFolder%\OtherScripts.ini
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
 ;//////////////[Script Dir]///////////////
 ScriptFullPath = 
+T_SkipShortcut = false
+FixUserLocation = false
+ShortcutState = 1
+AppInstallLocation = 
 ;____________________________________________________________
 ;//////////////[Main Script]///////////////
-IfNotExist %AppUpdaterSettingsFile%
+ExecuteAsUpdater := false
+ExecuteAsVersionControl := false
+if (FileExist(AppUpdaterSettingsFile))
 {
-    ;No Updater Settings
+    ExecuteAsUpdater := true
+}
+If (FileExist(AppVersionSettingsFile))
+{
+    ExecuteAsVersionControl := true
+}
+If (FileExist(MainScriptFile))
+{
+    MsgBox, , Test, Found!, 20
+}
+if (ExecuteAsUpdater)
+{
+    iniread,version,%AppUpdaterSettingsFile%,Options,Version
+    iniread,MainScriptFile,%AppUpdaterSettingsFile%,Options,ScriptFullPath
+    iniread,MainScriptBranch,%AppUpdaterSettingsFile%,Options,Branch
+    global version
+    global MainScriptFile
+    global MainScriptBranch
+    FileDelete,%AppUpdaterSettingsFile%
+
+    UpdateScript(true,MainScriptBranch)
+    CheckForUpdaterUpdates()
     ExitApp
 }
-iniread,version,%AppUpdaterSettingsFile%,Options,Version
-iniread,MainScriptFile,%AppUpdaterSettingsFile%,Options,ScriptFullPath
-iniread,MainScriptBranch,%AppUpdaterSettingsFile%,Options,Branch
-global version
-global MainScriptFile
-global MainScriptBranch
-FileDelete,%AppUpdaterSettingsFile%
+if (ExecuteAsVersionControl)
+{
+    FileDelete, %AppVersionSettingsFile%
+    ExitApp
+}
+;Execute as installer
+if (!ExecuteAsVersionControl && !ExecuteAsUpdater)
+{
+    if(!A_IsAdmin && false == true)
+    {
+        IniWrite, %A_Appdata%, AppScriptTempFile, AppData, Correct
+        IniWrite, %A_UserName%, AppScriptTempFile, AppData, CorrectUser
+        IniWrite, %A_Desktop%, AppScriptTempFile, AppData, CorrectDesktop
+        try{
+            Run *RunAs %A_ScriptFullPath%
+        }
+        catch{
+            FileDelete, AppScriptTempFile
+            MsgBox,, Install aborted!, Installer needs to be executed as administrator, 7
+            ExitApp
+        }
+        ExitApp
+    }
+    if (FileExist(AppScriptTempFile))
+    {
+        IniRead, CorrectAppDataFolder,AppScriptTempFile, AppData, Correct
+        IniRead, CorrectDesktop,AppScriptTempFile, AppData, CorrectDesktop
+        IniRead, CorrectUser,AppScriptTempFile, AppData, CorrectUser
+        FileDelete, AppScriptTempFile
+    }
+    if(CorrectAppDataFolder != "Error" and CorrectAppDataFolder != "")
+        AppFolder = %CorrectAppDataFolder%\%AppFolderName%
+    if(CorrectUser != A_UserName)
+    {
+        FixUserLocation := true
+    }
+    Menu Tray, Icon, shell32.dll, 163
 
-UpdateScript(true,MainScriptBranch)
-CheckForUpdaterUpdates()
-ExitApp
+    Gui -MinimizeBox -MaximizeBox
+    Gui Font, s9, Segoe UI
+    Gui Add, CheckBox, x8 y168 w123 h23 +Checked vShortCutToDesktop gSaveShortToDesk, Shortcut to desktop
+    Gui Add, GroupBox, x3 y80 w496 h77, Install as:
+    Gui Add, Radio, x8 y120 w47 h23 vInstallAsAhk gUpdateInstallAs, .ahk
+    Gui Add, Radio, x8 y96 w129 h23 +Checked vInstallAsExe gUpdateInstallAs, .exe (Recommended)
+    Gui Add, Text, x144 y88 w354 h66, If exe (Recommended) is selected the script installs Exe Runner.`nExe Runner is a simple Run script compiled to exe. (You can always revert in settings).`nWith exe, you can pin this app to the taskbar and get the app icon.
+    Gui Add, Edit, x16 y32 w469 h21 vLocation,% A_AppData . "\" . AppFolderName
+    Gui Add, GroupBox, x3 y8 w491 h77, Where should GameScript be installed?
+    Gui Add, Button, x400 y56 w86 h23 vChangeLocation gChangeFolder, Change
+    Gui Add, CheckBox, x144 y168 w149 h23 +Disabled, Install Script Repair tool
+    Gui Add, Text, x8 y56 w302 h23 +0x200, (Main Script and settings are always stored in AppData.)
+    Gui Add, Button, x320 y208 w90 h23 vInstallScriptButton gInstallScript, Install
+    Gui Add, Button, x416 y208 w80 h23 gCancelInstall, Cancel
+    Gui Add, Text, x0 y200 w505 h2 +0x10
+    Gui Add, CheckBox, x296 y168 w183 h23 +Checked +disabled vDeleteThis, Delete this script after install
+    Gui Add, CheckBox, x311 y56 w87 h23 gToggleOnlyDesktop vOnlyDesktop, Only Desktop
+
+    Gui Show, w504 h237, Game Scripts Installer
+    Return
+}
 ;____________________________________________________________
 ;//////////////[updater]///////////////
 UpdateScript(T_CheckForUpdates,T_Branch)
@@ -170,9 +249,9 @@ ForceUpdate(newversion,T_Branch)
     SplashTextOff
     loop
     {
-        IfExist %MainScriptFile%
+        if (FileExist(MainScriptAhkFile))
         {
-            Run, %MainScriptFile%
+            Run, %MainScriptAhkFile%
             ExitApp
         }
     }
@@ -217,4 +296,257 @@ ForceUpdateUpdater(newversion)
     DownloadLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . MainScriptBranch . "/Updater.ahk"
     UrlDownloadToFile, %DownloadLink%, %A_ScriptFullPath%
     ExitApp
+}
+;____________________________________________________________
+;//////////////[Installer]///////////////
+GuiEscape:
+GuiClose:
+CancelInstall:
+    ExitApp
+ChangeFolder:
+FileSelectFolder, OutputVar, , 3
+if OutputVar =
+    GuiControl,,Location,% A_AppData . "\" . AppFolderName
+else
+    GuiControl,,Location,% OutputVar . "\" . AppFolderName
+return
+UpdateInstallAs:
+Gui, Submit, Nohide
+if(InstallAsExe)
+{
+    GuiControl,Enable,ShortCutToDesktop
+    GuiControl,,ShortCutToDesktop,%ShortcutState%
+}
+else
+{
+    GuiControl,Disable,ShortCutToDesktop
+    GuiControl,,ShortCutToDesktop,0
+}
+return
+SaveShortToDesk:
+Gui, Submit, Nohide
+ShortcutState = %ShortCutToDesktop%
+return
+ToggleOnlyDesktop:
+Gui, Submit, Nohide
+if(OnlyDesktop)
+{
+    GuiControl,Disable,Location
+    GuiControl,Disable,ChangeLocation
+    GuiControl,Disable,ShortCutToDesktop
+    GuiControl,,ShortCutToDesktop,0
+}
+else
+{
+    GuiControl,Enable,Location
+    GuiControl,Enable,ChangeLocation
+    GuiControl,Enable,ShortCutToDesktop
+    GuiControl,,ShortCutToDesktop,%ShortcutState%
+}
+Return
+InstallScript:
+Gui, Submit, Nohide
+;Disable all Buttons
+SetControlState("Disable")
+;Check if already installed
+if (FileExist(MainScriptAhkFile))
+{
+    IniRead, InstalledCheck, %AppSettingsIni%, install, installFolder, Default
+    if(InstalledCheck != "Error" or InstalledCheck != "")
+    {
+        MsgBox, 4,Already installed, Already installed!`ncontinue?
+        IfMsgBox No
+        {
+            SetControlState("Enable")
+            Return
+        }
+    }
+}
+;Create all folders
+FileCreateDir,%AppFolder%
+FileCreateDir,%AppSettingsFolder%
+;Download main script to Appdata
+UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk,% AppFolder . "\" . ScriptName . ".ahk"
+if(ErrorLevel)
+{
+    MsgBox, 4,Install Error, [Main script] URL Download Error `nInstall Can't continue`nWould you like to restart as admin?
+    IfMsgBox Yes
+    {
+        if(!A_IsAdmin)
+        {
+            Run *RunAs %A_ScriptFullPath%
+            ExitApp
+        }
+        Else
+        {
+            MsgBox,,Error,Script is already running as admin`nTry to download Newer or older installer if this is not working!
+            ExitApp 
+        }
+    }
+    Else
+    {
+        SetControlState("Enable")
+        Return
+    }
+}
+if(OnlyDesktop)
+{   
+    AppInstallLocation = %A_Desktop%
+}
+else
+{
+    AppInstallLocation = %Location%
+    if(!FileExist(AppInstallLocation))
+    {
+        try{
+            FileCreateDir,%AppInstallLocation%
+        }
+        Catch{
+
+            if(!A_IsAdmin && !FileExist(AppInstallLocation))
+            {
+                MsgBox, 4,Install Error, Can't create folders without administrator privilages. `nfolder: %AppInstallLocation% `nWould you like to run this script as admin?
+                IfMsgBox Yes
+                {
+                    Run *RunAs %A_ScriptFullPath%
+                    ExitApp
+                }
+                Else
+                {
+                    if (FileExist(AppFolder),"D")
+                        FileRemoveDir, %AppFolder%, 1
+                    ExitApp
+                }
+            }
+            Else if(A_IsAdmin)
+            {
+                MsgBox, 4,Install Error, Can't create folders. `nfolder: %AppInstallLocation% `nPossible fix: Change install location`nWould You like to still continue? (Not recomended!)
+                IfMsgBox No
+                {
+                    if (FileExist(AppFolder),"D")
+                        FileRemoveDir, %AppFolder%, 1
+                    ExitApp
+                }
+            }
+        }
+    }
+}
+;install exe or ahk
+if(InstallAsExe)
+{
+    IniWrite,true,%AppSettingsIni%, ExeRunner, UsingExeRunner
+    IniWrite,%AppInstallLocation%,%AppSettingsIni%, ExeRunner, OldAhkFileLocation
+    UrlDownloadToFile, https://github.com/veskeli/GameScriptsByVeskeli/raw/main/exe/GameScripts.exe,% AppInstallLocation . "\GameScripts.exe"
+}
+else
+{
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk,% AppInstallLocation . "\GameScripts.ahk"
+}
+if(ErrorLevel)
+{
+    MsgBox, 4,Install Error, [Exe Runner] URL Download failed. `nWould you like to continue?`nYou can Download [Exe runner] in settings later
+    IfMsgBox No
+    {
+        if (FileExist(AppFolder),"D")
+            FileRemoveDir, %AppFolder%, 1
+        if(!OnlyDesktop)
+        {
+            AppProgramFolder = % A_AppData . "\" . AppFolderName
+            if (FileExist(AppProgramFolder))
+                FileRemoveDir, AppProgramFolder, 1
+        }
+        SetControlState("Enable")
+        Return
+    }
+    Else
+    {
+        T_SkipShortcut := true
+    }
+}
+IniWrite,%AppInstallLocation%,%AppSettingsIni%, install, InstallFolder
+;Use correct appdata
+if(FixUserLocation)
+{
+    IniWrite, %CorrectAppDataFolder%,%AppSettingsIni%,Appdata,Correct
+    IniWrite, %CorrectDesktop%,%AppSettingsIni%,Appdata,CorrectDesktop
+    IniWrite, true,%AppSettingsIni%,Appdata,UseCorrectFolder
+}
+;create shortcut
+if(ShortCutToDesktop)
+{
+    if(T_SkipShortcut != "true")
+    {
+        if(FixUserLocation)
+        {
+            FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% CorrectDesktop . "\" . ScriptName . ".lnk"
+        }
+        Else
+        {
+            FileCreateShortcut,% AppInstallLocation . "\" . ScriptName . ".exe",% A_Desktop . "\" . ScriptName . ".lnk"
+        }
+    }
+}
+;Would you like to open the script?
+MsgBox, 4,Install successful, Would you like to open the script?
+IfMsgBox Yes
+{
+    run,% AppFolder . "\" . ScriptName . ".ahk"
+    if(DeleteThis)
+    {
+        FileMove, %A_ScriptFullPath%, %AppUpdaterFile%, 1
+    }
+    ExitApp
+}
+;Move this as udpater to script folder
+if(DeleteThis)
+{
+    ;FileDelete, %A_ScriptFullPath%
+    FileMove, %A_ScriptFullPath%, %AppUpdaterFile%, 1
+    ExitApp
+}
+SetControlState("Enable")
+Return
+SetControlState(State)
+{
+    GuiControl, %State%,ShortCutToDesktop
+    GuiControl, %State%,InstallAsAhk
+    GuiControl, %State%,InstallAsExe
+    GuiControl, %State%,Location
+    GuiControl, %State%,ChangeLocation
+    GuiControl, %State%,InstallScriptButton
+    GuiControl, %State%,DeleteThis
+    GuiControl, %State%,OnlyDesktop
+    if(State == "Enable")
+        UpdateLocks()
+}
+UpdateLocks()
+{
+    Gui, Submit, Nohide
+    if(OnlyDesktop)
+    {
+        GuiControl,Disable,Location
+        GuiControl,Disable,ChangeLocation
+        GuiControl,Disable,ShortCutToDesktop
+        GuiControl,,ShortCutToDesktop,0
+    }
+    else
+    {
+        GuiControl,Enable,Location
+        GuiControl,Enable,ChangeLocation
+        GuiControl,Enable,ShortCutToDesktop
+        if(ShortcutState == 0)
+            GuiControl,,ShortCutToDesktop,%ShortcutState%
+        Else
+            GuiControl,,ShortCutToDesktop,1
+    }
+    if(InstallAsExe)
+    {
+        GuiControl,Enable,ShortCutToDesktop
+        GuiControl,,ShortCutToDesktop,%ShortcutState%
+    }
+    else
+    {
+        GuiControl,Disable,ShortCutToDesktop
+        GuiControl,,ShortCutToDesktop,0
+    }
 }
