@@ -13,7 +13,7 @@ SetKeyDelay, -1, -1 ; Remove short delay done automatically after every keystrok
 SetMouseDelay, -1 ; Remove short delay done automatically after Click and MouseMove/Click/Drag
 #Persistent
 ;____________________________________________________________
-UpdaterVersion = 0.23
+UpdaterVersion = 0.24
 global UpdaterVersion
 ;____________________________________________________________
 ;//////////////[Folders]///////////////
@@ -366,22 +366,25 @@ if (FileExist(MainScriptAhkFile))
 FileCreateDir,%AppFolder%
 FileCreateDir,%AppSettingsFolder%
 ;Download main script to Appdata
-UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk,% AppFolder . "\" . ScriptName . ".ahk"
-if(ErrorLevel)
+try{
+    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/GameScripts.ahk,% AppFolder . "\" . ScriptName . ".ahk"
+}
+Catch
 {
+    if(!A_IsAdmin)
+    {
+
+    }
+    Else
+    {
+        MsgBox,,Error,Script is already running as admin`nTry to download Newer or older installer!
+        ExitApp
+    }
     MsgBox, 4,Install Error, [Main script] URL Download Error `nInstall Can't continue`nWould you like to restart as admin?
     IfMsgBox Yes
     {
-        if(!A_IsAdmin)
-        {
-            Run *RunAs %A_ScriptFullPath%
-            ExitApp
-        }
-        Else
-        {
-            MsgBox,,Error,Script is already running as admin`nTry to download Newer or older installer if this is not working!
-            ExitApp 
-        }
+        Run *RunAs %A_ScriptFullPath%
+        ExitApp
     }
     Else
     {
@@ -440,27 +443,28 @@ if(InstallAsExe)
 }
 else
 {
-    UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk,% AppInstallLocation . "\GameScripts.ahk"
-}
-if(ErrorLevel)
-{
-    MsgBox, 4,Install Error, [Exe Runner] URL Download failed. `nWould you like to continue?`nYou can Download [Exe runner] in settings later
-    IfMsgBox No
-    {
-        if (FileExist(AppFolder),"D")
-            FileRemoveDir, %AppFolder%, 1
-        if(!OnlyDesktop)
-        {
-            AppProgramFolder = % A_AppData . "\" . AppFolderName
-            if (FileExist(AppProgramFolder))
-                FileRemoveDir, AppProgramFolder, 1
-        }
-        SetControlState("Enable")
-        Return
+    try{
+        UrlDownloadToFile, https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.ahk,% AppInstallLocation . "\GameScripts.ahk"
     }
-    Else
-    {
-        T_SkipShortcut := true
+    Catch{
+        MsgBox, 4,Install Error, [Exe Runner] URL Download failed. `nWould you like to continue?`nYou can Download [Exe runner] in settings later
+        IfMsgBox No
+        {
+            if (FileExist(AppFolder),"D")
+                FileRemoveDir, %AppFolder%, 1
+            if(!OnlyDesktop)
+            {
+                AppProgramFolder = % A_AppData . "\" . AppFolderName
+                if (FileExist(AppProgramFolder))
+                    FileRemoveDir, AppProgramFolder, 1
+            }
+            SetControlState("Enable")
+            Return
+        }
+        Else
+        {
+            T_SkipShortcut := true
+        }
     }
 }
 IniWrite,%AppInstallLocation%,%AppSettingsIni%, install, InstallFolder
