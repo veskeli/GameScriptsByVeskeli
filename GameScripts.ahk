@@ -46,9 +46,9 @@ DiscordMusicBotTAB := true
 ;//////////////[Version]///////////////
 version = 0.3965
 ;//////////////[Experimental and Pre Release]///////////////
-IsThisExperimental := false
+IsThisExperimental := true
 IsThisPreRelease := false
-TestingGround := true
+TestingGround := false
 PreVersion = 0.397Pre1
 CurrentScriptBranch = Main
 ;//////////////[Action variables]///////////////
@@ -301,6 +301,7 @@ if(IsThisExperimental)
     (
     Current Experimental changes:
     + Uninstaller rewrite
+    + Updated pinned apps
     )
     Gui 1:Font, s11
     Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
