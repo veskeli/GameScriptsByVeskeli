@@ -44,7 +44,7 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3963
+version = 0.3964
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := false
 IsThisPreRelease := false
@@ -1164,8 +1164,8 @@ return
 DeleteAllFiles: ;uninstall
 if(!A_IsAdmin)
 {
-    NotAdminError()
-    Return
+    ;NotAdminError()
+    ;Return
 }
 MsgBox, 1,Are you sure?,All files will be deleted!, 15
 IfMsgBox, Cancel
@@ -1174,20 +1174,59 @@ IfMsgBox, Cancel
 }
 else
 {
+    Progress, b w300,  Uninstalling script...,  Uninstalling script..., Uninstalling script...
     IniRead,T_AppInstallLocation,%AppSettingsIni%, install, InstallFolder
-    if(T_AppInstallLocation != "Error" Or T_AppInstallLocation != "")
+    if(T_AppInstallLocation != "Error" && T_AppInstallLocation != "")
     {
-        FileRemoveDir, %T_AppInstallLocation%,1
+        try{
+            FileRemoveDir, %T_AppInstallLocation%,1
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
     }
-    IfExist, % A_Desktop . "\" . ScriptName . ".lnk"
+    Progress, 25
+    DesktopShortcutLocation = % A_Desktop . "\" . ScriptName . ".lnk"
+    if (FileExist(DesktopShortcutLocation))
     {
-        FileDelete,% A_Desktop . "\" . ScriptName . ".lnk"
+        try{
+            FileDelete, %DesktopShortcutLocation%
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
     }
-    IfExist, %AppFolder%
-        FileRemoveDir, %AppFolder% ,1
-    IfExist, %A_ScriptFullPath%
-        FileDelete, %A_ScriptFullPath%
+    Progress, 50
+    if(FileExist(AppFolder),"D")
+    {
+        try{
+            FileRemoveDir, %AppFolder% ,1
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
+    }
+    Progress, 75
+    if(FileExist(A_ScriptFullPath))
+    {
+        try{
+            FileDelete, %A_ScriptFullPath%
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
+    }
+    Progress, 100
 }
+Progress, Off
 ExitApp
 DeleteAppSettings:
 MsgBox, 1,Are you sure?,All Settings will be deleted!, 15
@@ -2123,15 +2162,30 @@ UpdateAllCustomCheckboxes()
 {
     IniDelete,%AppSettingsIni%,CustomCheckbox
 }
-NotAdminError()
+NotAdminError(T_CustomMessage = "")
 {
-    if(!A_IsAdmin)
+    if(T_CustomMessage != "")
     {
-        MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
-        IfMsgBox, ok
+        if(!A_IsAdmin)
         {
-            Run *RunAs %A_ScriptFullPath%
-            ExitApp
+            MsgBox, 1,Needs admin privileges,%T_CustomMessage%`nPress "Ok" to run this script as admin
+            IfMsgBox, ok
+            {
+                Run *RunAs %A_ScriptFullPath%
+                ExitApp
+            }
+        }
+    }
+    Else
+    {
+        if(!A_IsAdmin)
+        {
+            MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
+            IfMsgBox, ok
+            {
+                Run *RunAs %A_ScriptFullPath%
+                ExitApp
+            }
         }
     }
 }
