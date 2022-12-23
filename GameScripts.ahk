@@ -67,7 +67,9 @@ OSGithub := [10]
 ;____________________________________________________________
 ;//////////////[variables]///////////////
 CloseToTray := false
-PinSlot := [5]
+PinSlotsCount := 8
+PinSlot := [%PinSlotsCount%]
+PinnedGroupYCoordSpace := 55 ;84
 ShowChangelog := false
 ;//////////////[Gui Pictures]///////////////
 PinPic = %GuiPictureFolder%\pin.png
@@ -111,6 +113,8 @@ global IsOffline
 global CurrentScriptBranch
 global AppUpdaterFile
 global AppUpdaterSettingsFile
+global PinnedGroupYCoordSpace
+global PinSlotsCount
 ;//////////////[Set Current Branch]///////////////
 if(!TestingGround)
 {
@@ -220,12 +224,18 @@ if(VoicemeeterTAB)
     Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
 Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
-Gui 1:Font, s16
-Gui 1:Add, GroupBox, x16 y40 w385 h80 +Hidden vPin1GroubBox, Pin1
-Gui 1:Add, GroupBox, x16 y124 w385 h80 +Hidden vPin2GroubBox, Pin2
-Gui 1:Add, GroupBox, x16 y208 w385 h80 +Hidden vPin3GroubBox, Pin3
-Gui 1:Add, GroupBox, x16 y292 w385 h80 +Hidden vPin4GroubBox, Pin4
-Gui 1:Add, GroupBox, x16 y376 w385 h80 +Hidden vPin5GroubBox, Pin5
+Gui 1:Font, s10
+PinnedGroupYLocation := 40
+loop %PinSlotsCount%
+{
+    Gui 1:Add, GroupBox, x10 y%PinnedGroupYLocation%  w165 h55 +Hidden vPin%A_Index%GroubBox, Pin%A_Index%    
+    PinnedGroupYLocation += PinnedGroupYCoordSpace
+}
+;Gui 1:Add, GroupBox, x10 y40  w165 h55 +Hidden vPin1GroubBox, Pin1
+;Gui 1:Add, GroupBox, x10 y124 w165 h55 +Hidden vPin2GroubBox, Pin2
+;Gui 1:Add, GroupBox, x10 y208 w165 h55 +Hidden vPin3GroubBox, Pin3
+;Gui 1:Add, GroupBox, x10 y292 w165 h55 +Hidden vPin4GroubBox, Pin4
+;Gui 1:Add, GroupBox, x10 y376 w165 h55 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
@@ -2018,7 +2028,7 @@ GetPinSlot()
 {
     UpdateAllPinSlots()
     ;Get next free spot
-    loop, 5
+    loop, %PinSlotsCount%
     {
         if(PinSlot[A_Index] == false)
         {
@@ -2030,7 +2040,7 @@ GetPinSlot()
 UpdateAllPinSlots()
 {
     ;Get all Spots
-    loop, 5
+    loop, %PinSlotsCount%
     {
         IniRead, T_ReadPin,%AppSettingsIni%,Pinned, % "PinSlot" . A_Index
         if(T_ReadPin == "" or T_ReadPin == "false" or T_ReadPin == "ERROR")
@@ -2059,7 +2069,7 @@ RemovePinSlot(Slot, Name)
     IniWrite, false,%AppSettingsIni%,Pinned, % Name . "IsPinned"
     UpdateAllPinSlots()
     ;Reorder slots
-    loop, 4
+    loop, %PinSlotsCount% - 1
     {
         if(Slot == A_Index)
         {
@@ -2078,7 +2088,7 @@ UpdateHomeScreen()
     UpdateAllPinSlots()
     ;Reset all first
     GuiControl,1:Show,pintextIMG
-    loop, 5
+    loop, %PinSlotsCount%
     {
         GuiControl,1:Hide,% "Pin" . A_Index . "GroubBox"
         GuiControl,1:,% "Pin" . A_Index . "GroubBox",% "Pin" . A_Index
@@ -2090,8 +2100,8 @@ UpdateHomeScreen()
         GuiControl,1:Hide,pintextIMG
     }
     ;Handle pinned apps
-    PinYLocation = 68
-    loop, 5
+    PinYStartLocation := 60 ;68
+    loop, %PinSlotsCount%
     {
         if(PinSlot[A_Index] == true)
         {
@@ -2105,14 +2115,14 @@ UpdateHomeScreen()
                 ;If button not found create one
                 DeclareGlobal("Pin" A_Index "RunButton")
                 Gui 1:Tab, Home
-                Gui 1:Font, s18
-                Gui 1:Add, Button, x50 y%PinYLocation% w137 h45 gPinRunButton vPin%A_Index%RunButton, % Chr(0x25B6) . " Open"
+                Gui 1:Font, s13
+                Gui 1:Add, Button, x15 y%PinYStartLocation% w80 h30 gPinRunButton vPin%A_Index%RunButton, % Chr(0x25B6) . " Open"
             }
             Else
             {
                 GuiControl,1:show,% "Pin" . A_Index . "RunButton"
             }
-            PinYLocation += 84
+            PinYStartLocation += PinnedGroupYCoordSpace
         }
     }
 }
