@@ -46,10 +46,10 @@ DiscordMusicBotTAB := true
 ;//////////////[Version]///////////////
 version = 0.3965
 ;//////////////[Experimental and Pre Release]///////////////
-IsThisExperimental := true
+IsThisExperimental := false
 IsThisPreRelease := false
-TestingGround := false
-PreVersion = 0.397Pre1
+TestingGround := true
+PreVersion = 0.397Pre2
 CurrentScriptBranch = Main
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
@@ -1127,6 +1127,7 @@ else
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe, %T_FileBeforeMoveLocation%\GameScripts.exe
     IsEXERunnerEnabled := true
 }
+Return
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
