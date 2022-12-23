@@ -290,7 +290,7 @@ if(IsThisExperimental)
     T_Experimentalchanges=
     (
     Current Experimental changes:
-    + Other scripts are fetched from online
+    + Uninstaller rewrite
     )
     Gui 1:Font, s11
     Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
