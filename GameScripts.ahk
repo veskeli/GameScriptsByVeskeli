@@ -44,12 +44,12 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3965
+version = 0.3966
 ;//////////////[Experimental and Pre Release]///////////////
-IsThisExperimental := true
+IsThisExperimental := false
 IsThisPreRelease := false
-TestingGround := false
-PreVersion = 0.397Pre1
+TestingGround := true
+PreVersion = 0.397Pre2
 CurrentScriptBranch = Main
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
@@ -170,19 +170,20 @@ UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
 ;//////////////[Startup checks]///////////////
-IfExist %AppUpdateFile%
+if(FileExist(AppUpdateFile))
 {
     ;Show Changelog
     FileDelete, %AppUpdateFile% ;delete old file after update
     FileRemoveDir, %AppFolder%\temp ;Delete temp directory
     ShowChangelog := true
 }
-IfNotExist %GuiPictureFolder%
+if(!FileExist(GuiPictureFolder))
 {
     DownloadAssets()
 }
 CheckAssets()
-IfExist, %GuiPictureFolder%\GameScripts.ico
+T_GameScriptIcon = %GuiPictureFolder%\GameScripts.ico
+if(FileExist(T_GameScriptIcon))
 {
     Menu Tray, Icon, %GuiPictureFolder%\GameScripts.ico,1
 }
@@ -486,7 +487,7 @@ if(A_IsAdmin)
     GuiControl,1:,RunAsThisAdminButton,Already running as admin
     GuiControl,1:Disable,RunAsThisAdminButton
 }
-IfExist, %AppHotkeysIni% 
+if(FileExist(AppHotkeysIni))
 {
     ;//////////////[Menu Tab]///////////////
     IniRead, Temp_AlwayOnTopHotkey_Menu, %AppHotkeysIni%, GameMode, AlwaysOnTopHotkey_Menu
@@ -520,7 +521,7 @@ IfExist, %AppHotkeysIni%
     }
 }
 ;Settings tab
-IfExist, %AppSettingsIni%
+if(FileExist(AppSettingsIni))
 {
     iniread, T_IsRunnerEnabled,%AppSettingsIni%, ExeRunner, UsingExeRunner
     if(%T_IsRunnerEnabled% == true)
@@ -739,7 +740,7 @@ if(Temp_CheckUpdatesOnStartup != "ERROR")
     GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
 if(Temp_CheckUpdatesOnStartup == 1)
 {
-    IfNotExist %AppUpdaterFile%
+    if(!FileExist(AppUpdaterFile))
     {
         ;Updater File Missing!!
     }
@@ -1127,6 +1128,7 @@ else
     UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/exe/GameScripts.exe, %T_FileBeforeMoveLocation%\GameScripts.exe
     IsEXERunnerEnabled := true
 }
+Return
 ;____________________________________________________________
 ;//////////////[checkForupdates]///////////////
 checkForupdates:
@@ -1912,32 +1914,32 @@ DownloadAssets()
     StartUrl = https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/
     Progress, %T_GUIPicProgress%
     FileCreateDir,%GuiPictureFolder%
-    IfNotExist %GuiPictureFolder%/GameScripts.ico
+    if(!FileExist(GuiPictureFolder . "/GameScripts.ico"))
         UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/GameScripts.ico", %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    IfNotExist %GuiPictureFolder%/pintext.png
+    if(!FileExist(GuiPictureFolder . "/pintext.png"))
         UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/pintext.png" , %GuiPictureFolder%/pintext.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    IfNotExist %GuiPictureFolder%/pin.png
+    if(!FileExist(GuiPictureFolder . "/pin.png"))
         UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/pin.png" , %GuiPictureFolder%/pin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    IfNotExist %GuiPictureFolder%/removepin.png
+    if(!FileExist(GuiPictureFolder . "/removepin.png"))
         UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/removepin.png" , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    IfNotExist %GuiPictureFolder%/on.png
+    if(!FileExist(GuiPictureFolder . "/on.png"))
         UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/on.png" , %GuiPictureFolder%/on.png ;on button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
-    IfNotExist %GuiPictureFolder%/off.png
+    if(!FileExist(GuiPictureFolder . "/off.png"))
         UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/off.png" , %GuiPictureFolder%/off.png ;off button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     ;Updater
-    IfNotExist %AppUpdaterFile%
+    if(!FileExist(AppUpdaterFile))
         UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Updater.ahk" , %AppUpdaterFile% ;Updater File
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
@@ -1946,41 +1948,8 @@ DownloadAssets()
 }
 CheckAssets()
 {
-    IfNotExist %AppUpdaterFile% ;Updater.ahk
-    {
-        DownloadAssets()
-        return
-    }
-    IfNotExist %GuiPictureFolder%/GameScripts.ico ;icon
-    {
-        DownloadAssets()
-        return
-    }
-    IfNotExist %GuiPictureFolder%/pintext.png ;PinText
-    {
-        DownloadAssets()
-        return
-    }
-    IfNotExist %GuiPictureFolder%/pin.png ;PinText
-    {
-        DownloadAssets()
-        return
-    }
-    IfNotExist %GuiPictureFolder%/removepin.png ;PinText
-    {
-        DownloadAssets()
-        return
-    }
-    IfNotExist %GuiPictureFolder%/on.png ;on button
-    {
-        DownloadAssets()
-        return
-    }
-    IfNotExist %GuiPictureFolder%/off.png ;off button
-    {
-        DownloadAssets()
-        return
-    }
+    DownloadAssets()
+    Return
 }
 PinAppOrAction(AppOrAction)
 {
@@ -2231,7 +2200,7 @@ ConnectedToInternet(flag=0x40) { ;If connected to internet. (Not checking intern
 Return DllCall("Wininet.dll\InternetGetConnectedState", "Str", flag,"Int",0) 
 }
 CheckUpdatesOnStart:
-IfExist, %AppSettingsIni%
+if(FileExist(AppSettingsIni))
 {
     ;Is check for updates enabled
     IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
@@ -2340,7 +2309,7 @@ ForceUpdate(newversion,T_Id,T_Branch)
     SplashTextOff
     loop
     {
-        IfExist %A_ScriptFullPath%
+        if(FileExist(A_ScriptFullPath))
         {
             Run, %A_ScriptFullPath%
             ExitApp
@@ -2569,7 +2538,8 @@ GetInstalledOtherScripts(OtherScriptsNames)
     Loop, parse, OtherScriptsNames, `n, `r
     {
         IniRead,T_ID,%AppOtherScriptsIni%,%A_LoopField%,ID
-        IfExist, %AppOtherScriptsFolder%\%T_ID%.ahk
+        T_OtherScript = %AppOtherScriptsFolder%\%T_ID%.ahk
+        if(FileExist(T_OtherScript))
         {
             GuiControl,1:, %T_ID%Download, % Chr(0x25B6) . " Open"
             GuiControl,1:Enable,%T_ID%Delete
@@ -2585,17 +2555,19 @@ GetInstalledOtherScripts(OtherScriptsNames)
 DownloadOtherScript:
 StringTrimRight,T_DownloadLinkIndex,A_GuiControl,8
 T_DownloadLinkControl := OSID[T_DownloadLinkIndex]
-IfNotExist, %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+T_OtherScriptFile = %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+if(!FileExist(T_OtherScriptFile))
 {
+    FileCreateDir, %AppOtherScriptsFolder%
     T_OtherScriptDownloadLink := OSDownloadLink[T_DownloadLinkIndex]
-    UrlDownloadToFile, %T_OtherScriptDownloadLink%,%AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+    UrlDownloadToFile, %T_OtherScriptDownloadLink%,%T_OtherScriptFile%
     GuiControl,1:, %A_GuiControl%, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,%T_DownloadLinkControl%Delete
     GuiControl,1:Show,Pin%T_DownloadLinkControl%IMG
 }
 else
 {
-    run, %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+    run, %T_OtherScriptFile%
 }
 return
 OpenOtherScriptGithub:
@@ -2605,8 +2577,9 @@ run, %T_GithubLink%
 return
 DeleteOtherScript:
 StringTrimRight,T_OTherScriptControl,A_GuiControl,6
-IfExist, %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
-    FileDelete, %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
+T_Otherfolder =  %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
+if(FileExist(T_Otherfolder))
+    FileDelete, T_Otherfolder
 GuiControl,1:, %T_OTherScriptControl%Download,Download
 GuiControl,1:Disable,%T_OTherScriptControl%Delete
 GuiControl,1:Hide,Pin%T_OTherScriptControl%IMG
