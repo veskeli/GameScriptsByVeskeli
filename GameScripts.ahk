@@ -20,17 +20,20 @@ AppFolderName = AHKGameScriptsByVeskeli
 AppFolder = %A_AppData%\%AppFolderName%
 AppSettingsFolder = %AppFolder%\Settings
 GuiPictureFolder = %AppFolder%\Gui
+AppUpdaterFile = %AppFolder%\Updater.ahk
+AppUpdaterSettingsFile = %AppFolder%\UpdaterInfo.ini
+;//////////////[Other Scripts]///////////////
+AppGamingScriptsFolder = %AppFolder%\GamingScripts
+AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;//////////////[ini]///////////////
 AppSettingsIni = %AppSettingsFolder%\Settings.ini
 AppGameScriptSettingsIni = %AppSettingsFolder%\GameScriptSettings.ini
 AppHotkeysIni = %AppSettingsFolder%\Hotkeys.ini
 AppVersionIdListIni = %AppFolder%\temp\VersionIdList.ini
 AppPreVersionsIni = %AppFolder%\temp\PreVersions.ini
+AppOtherScriptsIni = %AppOtherScriptsFolder%\OtherScripts.ini
 ;//////////////[Update]///////////////
 AppUpdateFile = %AppFolder%\temp\OldFile.ahk
-;//////////////[Other Scripts]///////////////
-AppGamingScriptsFolder = %AppFolder%\GamingScripts
-AppOtherScriptsFolder = %AppFolder%\OtherScripts
 ;//////////////[Tabs]///////////////
 HomeTAB := true
 SettingsTAB := true
@@ -41,12 +44,13 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.396
+version = 0.3965
 ;//////////////[Experimental and Pre Release]///////////////
-IsThisExperimental := false
+IsThisExperimental := true
 IsThisPreRelease := false
 TestingGround := false
-PreVersion = 0.396Pre2
+PreVersion = 0.397Pre1
+CurrentScriptBranch = Main
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
 AutoRunUseShift = 1
@@ -54,10 +58,18 @@ WindowsButtonRebindEnabled = 0
 CapsLockButtonRebindEnabled = 0
 MouseHoldToggle = 0
 MouseClickerToggle = 0
+IsOffline := false
+;//////////////[Other Scripts]///////////////
+OSName := [10]
+OSID := [10]
+OSDownloadLink := [10]
+OSGithub := [10]
 ;____________________________________________________________
 ;//////////////[variables]///////////////
 CloseToTray := false
-PinSlot := [5]
+PinSlotsCount := 8
+PinSlot := [%PinSlotsCount%]
+PinnedGroupYCoordSpace := 55 ;84
 ShowChangelog := false
 ;//////////////[Gui Pictures]///////////////
 PinPic = %GuiPictureFolder%\pin.png
@@ -73,6 +85,7 @@ global AppSettingsIni
 global AppHotkeysIni
 global AppVersionIdListIni
 global AppPreVersionsIni
+global AppOtherScriptsIni
 global AppUpdateFile
 global CloseToTray
 global GuiPictureFolder
@@ -92,7 +105,17 @@ global OtherScriptsTAB
 global windowsTAB
 global BasicScriptsTAB
 global VoicemeeterTAB
-;//////////////[Branch]///////////////
+global OSName
+global OSID
+global OSDownloadLink
+global OSGithub
+global IsOffline
+global CurrentScriptBranch
+global AppUpdaterFile
+global AppUpdaterSettingsFile
+global PinnedGroupYCoordSpace
+global PinSlotsCount
+;//////////////[Set Current Branch]///////////////
 if(!TestingGround)
 {
     IniRead, CurrentBranch,%AppSettingsIni%,Branch,Instance1
@@ -100,17 +123,20 @@ if(!TestingGround)
     {
         IsThisExperimental := true
         IsThisPreRelease := false
+        CurrentScriptBranch = Experimental
     }
     else if(CurrentBranch == "PreRelease")
     {
         IsThisExperimental := false
         IsThisPreRelease := true
+        CurrentScriptBranch = PreRelease
     }
 }
 else
 {
     IsThisExperimental := true
     IsThisPreRelease := false
+    CurrentScriptBranch = Experimental
 }
 ;____________________________________________________________
 ;//////////////[Tab Control]///////////////
@@ -140,13 +166,13 @@ if(!IsThisExperimental)
 if(T_DiscordMusicBotTab == "0")
     DiscordMusicBotTAB := false
 ;____________________________________________________________
-CheckAssets()
 UpdateTrayicon()
 ;____________________________________________________________
 ;//////////////[GUI]///////////////
 ;//////////////[Startup checks]///////////////
 IfExist %AppUpdateFile%
 {
+    ;Show Changelog
     FileDelete, %AppUpdateFile% ;delete old file after update
     FileRemoveDir, %AppFolder%\temp ;Delete temp directory
     ShowChangelog := true
@@ -155,6 +181,7 @@ IfNotExist %GuiPictureFolder%
 {
     DownloadAssets()
 }
+CheckAssets()
 IfExist, %GuiPictureFolder%\GameScripts.ico
 {
     Menu Tray, Icon, %GuiPictureFolder%\GameScripts.ico,1
@@ -197,12 +224,18 @@ if(VoicemeeterTAB)
     Gui 1:Add, Button, x656 y56 w149 h48 gSetVoicemeeterAsDefaultAudioDevice, Set Voicemeeter as default audio device
 Gui 1:Add, Button, x608 y112 w80 h23 gOpenSounds, Open Sounds
 Gui 1:Add, Picture, x48 y112 w349 h294 vpintextIMG, %GuiPictureFolder%/pintext.png
-Gui 1:Font, s16
-Gui 1:Add, GroupBox, x16 y40 w385 h80 +Hidden vPin1GroubBox, Pin1
-Gui 1:Add, GroupBox, x16 y124 w385 h80 +Hidden vPin2GroubBox, Pin2
-Gui 1:Add, GroupBox, x16 y208 w385 h80 +Hidden vPin3GroubBox, Pin3
-Gui 1:Add, GroupBox, x16 y292 w385 h80 +Hidden vPin4GroubBox, Pin4
-Gui 1:Add, GroupBox, x16 y376 w385 h80 +Hidden vPin5GroubBox, Pin5
+Gui 1:Font, s10
+PinnedGroupYLocation := 40
+loop %PinSlotsCount%
+{
+    Gui 1:Add, GroupBox, x10 y%PinnedGroupYLocation%  w165 h55 +Hidden vPin%A_Index%GroubBox, Pin%A_Index%    
+    PinnedGroupYLocation += PinnedGroupYCoordSpace
+}
+;Gui 1:Add, GroupBox, x10 y40  w165 h55 +Hidden vPin1GroubBox, Pin1
+;Gui 1:Add, GroupBox, x10 y124 w165 h55 +Hidden vPin2GroubBox, Pin2
+;Gui 1:Add, GroupBox, x10 y208 w165 h55 +Hidden vPin3GroubBox, Pin3
+;Gui 1:Add, GroupBox, x10 y292 w165 h55 +Hidden vPin4GroubBox, Pin4
+;Gui 1:Add, GroupBox, x10 y376 w165 h55 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
@@ -267,19 +300,8 @@ if(IsThisExperimental)
     T_Experimentalchanges=
     (
     Current Experimental changes:
-    + Uninstaller changes
-    + This text (show only when experimental)
-    + Use Correct appdata folder when admin
-    + Use Correct desktop when creating shortcut
-    + Made better code for home screen pinned apps.
-    + Made script smaller
-    + Added code to remove/add Tabs
-    + Added button to remove/add Tabs
-    + Added voicemeeter tab [Alpha]
-    + Added Discord Music Bot Tab [Pre Alpha]
-    + Added Download Manager
-    + Updater Code is reworked
-    + Faster Updates
+    + Uninstaller rewrite
+    + Updated pinned apps
     )
     Gui 1:Font, s11
     Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
@@ -288,64 +310,33 @@ Gui 1:Font
 }
 ;____________________________________________________________
 ;____________________________________________________________
-;//////////////[Other Scripts]///////////////
+;//////////////[Other Sctipts]///////////////
 if(OtherScriptsTAB)
 {
-Gui 1:Tab, Other Scripts
-; Add 70 to Y
-;Logitech backup tool
-OSYOffsetB = 56 ;Other Scripts Y Offset Button
-OSYOffsetP = 39 ;Other Scripts Y Offset Picture
-OSYOffsetG = 27 ;Other Scripts Y Offset GroupBox
-OSAddY = 70 ;How far down next goes
-Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Logitech Backup Tool
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 vDowloadGHUBToolButton gDownloadGHUBTool, Download
-Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallGHUBToolScriptButton +Disabled, Delete
-Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenGHUBToolGithub, Open in Github
-Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinGHUBToolIMG +Hidden, %PinPic%
-;Ngrok tool
-OSYOffsetB += OSAddY
-OSYOffsetP += OSAddY
-OSYOffsetG += OSAddY
-Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Ngrok port fowarding Tool
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadNgrokTool vDownloadNgrokToolButton, Download
-Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallNgrokToolButton +Disabled, Delete
-Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenNgrokInGithub, Open in Github
-Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinNgrokToolIMG +Hidden, %PinPic%
-;Satisfactory Save Manager
-OSYOffsetB += OSAddY
-OSYOffsetP += OSAddY
-OSYOffsetG += OSAddY
-Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Satisfactory Save Manager
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadSatisfactorySaveManager vDownloadSatisfactorySaveManagerButton, Download
-Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallSatisfactorySaveManagerButton +Disabled, Delete
-Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenSatisfactorySaveManagerInGithub, Open in Github
-Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinSatisfactorySaveManagerIMG +Hidden, %PinPic%
-;Minecraft Simple Server Manager
-OSYOffsetB += OSAddY
-OSYOffsetP += OSAddY
-OSYOffsetG += OSAddY
-Gui 1:Font, s13
-Gui 1:Add, GroupBox, x8 y%OSYOffsetG% w430 h69, Minecraft Simple Server Manager[Early Access]
-Gui 1:Font
-Gui 1:Font, s9, Segoe UI
-Gui 1:Add, Button, x16 y%OSYOffsetB% w131 h23 gDownloadMinecraftServerManager vDowloadMinecraftServerManagerButton, Download
-Gui 1:Add, Button, x352 y%OSYOffsetB% w80 h23 gUninstallScriptButton vUninstallMinecraftServerManagerButton +Disabled, Delete
-Gui 1:Add, Button, x160 y%OSYOffsetB% w80 h23 +disabled, Settings
-Gui 1:Add, Button, x248 y%OSYOffsetB% w100 h23 gOpenMinecraftServerManagerInGithub, Open in Github
-Gui 1:Add, Picture, x413 y%OSYOffsetP% w18 h18 gPinAppToHomeScreen vPinMinecraftServerManagerIMG +Hidden, %PinPic%
+OtherScriptsNames = 
+(
+LogitechBackupTool
+NgrokPortForwardingTool
+SatisfactorySaveManager
+MinecraftSimpleServerManager
+)
+OSName[1] := "Logitech Backup Tool"
+OSID[1] := "LogitechBackupTool"
+OSDownloadLink[1] := "https://raw.githubusercontent.com/veskeli/LogitechBackupProfilesAhk/master/LogitechBackupProfiles.ahk"
+OSGithub[1] := "https://github.com/veskeli/LogitechBackupProfilesAhk"
+OSName[2] := "Ngrok port Forwarding Tool"
+OSID[2] := "NgrokPortForwardingTool"
+OSDownloadLink[2] := "https://raw.githubusercontent.com/veskeli/NgrokAhk/master/Ngrok.ahk"
+OSGithub[2] := "https://github.com/veskeli/NgrokAhk"
+OSName[3] := "Satisfactory Save Manager"
+OSID[3] := "SatisfactorySaveManager"
+OSDownloadLink[3] := "https://raw.githubusercontent.com/veskeli/SatisfactorySaveManager/main/SatisfactorySaveManager.ahk"
+OSGithub[3] := "https://github.com/veskeli/SatisfactorySaveManager"
+OSName[4] := "Minecraft Simple Server Manager[Early Access]"
+OSID[4] := "MinecraftSimpleServerManager"
+OSDownloadLink[4] := "https://raw.githubusercontent.com/veskeli/SimpleMinecraftServerManager/main/SimpleMinecraftServerManager.ahk"
+OSGithub[4] := "https://github.com/veskeli/SimpleMinecraftServerManager"
+Gosub, BuildOtherScripts
 }
 ;____________________________________________________________
 ;____________________________________________________________
@@ -558,75 +549,8 @@ IfExist, %AppSettingsIni%
             ExitApp
         }
     }
-    IniRead, Temp_GHUBToolPin,%AppSettingsIni%,Pinned,% "GHUBTool" . "IsPinned"
-    if(Temp_GHUBToolPin == "true")
-    {
-        GuiControl,1:,% "Pin" . "GHUBTool" . "IMG",%GuiPictureFolder%\removepin.png
-    }
-    IniRead, Temp_NgrokToolPin,%AppSettingsIni%,Pinned,% "NgrokTool" . "IsPinned"
-    if(Temp_NgrokToolPin == "true")
-    {
-        GuiControl,1:,% "Pin" . "NgrokTool" . "IMG",%GuiPictureFolder%\removepin.png
-    }
-    IniRead, Temp_SatisfactorySaveManagerPin,%AppSettingsIni%,Pinned,% "SatisfactorySaveManager" . "IsPinned"
-    if(Temp_SatisfactorySaveManagerPin == "true")
-    {
-        GuiControl,1:,% "Pin" . "SatisfactorySaveManager" . "IMG",%GuiPictureFolder%\removepin.png
-    }
-    IniRead, Temp_MinecraftServerManagerPin,%AppSettingsIni%,Pinned,% "MinecraftServerManager" . "IsPinned"
-    if(Temp_MinecraftServerManagerPin == "true")
-    {
-        GuiControl,1:,% "Pin" . "MinecraftServerManager" . "IMG",%GuiPictureFolder%\removepin.png
-    }
     UpdateHomeScreen()
     UpdateAllCustomCheckboxes()
-}
-IfExist %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
-{
-    GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallGHUBToolScriptButton
-    GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
-    GHUBTool := true
-    GuiControl,1:Show ,PinGHUBToolIMG
-}
-IfExist %AppOtherScriptsFolder%\Ngrok.ahk
-{
-    GuiControl,1: , DownloadNgrokToolButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallNgrokToolButton
-    NgrokToolLocation = %AppOtherScriptsFolder%\Ngrok.ahk
-    NgrokTool := true
-    GuiControl,1:Show ,PinNgrokToolIMG
-}
-IfExist %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
-{
-    GuiControl,1: , DownloadSatisfactorySaveManagerButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallSatisfactorySaveManagerButton
-    SatisfactorySaveManagerLocation = %AppOtherScriptsFolder%\SatisfactorySaveManager.ahk
-    SatisfactorySaveManager := true
-    GuiControl,1:Show ,PinSatisfactorySaveManagerIMG
-}
-IfExist %AppOtherScriptsFolder%\SimpleMinecraftServerManager.ahk
-{
-    GuiControl,1: , DowloadMinecraftServerManagerButton, % Chr(0x25B6) . " Open"
-    GuiControl,1:Enable,UninstallMinecraftServerManagerButton
-    MinecraftServerManagerLocation = %AppOtherScriptsFolder%\SimpleMinecraftServerManager.ahk
-    MinecraftServerManager := true
-    GuiControl,1:Show ,PinMinecraftServerManagerIMG
-}
-IfExist, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini
-{
-    IniRead, GHUBToolLocation, %A_AppData%\LogitechBackupProfilesAhk\Settings\Settings.ini,Info, ScriptPath
-    IfNotExist, %GHUBToolLocation%
-    {
-        GHUBToolLocation = %AppOtherScriptsFolder%\LogitechBackupProfiles.ahk
-    }
-    Else
-    {
-        GuiControl,1: , DowloadGHUBToolButton, % Chr(0x25B6) . " Open"
-        GuiControl,1: Enable,UninstallGHUBToolScriptButton
-        GHUBTool := true
-        GuiControl,1:Show ,PinGHUBToolIMG
-    }
 }
 ;Use correct appdata if Admin
 if(A_IsAdmin)
@@ -642,41 +566,44 @@ if(A_IsAdmin)
 UpdateSettingsFromRegistery()
 ;____________________________________________________________
 ;//////////////[Audio Switching code]///////////////
-Devices := {}
-IMMDeviceEnumerator := ComObjCreate("{BCDE0395-E52F-467C-8E3D-C4579291692E}", "{A95664D2-9614-4F35-A746-DE8DB63617E6}")
-; IMMDeviceEnumerator::EnumAudioEndpoints
-; eRender = 0, eCapture, eAll
-; 0x1 = DEVICE_STATE_ACTIVE
-DllCall(NumGet(NumGet(IMMDeviceEnumerator+0)+3*A_PtrSize), "UPtr", IMMDeviceEnumerator, "UInt", 0, "UInt", 0x1, "UPtrP", IMMDeviceCollection, "UInt")
-ObjRelease(IMMDeviceEnumerator)
-
-; IMMDeviceCollection::GetCount
-DllCall(NumGet(NumGet(IMMDeviceCollection+0)+3*A_PtrSize), "UPtr", IMMDeviceCollection, "UIntP", Count, "UInt")
-Loop % (Count)
+if(VoicemeeterTAB)
 {
-    ; IMMDeviceCollection::Item
-    DllCall(NumGet(NumGet(IMMDeviceCollection+0)+4*A_PtrSize), "UPtr", IMMDeviceCollection, "UInt", A_Index-1, "UPtrP", IMMDevice, "UInt")
+    Devices := {}
+    IMMDeviceEnumerator := ComObjCreate("{BCDE0395-E52F-467C-8E3D-C4579291692E}", "{A95664D2-9614-4F35-A746-DE8DB63617E6}")
+    ; IMMDeviceEnumerator::EnumAudioEndpoints
+    ; eRender = 0, eCapture, eAll
+    ; 0x1 = DEVICE_STATE_ACTIVE
+    DllCall(NumGet(NumGet(IMMDeviceEnumerator+0)+3*A_PtrSize), "UPtr", IMMDeviceEnumerator, "UInt", 0, "UInt", 0x1, "UPtrP", IMMDeviceCollection, "UInt")
+    ObjRelease(IMMDeviceEnumerator)
 
-    ; IMMDevice::GetId
-    DllCall(NumGet(NumGet(IMMDevice+0)+5*A_PtrSize), "UPtr", IMMDevice, "UPtrP", pBuffer, "UInt")
-    DeviceID := StrGet(pBuffer, "UTF-16"), DllCall("Ole32.dll\CoTaskMemFree", "UPtr", pBuffer)
+    ; IMMDeviceCollection::GetCount
+    DllCall(NumGet(NumGet(IMMDeviceCollection+0)+3*A_PtrSize), "UPtr", IMMDeviceCollection, "UIntP", Count, "UInt")
+    Loop % (Count)
+    {
+        ; IMMDeviceCollection::Item
+        DllCall(NumGet(NumGet(IMMDeviceCollection+0)+4*A_PtrSize), "UPtr", IMMDeviceCollection, "UInt", A_Index-1, "UPtrP", IMMDevice, "UInt")
 
-    ; IMMDevice::OpenPropertyStore
-    ; 0x0 = STGM_READ
-    DllCall(NumGet(NumGet(IMMDevice+0)+4*A_PtrSize), "UPtr", IMMDevice, "UInt", 0x0, "UPtrP", IPropertyStore, "UInt")
-    ObjRelease(IMMDevice)
+        ; IMMDevice::GetId
+        DllCall(NumGet(NumGet(IMMDevice+0)+5*A_PtrSize), "UPtr", IMMDevice, "UPtrP", pBuffer, "UInt")
+        DeviceID := StrGet(pBuffer, "UTF-16"), DllCall("Ole32.dll\CoTaskMemFree", "UPtr", pBuffer)
 
-    ; IPropertyStore::GetValue
-    VarSetCapacity(PROPVARIANT, A_PtrSize == 4 ? 16 : 24)
-    VarSetCapacity(PROPERTYKEY, 20)
-    DllCall("Ole32.dll\CLSIDFromString", "Str", "{A45C254E-DF1C-4EFD-8020-67D146A850E0}", "UPtr", &PROPERTYKEY)
-    NumPut(14, &PROPERTYKEY + 16, "UInt")
-    DllCall(NumGet(NumGet(IPropertyStore+0)+5*A_PtrSize), "UPtr", IPropertyStore, "UPtr", &PROPERTYKEY, "UPtr", &PROPVARIANT, "UInt")
-    DeviceName := StrGet(NumGet(&PROPVARIANT + 8), "UTF-16")    ; LPWSTR PROPVARIANT.pwszVal
-    DllCall("Ole32.dll\CoTaskMemFree", "UPtr", NumGet(&PROPVARIANT + 8))    ; LPWSTR PROPVARIANT.pwszVal
-    ObjRelease(IPropertyStore)
+        ; IMMDevice::OpenPropertyStore
+        ; 0x0 = STGM_READ
+        DllCall(NumGet(NumGet(IMMDevice+0)+4*A_PtrSize), "UPtr", IMMDevice, "UInt", 0x0, "UPtrP", IPropertyStore, "UInt")
+        ObjRelease(IMMDevice)
 
-    ObjRawSet(Devices, DeviceName, DeviceID)
+        ; IPropertyStore::GetValue
+        VarSetCapacity(PROPVARIANT, A_PtrSize == 4 ? 16 : 24)
+        VarSetCapacity(PROPERTYKEY, 20)
+        DllCall("Ole32.dll\CLSIDFromString", "Str", "{A45C254E-DF1C-4EFD-8020-67D146A850E0}", "UPtr", &PROPERTYKEY)
+        NumPut(14, &PROPERTYKEY + 16, "UInt")
+        DllCall(NumGet(NumGet(IPropertyStore+0)+5*A_PtrSize), "UPtr", IPropertyStore, "UPtr", &PROPERTYKEY, "UPtr", &PROPVARIANT, "UInt")
+        DeviceName := StrGet(NumGet(&PROPVARIANT + 8), "UTF-16")    ; LPWSTR PROPVARIANT.pwszVal
+        DllCall("Ole32.dll\CoTaskMemFree", "UPtr", NumGet(&PROPVARIANT + 8))    ; LPWSTR PROPVARIANT.pwszVal
+        ObjRelease(IPropertyStore)
+
+        ObjRawSet(Devices, DeviceName, DeviceID)
+    }
 }
 ;____________________________________________________________
 ;//////////////[Show Gui After setting all saved settings]///////////////
@@ -768,30 +695,7 @@ else
         Gui 1:Show, w835 h517,I don't have a problem with caffeine. I have a problem without it.
     }
 }
-;____________________________________________________________
-;//////////////[Check for updates]///////////////
-IfExist, %AppSettingsIni%
-{
-    ;Is check for updates enabled
-    IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
-    if(Temp_CheckUpdatesOnStartup != "ERROR")
-        GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
-    if(Temp_CheckUpdatesOnStartup == 1)
-    {
-        if(IsThisExperimental) ;Check for Experimental updates
-        {
-            UpdateScript(true,"Experimental")
-        }
-        else if(IsThisPreRelease) ;Check for pre release updates
-        {
-            UpdateScript(true,"PreRelease")
-        }
-        else ;Check for updates
-        {
-            UpdateScript(true,"main")
-        }
-    }
-}
+
 ;____________________________________________________________
 ;//////////////[Intro]///////////////
 IniRead, Temp_IntroCheck, %AppSettingsIni%, Intro, SkipIntro
@@ -827,12 +731,28 @@ if(ShowChangelog)
         FileDelete, %AppFolder%/Changelog.txt
     }
 }
-;then if experimental show experimental msgbox
-if(IsThisExperimental)
+;____________________________________________________________
+;//////////////[Check for updates]///////////////
+;Is check for updates enabled
+IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
+if(Temp_CheckUpdatesOnStartup != "ERROR")
+    GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
+if(Temp_CheckUpdatesOnStartup == 1)
 {
-    MsgBox,,Experimental,This is experimental branch!`nOnly for testing new versions.
+    IfNotExist %AppUpdaterFile%
+    {
+        ;Updater File Missing!!
+    }
+    else
+    {
+        IniWrite, %version%,%AppUpdaterSettingsFile%,Options,Version
+        IniWrite, %A_ScriptFullPath%,%AppUpdaterSettingsFile%,Options,ScriptFullPath
+        IniWrite, %CurrentScriptBranch%,%AppUpdaterSettingsFile%,Options,Branch
+
+        run, %AppUpdaterFile%
+    }
 }
-return
+return ;//////////////[GUI LAST RETURN]///////////////
 ;____________________________________________________________
 ;//////////////[Changelog]///////////////
 ShowChangelogButton:
@@ -1255,8 +1175,8 @@ return
 DeleteAllFiles: ;uninstall
 if(!A_IsAdmin)
 {
-    NotAdminError()
-    Return
+    ;NotAdminError()
+    ;Return
 }
 MsgBox, 1,Are you sure?,All files will be deleted!, 15
 IfMsgBox, Cancel
@@ -1265,20 +1185,59 @@ IfMsgBox, Cancel
 }
 else
 {
+    Progress, b w300,  Uninstalling script...,  Uninstalling script..., Uninstalling script...
     IniRead,T_AppInstallLocation,%AppSettingsIni%, install, InstallFolder
-    if(T_AppInstallLocation != "Error" Or T_AppInstallLocation != "")
+    if(T_AppInstallLocation != "Error" && T_AppInstallLocation != "")
     {
-        FileRemoveDir, %T_AppInstallLocation%,1
+        try{
+            FileRemoveDir, %T_AppInstallLocation%,1
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
     }
-    IfExist, % A_Desktop . "\" . ScriptName . ".lnk"
+    Progress, 25
+    DesktopShortcutLocation = % A_Desktop . "\" . ScriptName . ".lnk"
+    if (FileExist(DesktopShortcutLocation))
     {
-        FileDelete,% A_Desktop . "\" . ScriptName . ".lnk"
+        try{
+            FileDelete, %DesktopShortcutLocation%
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
     }
-    IfExist, %AppFolder%
-        FileRemoveDir, %AppFolder% ,1
-    IfExist, %A_ScriptFullPath%
-        FileDelete, %A_ScriptFullPath%
+    Progress, 50
+    if(FileExist(AppFolder),"D")
+    {
+        try{
+            FileRemoveDir, %AppFolder% ,1
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
+    }
+    Progress, 75
+    if(FileExist(A_ScriptFullPath))
+    {
+        try{
+            FileDelete, %A_ScriptFullPath%
+        }
+        catch{
+            Progress, Off
+            T_adminuninstall = % "Some files needs admin privilages to delete!"
+            NotAdminError(T_adminuninstall)
+        }
+    }
+    Progress, 100
 }
+Progress, Off
 ExitApp
 DeleteAppSettings:
 MsgBox, 1,Are you sure?,All Settings will be deleted!, 15
@@ -1948,32 +1907,38 @@ DownloadAssets()
 {
     Progress, b w300, Script will run after all the Assets have been downloaded, Downloading Assets..., Downloading Assets...
     T_GUIPicProgress = 0
-    T_GuiPicAddAmount = 17
-    T_GUIPicProgress += T_GuiPicAddAmount
+    LinkCount = 7
+    T_GuiPicAddAmount := 100/LinkCount
+    StartUrl = https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/
     Progress, %T_GUIPicProgress%
     FileCreateDir,%GuiPictureFolder%
     IfNotExist %GuiPictureFolder%/GameScripts.ico
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/GameScripts.ico , %GuiPictureFolder%/GameScripts.ico ;icon
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/GameScripts.ico", %GuiPictureFolder%/GameScripts.ico ;icon
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/pintext.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pintext.png , %GuiPictureFolder%/pintext.png ;PinText
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/pintext.png" , %GuiPictureFolder%/pintext.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/pin.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/pin.png , %GuiPictureFolder%/pin.png ;PinText
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/pin.png" , %GuiPictureFolder%/pin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/removepin.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/removepin.png , %GuiPictureFolder%/removepin.png ;PinText
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/removepin.png" , %GuiPictureFolder%/removepin.png ;PinText
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/on.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/on.png , %GuiPictureFolder%/on.png ;on button
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/on.png" , %GuiPictureFolder%/on.png ;on button
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
     IfNotExist %GuiPictureFolder%/off.png
-        UrlDownloadToFile,https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/main/Gui/off.png , %GuiPictureFolder%/off.png ;off button
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Gui/off.png" , %GuiPictureFolder%/off.png ;off button
+    T_GUIPicProgress += T_GuiPicAddAmount
+    Progress, %T_GUIPicProgress%
+    ;Updater
+    IfNotExist %AppUpdaterFile%
+        UrlDownloadToFile,% StartUrl . CurrentScriptBranch . "/Updater.ahk" , %AppUpdaterFile% ;Updater File
     T_GUIPicProgress += T_GuiPicAddAmount
     Progress, %T_GUIPicProgress%
 
@@ -1981,6 +1946,11 @@ DownloadAssets()
 }
 CheckAssets()
 {
+    IfNotExist %AppUpdaterFile% ;Updater.ahk
+    {
+        DownloadAssets()
+        return
+    }
     IfNotExist %GuiPictureFolder%/GameScripts.ico ;icon
     {
         DownloadAssets()
@@ -2059,7 +2029,7 @@ GetPinSlot()
 {
     UpdateAllPinSlots()
     ;Get next free spot
-    loop, 5
+    loop, %PinSlotsCount%
     {
         if(PinSlot[A_Index] == false)
         {
@@ -2071,7 +2041,7 @@ GetPinSlot()
 UpdateAllPinSlots()
 {
     ;Get all Spots
-    loop, 5
+    loop, %PinSlotsCount%
     {
         IniRead, T_ReadPin,%AppSettingsIni%,Pinned, % "PinSlot" . A_Index
         if(T_ReadPin == "" or T_ReadPin == "false" or T_ReadPin == "ERROR")
@@ -2100,7 +2070,7 @@ RemovePinSlot(Slot, Name)
     IniWrite, false,%AppSettingsIni%,Pinned, % Name . "IsPinned"
     UpdateAllPinSlots()
     ;Reorder slots
-    loop, 4
+    loop, %PinSlotsCount% - 1
     {
         if(Slot == A_Index)
         {
@@ -2119,7 +2089,7 @@ UpdateHomeScreen()
     UpdateAllPinSlots()
     ;Reset all first
     GuiControl,1:Show,pintextIMG
-    loop, 5
+    loop, %PinSlotsCount%
     {
         GuiControl,1:Hide,% "Pin" . A_Index . "GroubBox"
         GuiControl,1:,% "Pin" . A_Index . "GroubBox",% "Pin" . A_Index
@@ -2131,8 +2101,8 @@ UpdateHomeScreen()
         GuiControl,1:Hide,pintextIMG
     }
     ;Handle pinned apps
-    PinYLocation = 68
-    loop, 5
+    PinYStartLocation := 60 ;68
+    loop, %PinSlotsCount%
     {
         if(PinSlot[A_Index] == true)
         {
@@ -2146,21 +2116,21 @@ UpdateHomeScreen()
                 ;If button not found create one
                 DeclareGlobal("Pin" A_Index "RunButton")
                 Gui 1:Tab, Home
-                Gui 1:Font, s18
-                Gui 1:Add, Button, x50 y%PinYLocation% w137 h45 gPinRunButton vPin%A_Index%RunButton, % Chr(0x25B6) . " Open"
+                Gui 1:Font, s13
+                Gui 1:Add, Button, x15 y%PinYStartLocation% w80 h30 gPinRunButton vPin%A_Index%RunButton, % Chr(0x25B6) . " Open"
             }
             Else
             {
                 GuiControl,1:show,% "Pin" . A_Index . "RunButton"
             }
-            PinYLocation += 84
+            PinYStartLocation += PinnedGroupYCoordSpace
         }
     }
 }
 RunPinnedApp(Slot)
 {
     IniRead,T_Name,%AppSettingsIni%,Pinned, % "PinSlot" . Slot . "Name"
-    GoSub, % "Download" . T_Name
+    run, %AppOtherScriptsFolder%\%T_Name%.ahk
 }
 DeclareGlobal(globalvar) ;For loop global vars 
 {
@@ -2203,20 +2173,87 @@ UpdateAllCustomCheckboxes()
 {
     IniDelete,%AppSettingsIni%,CustomCheckbox
 }
-NotAdminError()
+NotAdminError(T_CustomMessage = "")
 {
-    if(!A_IsAdmin)
+    if(T_CustomMessage != "")
     {
-        MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
-        IfMsgBox, ok
+        if(!A_IsAdmin)
         {
-            Run *RunAs %A_ScriptFullPath%
-            ExitApp
+            MsgBox, 1,Needs admin privileges,%T_CustomMessage%`nPress "Ok" to run this script as admin
+            IfMsgBox, ok
+            {
+                Run *RunAs %A_ScriptFullPath%
+                ExitApp
+            }
+        }
+    }
+    Else
+    {
+        if(!A_IsAdmin)
+        {
+            MsgBox, 1,Needs admin privileges,This feature needs admin privileges`nPress "Ok" to run this script as admin
+            IfMsgBox, ok
+            {
+                Run *RunAs %A_ScriptFullPath%
+                ExitApp
+            }
         }
     }
 }
 ;____________________________________________________________
 ;//////////////[updater]///////////////
+ReadFileFromLink(Link)
+{
+    if(IsOffline)
+        return "ERROR"
+    If ConnectedToInternet()
+    {
+        try
+        {
+            whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+            whr.Open("GET", Link, False)
+            whr.Send()
+            whr.WaitForResponse()
+            TResponse := whr.ResponseText
+        }
+        Catch T_Error
+        {
+            return "ERROR"
+        }
+        return TResponse
+    }
+    else
+    {
+        return "ERROR"
+    }
+}
+ConnectedToInternet(flag=0x40) { ;If connected to internet. (Not checking internet connection [only if plugged in/Connected to wifi])
+Return DllCall("Wininet.dll\InternetGetConnectedState", "Str", flag,"Int",0) 
+}
+CheckUpdatesOnStart:
+IfExist, %AppSettingsIni%
+{
+    ;Is check for updates enabled
+    IniRead, Temp_CheckUpdatesOnStartup, %AppSettingsIni%, Updates, CheckOnStartup
+    if(Temp_CheckUpdatesOnStartup != "ERROR")
+        GuiControl,1:,CheckUpdatesOnStartup,%Temp_CheckUpdatesOnStartup%
+    if(Temp_CheckUpdatesOnStartup == 1)
+    {
+        if(IsThisExperimental) ;Check for Experimental updates
+        {
+            UpdateScript(true,"Experimental")
+        }
+        else if(IsThisPreRelease) ;Check for pre release updates
+        {
+            UpdateScript(true,"PreRelease")
+        }
+        else ;Check for updates
+        {
+            UpdateScript(true,"main")
+        }
+    }
+}
+return
 GetNewVersion(T_Branch)
 {
     if(T_Branch == "main" or T_Branch == "Experimental" or T_Branch == "PreRelease") ;Check that branch is correctly typed
@@ -2224,11 +2261,13 @@ GetNewVersion(T_Branch)
         ;Build link
         VersionLink := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_Branch . "/version.txt"
         ;Get Version Text
-        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-        whr.Open("GET", VersionLink, False)
-        whr.Send()
-        whr.WaitForResponse()
-        T_NewVersion := whr.ResponseText
+        T_NewVersion := ReadFileFromLink(VersionLink)
+        if(T_NewVersion == "ERROR")
+        {
+            msgbox,,No Internet Connection!,No Internet Connection!`nSwitched script to offline mode.`nRestart to reset offline mode
+            IsOffline := true
+            return
+        }
         ;Check that not empty or not found
         if(T_NewVersion != "" and T_NewVersion != "404: Not Found" and T_NewVersion != "500: Internal Server Error")
         {
@@ -2312,6 +2351,11 @@ ForceUpdate(newversion,T_Id,T_Branch)
 ;____________________________________________________________
 ;//////////////[ShowDownloadManager]///////////////
 ShowDownloadManager:
+if(IsOffline)
+{
+    msgbox,,You are in offline mode!,You are in offline mode!`nRestart to disable offline mode.
+    return
+}
 GuiControl,1:Disable,ShowDownloadManager
 GuiControl,1:,ShowDownloadManager,Preparing versions...
 Gui 2:Destroy ;Destroy if already existing
@@ -2402,11 +2446,13 @@ loop 3
     T_DMDropDownlistText := 
     T_DMBranchName := BranchName(A_Index)
     T_Link := % "https://raw.githubusercontent.com/veskeli/GameScriptsByVeskeli/" . T_DMBranchName . "/DownloadManager/" . T_DMBranchName
-    whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-    whr.Open("GET", T_Link, False)
-    whr.Send()
-    whr.WaitForResponse()
-    AllVersions := whr.ResponseText
+    AllVersions := ReadFileFromLink(T_Link)
+    if(AllVersions == "ERROR")
+    {
+        Gui 2:Destroy
+        msgbox,,No Internet Connection!,No Internet Connection!
+        return
+    }
     if(AllVersions == "" or AllVersions == "ERROR" or AllVersions == "404: Not Found")
     {
         Continue
@@ -2428,7 +2474,7 @@ loop 3
                 {
                     MsgBox,,Pre version Missing1!,Pre version missing for version: %A_LoopField%
                 }   
-                T_DMDropDownlistText = % A_LoopField . " (" . T_PreVersion . ")"
+                T_DMDropDownlistText = % A_LoopField . " (" . T_PreVersion . ")|"
             }
             else
             {
@@ -2448,7 +2494,7 @@ loop 3
         {
             if(T_DMDropDownlistText == "") ;if empty
             {
-                T_DMDropDownlistText = % A_LoopField
+                T_DMDropDownlistText = % A_LoopField . "|"
             }
             else
             {
@@ -2456,9 +2502,6 @@ loop 3
             }
         }
     }
-    ;Add selected option (Latest version)
-    T_DMLatest := GetNewVersion(T_DMBranchName)
-    T_DMDropDownlistText = % T_DMLatest . "||" . T_DMDropDownlistText
     GuiControl,2:,DMDropDown%T_DMBranchName%,|
     GuiControl,2:,DMDropDown%T_DMBranchName%,%T_DMDropDownlistText%
     GuiControl,2:Enable,DMDropDown%T_DMBranchName%
@@ -2518,4 +2561,107 @@ if(T_Id == "ERROR")
     return
 }
 ForceUpdate(T_DMDropDown2,T_Id,T_DMBranchName)
+return
+;____________________________________________________________
+;//////////////[OtherScripts]///////////////
+GetInstalledOtherScripts(OtherScriptsNames)
+{
+    Loop, parse, OtherScriptsNames, `n, `r
+    {
+        IniRead,T_ID,%AppOtherScriptsIni%,%A_LoopField%,ID
+        IfExist, %AppOtherScriptsFolder%\%T_ID%.ahk
+        {
+            GuiControl,1:, %T_ID%Download, % Chr(0x25B6) . " Open"
+            GuiControl,1:Enable,%T_ID%Delete
+            GuiControl,1:Show,Pin%T_ID%IMG
+            IniRead,T_PinState,%AppSettingsIni%,Pinned,% T_ID . "IsPinned"
+            if(T_PinState == "true")
+            {
+                GuiControl,1:,% "Pin" . T_ID . "IMG",%GuiPictureFolder%\removepin.png
+            }
+        }
+    }
+}
+DownloadOtherScript:
+StringTrimRight,T_DownloadLinkIndex,A_GuiControl,8
+T_DownloadLinkControl := OSID[T_DownloadLinkIndex]
+IfNotExist, %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+{
+    T_OtherScriptDownloadLink := OSDownloadLink[T_DownloadLinkIndex]
+    UrlDownloadToFile, %T_OtherScriptDownloadLink%,%AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+    GuiControl,1:, %A_GuiControl%, % Chr(0x25B6) . " Open"
+    GuiControl,1:Enable,%T_DownloadLinkControl%Delete
+    GuiControl,1:Show,Pin%T_DownloadLinkControl%IMG
+}
+else
+{
+    run, %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
+}
+return
+OpenOtherScriptGithub:
+StringTrimRight,T_GithubControl,A_GuiControl,6
+T_GithubLink := OSGithub[T_GithubControl]
+run, %T_GithubLink%
+return
+DeleteOtherScript:
+StringTrimRight,T_OTherScriptControl,A_GuiControl,6
+IfExist, %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
+    FileDelete, %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
+GuiControl,1:, %T_OTherScriptControl%Download,Download
+GuiControl,1:Disable,%T_OTherScriptControl%Delete
+GuiControl,1:Hide,Pin%T_OTherScriptControl%IMG
+RemovePinAppOrAction(T_OTherScriptControl)
+return
+PinOtherScript:
+StringTrimRight,T_OTherScriptControl,A_GuiControl, 3
+StringTrimLeft, T_OTherScriptControl, T_OTherScriptControl, 3
+PinAppOrAction(T_OTherScriptControl)
+return
+BuildOtherScripts:
+; Add 70 to Y
+;Logitech backup tool
+OSYOffsetB = 56 ;Other Scripts Y Offset Button
+OSYOffsetP = 39 ;Other Scripts Y Offset Picture
+OSYOffsetG = 27 ;Other Scripts Y Offset GroupBox
+OSAddY = 70 ;How far down next goes
+OSXOffset = 2
+Gui 1:Tab, Other Scripts
+Loop, parse, OtherScriptsNames, `n, `r
+{
+    if(A_Index == 8)
+    {
+        OSYOffsetB := OSYOffsetB - (OSAddY * 7)
+        OSYOffsetP := OSYOffsetP - (OSAddY * 7)
+        OSYOffsetG := OSYOffsetG - (OSAddY * 7)
+    }
+    if(A_Index >= 8)
+    {
+        OSXOffset = 418
+    }
+    else
+    {
+        OSXOffset = 2
+    }
+    T_OSGroubBoxName := OSName[A_Index]
+    T_OSID := OSID[A_Index]
+    Gui 1:Font, s13
+    Gui 1:Add, GroupBox, x%OSXOffset% y%OSYOffsetG% w412 h69, %T_OSGroubBoxName%
+    Gui 1:Font
+    OSXOffset += 8
+    Gui 1:Font, s9, Segoe UI
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w131 h23 gDownloadOtherScript v%A_Index%Download, Download
+    OSXOffset += 134
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w80 h23 +disabled, Settings
+    OSXOffset += 86
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w100 h23 gOpenOtherScriptGithub v%A_Index%Github, Open in Github
+    OSXOffset += 100
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w80 h23  +Disabled gDeleteOtherScript v%T_OSID%Delete, Delete
+    OSXOffset += 61
+    Gui 1:Add, Picture, x%OSXOffset% y%OSYOffsetP% w18 h18 +Hidden vPin%T_OSID%IMG gPinOtherScript, %PinPic%
+
+    OSYOffsetB += OSAddY
+    OSYOffsetP += OSAddY
+    OSYOffsetG += OSAddY
+}
+GetInstalledOtherScripts(OtherScriptsNames)
 return
