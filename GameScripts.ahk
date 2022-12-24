@@ -1259,11 +1259,32 @@ Gui 2:Destroy ;Destroy if already existing
 Gui 2:Add, GroupBox, x8 y4 w594 h100, Show tabs
 Gui 2:Add, CheckBox, +Checked +Disabled x16 y24 w60 h23 vHomeTabC, Home
 Gui 2:Add, CheckBox, +Checked +Disabled x80 y24 w67 h23 vSettingsTabC, Settings
-Gui 2:Add, CheckBox, +Checked x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
-Gui 2:Add, CheckBox, +Checked x256 y24 w73 h23 vWindowsTabC, Windows
-Gui 2:Add, CheckBox, +Checked x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
-Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
-Gui 2:Add, CheckBox, +Checked x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
+
+Gui 2:Add, CheckBox, x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
+IniRead, OtherScriptsTabOld, %AppSettingsIni%, Tabs, OtherScripts
+if (OtherScriptsTabOld = 1)
+    GuiControl,2:, OtherScriptsTabC,1
+
+Gui 2:Add, CheckBox, x256 y24 w73 h23 vWindowsTabC, Windows
+IniRead, WindowsTabOld, %AppSettingsIni%, Tabs, OtherScripts
+if (WindowsTabOld = 1)
+    GuiControl,2:, WindowsTabC,1
+
+Gui 2:Add, CheckBox, x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
+IniRead, BasicScriptsTabOld, %AppSettingsIni%, Tabs, BasicScripts
+if (BasicScriptsTabOld = 1)
+    GuiControl,2:, BasicScriptsTabC,1
+
+Gui 2:Add, CheckBox, x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
+IniRead, VoicemeeterTabOld, %AppSettingsIni%, Tabs, Voicemeeter
+if (VoicemeeterTabOld = 1 && IsThisExperimental)
+    GuiControl,2:, VoicemeeterTabC,1
+
+Gui 2:Add, CheckBox, x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
+IniRead, DiscordMusicBotTabOld, %AppSettingsIni%, Tabs, DiscordMusicBot
+if (DiscordMusicBotTabOld = 1 && IsThisExperimental)
+    GuiControl,2:, DiscordMusicBotTabC,1
+
 Gui 2:Add, Button, x432 y64 w80 h23 gHandleTabSave, Save
 Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
 Gui 2:Show, w609 h96, Customize Tabs
@@ -1282,18 +1303,61 @@ CancelCustomize:
 Return
 HandleTabSave:
 Gui, 2:Submit,NoHide
-IniWrite, %HomeTabC%, %AppSettingsIni%,Tabs,Home
-IniWrite, %SettingsTabC%, %AppSettingsIni%,Tabs,Settings
-IniWrite, %OtherScriptsTabC%, %AppSettingsIni%,Tabs,OtherScripts
-IniWrite, %WindowsTabC%, %AppSettingsIni%,Tabs,Windows
-IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
-IniWrite, %VoicemeeterTabC%, %AppSettingsIni%,Tabs,Voicemeeter
-IniWrite, %DiscordMusicBotTabC%, %AppSettingsIni%,Tabs,DiscordMusicBot
-MsgBox, 4,Restart needed,Restart is needed to settings take effect`nRestart now?
-IfMsgBox Yes
+RestartNeeded := false
+IniRead, HomeTabOld, %AppSettingsIni%, Tabs, Home
+if(HometabOld != HomeTabC)
 {
-    Run, %A_ScriptFullPath%
-    ExitApp
+    IniWrite, %HomeTabC%, %AppSettingsIni%,Tabs,Home
+    RestartNeeded := true
+}
+IniRead, SettingsTabOld, %AppSettingsIni%, Tabs, Settings
+if(SettingsTabOld != SettingsTabC)
+{
+    IniWrite, %SettingsTabC%, %AppSettingsIni%,Tabs,Settings
+    RestartNeeded := true
+}
+IniRead, OtherScriptsTabOld, %AppSettingsIni%, Tabs, OtherScripts
+if(OtherScriptsTabOld != OtherScriptsTabC)
+{
+    IniWrite, %OtherScriptsTabC%, %AppSettingsIni%,Tabs,OtherScripts
+    RestartNeeded := true
+}
+IniRead, WindowsTabOld, %AppSettingsIni%, Tabs, Windows
+if(WindowsTabOld != WindowsTabC)
+{
+    IniWrite, %WindowsTabC%, %AppSettingsIni%,Tabs,Windows
+    RestartNeeded := true
+}
+IniRead, BasicScriptsTabOld, %AppSettingsIni%, Tabs, BasicScripts
+if(BasicScriptsTabOld != BasicScriptsTabC)
+{
+    IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
+    RestartNeeded := true
+}
+IniRead, VoicemeeterTabOld, %AppSettingsIni%, Tabs, Voicemeeter
+if(VoicemeeterTabOld != VoicemeeterTabC)
+{
+    IniWrite, %VoicemeeterTabC%, %AppSettingsIni%,Tabs,Voicemeeter
+    RestartNeeded := true
+}
+IniRead, DiscordMusicBotTabOld, %AppSettingsIni%, Tabs, DiscordMusicBot
+if(DiscordMusicBotTabOld != DiscordMusicBotTabC)
+{
+    IniWrite, %DiscordMusicBotTabC%, %AppSettingsIni%,Tabs,DiscordMusicBot
+    RestartNeeded := true
+}
+if(RestartNeeded)
+{
+    MsgBox, 4,Restart needed,Restart is needed to settings take effect`nRestart now?
+    IfMsgBox Yes
+    {
+        Run, %A_ScriptFullPath%
+        ExitApp
+    }
+    Else
+    {
+        Gui 2:Destroy
+    }
 }
 Else
 {

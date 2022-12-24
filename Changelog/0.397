@@ -1,0 +1,7 @@
+Added:
++ External updater
+    - Script now loads Faster
+Fixed:
++ Script not working without internet
++ Uninstaller not always working
++ Exe runner button also checks for updates
