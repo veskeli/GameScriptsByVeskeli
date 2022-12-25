@@ -287,7 +287,7 @@ Gui 1:Add, Button, x16 y440 w103 h23 gDeleteAppSettings, Delete all settings
 Gui 1:Add, Button, x16 y464 w103 h23 gDeleteAllFiles, Uninstall
 Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
-Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
+Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner (might not always work[Rework coming soon])
 Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
 Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 Gui 1:Font, s14
