@@ -23,6 +23,28 @@ Gui Add, Button, x88 y136 w80 h23 gSetPreRelease +Disabled, Pre release
 Gui Add, Button, x168 y136 w80 h23 gSetExperimental, Experimental
 
 Gui Show, w262 h173, Version Control
+
+VersionFile = %MainFolder%\version.txt
+if(FileExist(VersionFile))
+{
+    FileRead, CurrentVersion, %VersionFile%
+    if(CurrentVersion != "" || CurrentVersion != "ERROR" || CurrentVersion != "error")
+    {
+        T_CreateOldVersion := CurrentVersion
+        T_Lenght := StrLen(T_CreateOldVersion) - 1
+        T_Multiply := 10
+        T_Loop := T_Lenght - 2
+        loop %T_Loop%
+        {
+            T_Multiply := T_Multiply . "0"
+        }
+        T_CreateOldVersion := T_CreateOldVersion * T_Multiply
+        T_CreateOldVersion := T_CreateOldVersion + 1
+        T_CreateOldVersion := T_CreateOldVersion / T_Multiply
+        T_CreateOldVersion := Round(T_CreateOldVersion,T_Lenght - 1)
+        GuiControl,,NewVersionE,%T_CreateOldVersion%
+    }
+}
 Return
 
 GuiEscape:

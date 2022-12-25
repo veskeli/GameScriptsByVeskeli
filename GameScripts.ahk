@@ -2651,13 +2651,35 @@ run, %T_GithubLink%
 return
 DeleteOtherScript:
 StringTrimRight,T_OTherScriptControl,A_GuiControl,6
-T_Otherfolder =  %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
-if(FileExist(T_Otherfolder))
-    FileDelete, T_Otherfolder
-GuiControl,1:, %T_OTherScriptControl%Download,Download
-GuiControl,1:Disable,%T_OTherScriptControl%Delete
-GuiControl,1:Hide,Pin%T_OTherScriptControl%IMG
-RemovePinAppOrAction(T_OTherScriptControl)
+T_OtherFile =  %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
+ShowDeleteOtherScriptError := false
+if(FileExist(T_OtherFile))
+{
+    try{
+        FileDelete, %T_OtherFile%
+    }
+    Catch{
+        T_adminuninstall = % "Other script delete failed!`nSome files needs admin privilages to delete!"
+        NotAdminError(T_adminuninstall)
+        ;MsgBox,1,Other script delete failed!,Other script delete failed!
+        Return
+    }
+}
+Else
+{
+    ShowDeleteOtherScriptError := true
+}
+if(ShowDeleteOtherScriptError)
+{
+    MsgBox,1,File not found!,File not found!
+}
+Else
+{
+    GuiControl,1:, %T_OTherScriptControl%Download,Download
+    GuiControl,1:Disable,%T_OTherScriptControl%Delete
+    GuiControl,1:Hide,Pin%T_OTherScriptControl%IMG
+    RemovePinAppOrAction(T_OTherScriptControl)
+}
 return
 PinOtherScript:
 StringTrimRight,T_OTherScriptControl,A_GuiControl, 3
