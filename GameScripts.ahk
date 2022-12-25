@@ -44,7 +44,7 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3967
+version = 0.3968
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := false
 IsThisPreRelease := false
