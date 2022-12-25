@@ -60,10 +60,11 @@ MouseHoldToggle = 0
 MouseClickerToggle = 0
 IsOffline := false
 ;//////////////[Other Scripts]///////////////
-OSName := [10]
-OSID := [10]
-OSDownloadLink := [10]
-OSGithub := [10]
+OSCount := 10
+OSName := [%OSCount%]
+OSID := [%OSCount%]
+OSDownloadLink := [%OSCount%]
+OSGithub := [%OSCount%]
 ;____________________________________________________________
 ;//////////////[variables]///////////////
 CloseToTray := false
@@ -232,11 +233,6 @@ loop %PinSlotsCount%
     Gui 1:Add, GroupBox, x10 y%PinnedGroupYLocation%  w165 h55 +Hidden vPin%A_Index%GroubBox, Pin%A_Index%    
     PinnedGroupYLocation += PinnedGroupYCoordSpace
 }
-;Gui 1:Add, GroupBox, x10 y40  w165 h55 +Hidden vPin1GroubBox, Pin1
-;Gui 1:Add, GroupBox, x10 y124 w165 h55 +Hidden vPin2GroubBox, Pin2
-;Gui 1:Add, GroupBox, x10 y208 w165 h55 +Hidden vPin3GroubBox, Pin3
-;Gui 1:Add, GroupBox, x10 y292 w165 h55 +Hidden vPin4GroubBox, Pin4
-;Gui 1:Add, GroupBox, x10 y376 w165 h55 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
@@ -303,6 +299,7 @@ if(IsThisExperimental)
     Current Experimental changes:
     + Uninstaller rewrite
     + Updated pinned apps
+    + A lot of fixes
     )
     Gui 1:Font, s11
     Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
@@ -2599,9 +2596,12 @@ return
 ;//////////////[OtherScripts]///////////////
 GetInstalledOtherScripts(OtherScriptsNames)
 {
+    i := 0
     Loop, parse, OtherScriptsNames, `n, `r
     {
-        IniRead,T_ID,%AppOtherScriptsIni%,%A_LoopField%,ID
+        ;IniRead,T_ID,%AppOtherScriptsIni%,%A_LoopField%,ID
+        T_ID = %A_LoopField%
+        ;T_ID := % i
         T_OtherScript = %AppOtherScriptsFolder%\%T_ID%.ahk
         if(FileExist(T_OtherScript))
         {
@@ -2614,16 +2614,26 @@ GetInstalledOtherScripts(OtherScriptsNames)
                 GuiControl,1:,% "Pin" . T_ID . "IMG",%GuiPictureFolder%\removepin.png
             }
         }
+        i++
     }
 }
 DownloadOtherScript:
 StringTrimRight,T_DownloadLinkIndex,A_GuiControl,8
-T_DownloadLinkControl := OSID[T_DownloadLinkIndex]
+T_DownloadLinkControl := T_DownloadLinkIndex ;OSID[T_DownloadLinkIndex]
 T_OtherScriptFile = %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
 if(!FileExist(T_OtherScriptFile))
 {
     FileCreateDir, %AppOtherScriptsFolder%
-    T_OtherScriptDownloadLink := OSDownloadLink[T_DownloadLinkIndex]
+    ;T_OtherScriptDownloadLink := OSDownloadLink[T_DownloadLinkIndex]
+    i := 1
+    Loop, parse, OtherScriptsNames, `n, `r
+    {
+        if(A_LoopField == T_DownloadLinkControl)
+        {
+            T_OtherScriptDownloadLink := OSDownloadLink[i]
+        }
+        i++
+    }
     UrlDownloadToFile, %T_OtherScriptDownloadLink%,%T_OtherScriptFile%
     GuiControl,1:, %A_GuiControl%, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,%T_DownloadLinkControl%Delete
@@ -2655,8 +2665,6 @@ StringTrimLeft, T_OTherScriptControl, T_OTherScriptControl, 3
 PinAppOrAction(T_OTherScriptControl)
 return
 BuildOtherScripts:
-; Add 70 to Y
-;Logitech backup tool
 OSYOffsetB = 56 ;Other Scripts Y Offset Button
 OSYOffsetP = 39 ;Other Scripts Y Offset Picture
 OSYOffsetG = 27 ;Other Scripts Y Offset GroupBox
@@ -2686,7 +2694,7 @@ Loop, parse, OtherScriptsNames, `n, `r
     Gui 1:Font
     OSXOffset += 8
     Gui 1:Font, s9, Segoe UI
-    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w131 h23 gDownloadOtherScript v%A_Index%Download, Download
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w131 h23 gDownloadOtherScript v%T_OSID%Download, Download
     OSXOffset += 134
     Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w80 h23 +disabled, Settings
     OSXOffset += 86

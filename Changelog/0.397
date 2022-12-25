@@ -1,6 +1,9 @@
 Added:
 + External updater
     - Script now loads Faster
+Reworked:
++ Other Scripts tab
++ Home screen app pin
 Fixed:
 + Script not working without internet
 + Uninstaller not always working
