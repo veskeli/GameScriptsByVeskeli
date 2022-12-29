@@ -49,7 +49,7 @@ version = 0.39683
 IsThisExperimental := false
 IsThisPreRelease := false
 TestingGround := true
-PreVersion = 0.397Pre2
+PreVersion = 0.397Pre3
 CurrentScriptBranch = Main
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
