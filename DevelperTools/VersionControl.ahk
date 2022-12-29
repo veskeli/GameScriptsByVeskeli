@@ -82,8 +82,8 @@ ExitApp
 ;Pre
 SetPreRelease:
 Gui,Submit,NoHide
-SetDownloadManagerVersion("PreRelease",NewVersionE)
-SetPreVersionsId("PreRelease",OldVersionGitId,NewVersionE)
+SetDownloadManagerVersion("PreRelease",OldVersionE)
+SetPreVersionsId("PreRelease",OldVersionGitId,OldVersionE)
 SetPreVersionsText()
 MsgBox,1, Done, Done! `n After push update version id list, 8
 ExitApp
