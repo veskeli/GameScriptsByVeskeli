@@ -19,10 +19,12 @@ Gui Add, Text, x8 y64 w120 h23 +0x200, Version Git Id:
 Gui Add, Edit, x8 y88 w241 h21 vOldVersionGitId
 Gui Add, Text, x8 y112 w120 h23 +0x200, Set versions:
 Gui Add, Button, x8 y136 w80 h23 gSetMain +Disabled, Main
-Gui Add, Button, x88 y136 w80 h23 gSetPreRelease +Disabled, Pre release
+Gui Add, Button, x88 y136 w80 h23 gSetPreRelease, Pre release
 Gui Add, Button, x168 y136 w80 h23 gSetExperimental, Experimental
+Gui Add, Text, x8 y160 w68 h23 +0x200, Pre version:
+Gui Add, Edit, x80 y160 w171 h21 vPreVersion
 
-Gui Show, w262 h173, Version Control
+Gui Show, w262 h187, Version Control
 
 VersionFile = %MainFolder%\version.txt
 if(FileExist(VersionFile))
@@ -68,6 +70,7 @@ T_CreateOldVersion := Round(T_CreateOldVersion,T_Lenght - 1)
 Guicontrol,,OldVersionE,%T_CreateOldVersion%
 Return
 ;///////////////[Set versions]///////////////
+;Main
 SetMain:
 Gui,Submit,NoHide
 SetDownloadManagerVersion("main",NewVersionE)
@@ -75,15 +78,16 @@ SetVersionsId("main",OldVersionGitId,NewVersionE)
 SetVersionFile(NewVersionE)
 SetAhkFileVersion(NewVersionE)
 MsgBox,1, Done, Done!, 8
-Return
+ExitApp
+;Pre
 SetPreRelease:
 Gui,Submit,NoHide
 SetDownloadManagerVersion("PreRelease",NewVersionE)
-SetVersionsId("PreRelease",OldVersionGitId,NewVersionE)
-SetVersionFile(NewVersionE)
-SetAhkFileVersion(NewVersionE)
-MsgBox,1, Done, Done!, 8
-Return
+SetPreVersionsId("PreRelease",OldVersionGitId,NewVersionE)
+SetPreVersionsText()
+MsgBox,1, Done, Done! `n After push update version id list, 8
+ExitApp
+;Experimental
 SetExperimental:
 Gui,Submit,NoHide
 SetDownloadManagerVersion("Experimental",OldVersionE)
@@ -91,7 +95,7 @@ SetVersionsId("Experimental",OldVersionGitId,OldVersionE)
 SetVersionFile(NewVersionE)
 SetAhkFileVersion(NewVersionE)
 MsgBox,1, Done, Done!, 8
-Return
+ExitApp
 ;///////////////[Functions]///////////////
 SetAhkFileVersion(Version)
 {
@@ -127,6 +131,32 @@ SetVersionsId(T_Section,GitId,Version)
     if(FileExist(File))
     {
         IniWrite, %GitId%, %File%, %T_Section%, %Version%
+    }
+    Else
+    {
+        MsgBox,,File not Found!,Version id list File not Found!,10
+        return
+    }
+}
+SetPreVersionsId(T_Section,GitId,Version)
+{
+    File = %DownloadManagerFolder%\VersionIdList.ini
+    if(FileExist(File))
+    {
+        IniWrite, %GitId%, %File%, %T_Section%, % Version . " " . PreVersion
+    }
+    Else
+    {
+        MsgBox,,File not Found!,Version id list File not Found!,10
+        return
+    }
+}
+SetPreVersionsText()
+{
+    File = %DownloadManagerFolder%\PreVersions.ini
+    if(FileExist(File))
+    {
+        IniWrite, %Version%, %File%, PreVersions, %PreVersion%
     }
     Else
     {
