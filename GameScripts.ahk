@@ -1049,6 +1049,7 @@ run, https://github.com/veskeli/GameScriptsByVeskeli
 return
 RedownloadAssets:
 FileRemoveDir, %GuiPictureFolder%, 1
+FileDelete, %AppUpdaterFile%
 Run, %A_ScriptFullPath%
 ExitApp
 RunAsThisAdmin:
