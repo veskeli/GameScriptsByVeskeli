@@ -44,12 +44,12 @@ VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
 ;//////////////[Version]///////////////
-version = 0.3966
+version = 0.39683
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := false
 IsThisPreRelease := false
-TestingGround := false
-PreVersion = 0.397Pre2
+TestingGround := true
+PreVersion = 0.397Pre3
 CurrentScriptBranch = Main
 ;//////////////[Action variables]///////////////
 AutoRunToggle = 0
@@ -60,10 +60,11 @@ MouseHoldToggle = 0
 MouseClickerToggle = 0
 IsOffline := false
 ;//////////////[Other Scripts]///////////////
-OSName := [10]
-OSID := [10]
-OSDownloadLink := [10]
-OSGithub := [10]
+OSCount := 10
+OSName := [%OSCount%]
+OSID := [%OSCount%]
+OSDownloadLink := [%OSCount%]
+OSGithub := [%OSCount%]
 ;____________________________________________________________
 ;//////////////[variables]///////////////
 CloseToTray := false
@@ -232,11 +233,6 @@ loop %PinSlotsCount%
     Gui 1:Add, GroupBox, x10 y%PinnedGroupYLocation%  w165 h55 +Hidden vPin%A_Index%GroubBox, Pin%A_Index%    
     PinnedGroupYLocation += PinnedGroupYCoordSpace
 }
-;Gui 1:Add, GroupBox, x10 y40  w165 h55 +Hidden vPin1GroubBox, Pin1
-;Gui 1:Add, GroupBox, x10 y124 w165 h55 +Hidden vPin2GroubBox, Pin2
-;Gui 1:Add, GroupBox, x10 y208 w165 h55 +Hidden vPin3GroubBox, Pin3
-;Gui 1:Add, GroupBox, x10 y292 w165 h55 +Hidden vPin4GroubBox, Pin4
-;Gui 1:Add, GroupBox, x10 y376 w165 h55 +Hidden vPin5GroubBox, Pin5
 Gui 1:Font, s9, Segoe UI
 Gui 1:Add, GroupBox, x432 y160 w386 h62, Toggle any application to Always on top by hotkey
 Gui 1:Font
@@ -291,7 +287,7 @@ Gui 1:Add, Button, x16 y440 w103 h23 gDeleteAppSettings, Delete all settings
 Gui 1:Add, Button, x16 y464 w103 h23 gDeleteAllFiles, Uninstall
 Gui 1:Add, GroupBox, x182 y31 w120 h63, Shortcut
 Gui 1:Add, Button, x192 y48 w95 h35 gShortcut_to_desktop, Shortcut to Desktop
-Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner
+Gui 1:Add, GroupBox, x182 y364 w318 h155, Exe Runner (might not always work[Rework coming soon])
 Gui 1:Add, Button, x350 y480 w142 h32 vDownloadEXERunnerButton gDownloadEXERunner, Download EXE Runner
 Gui 1:Add, Text, x190 y385 w306 h90, EXE Runner is a simple Run script compiled to exe.`n(Moves this main script to Appdata and replaces this with an exe file[You can always revert back])`nNew Features with exe Runner:`n+ You can pin this to taskbar`n+ Cool App Icon
 Gui 1:Font, s14
@@ -303,6 +299,7 @@ if(IsThisExperimental)
     Current Experimental changes:
     + Uninstaller rewrite
     + Updated pinned apps
+    + A lot of fixes
     )
     Gui 1:Font, s11
     Gui 1:Add, Text, x509 y70 w314 h321, %T_Experimentalchanges%
@@ -1052,6 +1049,7 @@ run, https://github.com/veskeli/GameScriptsByVeskeli
 return
 RedownloadAssets:
 FileRemoveDir, %GuiPictureFolder%, 1
+FileDelete, %AppUpdaterFile%
 Run, %A_ScriptFullPath%
 ExitApp
 RunAsThisAdmin:
@@ -1259,11 +1257,32 @@ Gui 2:Destroy ;Destroy if already existing
 Gui 2:Add, GroupBox, x8 y4 w594 h100, Show tabs
 Gui 2:Add, CheckBox, +Checked +Disabled x16 y24 w60 h23 vHomeTabC, Home
 Gui 2:Add, CheckBox, +Checked +Disabled x80 y24 w67 h23 vSettingsTabC, Settings
-Gui 2:Add, CheckBox, +Checked x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
-Gui 2:Add, CheckBox, +Checked x256 y24 w73 h23 vWindowsTabC, Windows
-Gui 2:Add, CheckBox, +Checked x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
-Gui 2:Add, CheckBox, +Checked x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
-Gui 2:Add, CheckBox, +Checked x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
+
+Gui 2:Add, CheckBox, x152 y24 w95 h23 vOtherScriptsTabC, Other Scripts
+IniRead, OtherScriptsTabOld, %AppSettingsIni%, Tabs, OtherScripts
+if (OtherScriptsTabOld = 1)
+    GuiControl,2:, OtherScriptsTabC,1
+
+Gui 2:Add, CheckBox, x256 y24 w73 h23 vWindowsTabC, Windows
+IniRead, WindowsTabOld, %AppSettingsIni%, Tabs, OtherScripts
+if (WindowsTabOld = 1)
+    GuiControl,2:, WindowsTabC,1
+
+Gui 2:Add, CheckBox, x336 y24 w88 h23 vBasicScriptsTabC, Basic Scripts
+IniRead, BasicScriptsTabOld, %AppSettingsIni%, Tabs, BasicScripts
+if (BasicScriptsTabOld = 1)
+    GuiControl,2:, BasicScriptsTabC,1
+
+Gui 2:Add, CheckBox, x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
+IniRead, VoicemeeterTabOld, %AppSettingsIni%, Tabs, Voicemeeter
+if (VoicemeeterTabOld = 1 && IsThisExperimental)
+    GuiControl,2:, VoicemeeterTabC,1
+
+Gui 2:Add, CheckBox, x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
+IniRead, DiscordMusicBotTabOld, %AppSettingsIni%, Tabs, DiscordMusicBot
+if (DiscordMusicBotTabOld = 1 && IsThisExperimental)
+    GuiControl,2:, DiscordMusicBotTabC,1
+
 Gui 2:Add, Button, x432 y64 w80 h23 gHandleTabSave, Save
 Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
 Gui 2:Show, w609 h96, Customize Tabs
@@ -1282,18 +1301,61 @@ CancelCustomize:
 Return
 HandleTabSave:
 Gui, 2:Submit,NoHide
-IniWrite, %HomeTabC%, %AppSettingsIni%,Tabs,Home
-IniWrite, %SettingsTabC%, %AppSettingsIni%,Tabs,Settings
-IniWrite, %OtherScriptsTabC%, %AppSettingsIni%,Tabs,OtherScripts
-IniWrite, %WindowsTabC%, %AppSettingsIni%,Tabs,Windows
-IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
-IniWrite, %VoicemeeterTabC%, %AppSettingsIni%,Tabs,Voicemeeter
-IniWrite, %DiscordMusicBotTabC%, %AppSettingsIni%,Tabs,DiscordMusicBot
-MsgBox, 4,Restart needed,Restart is needed to settings take effect`nRestart now?
-IfMsgBox Yes
+RestartNeeded := false
+IniRead, HomeTabOld, %AppSettingsIni%, Tabs, Home
+if(HometabOld != HomeTabC)
 {
-    Run, %A_ScriptFullPath%
-    ExitApp
+    IniWrite, %HomeTabC%, %AppSettingsIni%,Tabs,Home
+    RestartNeeded := true
+}
+IniRead, SettingsTabOld, %AppSettingsIni%, Tabs, Settings
+if(SettingsTabOld != SettingsTabC)
+{
+    IniWrite, %SettingsTabC%, %AppSettingsIni%,Tabs,Settings
+    RestartNeeded := true
+}
+IniRead, OtherScriptsTabOld, %AppSettingsIni%, Tabs, OtherScripts
+if(OtherScriptsTabOld != OtherScriptsTabC)
+{
+    IniWrite, %OtherScriptsTabC%, %AppSettingsIni%,Tabs,OtherScripts
+    RestartNeeded := true
+}
+IniRead, WindowsTabOld, %AppSettingsIni%, Tabs, Windows
+if(WindowsTabOld != WindowsTabC)
+{
+    IniWrite, %WindowsTabC%, %AppSettingsIni%,Tabs,Windows
+    RestartNeeded := true
+}
+IniRead, BasicScriptsTabOld, %AppSettingsIni%, Tabs, BasicScripts
+if(BasicScriptsTabOld != BasicScriptsTabC)
+{
+    IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
+    RestartNeeded := true
+}
+IniRead, VoicemeeterTabOld, %AppSettingsIni%, Tabs, Voicemeeter
+if(VoicemeeterTabOld != VoicemeeterTabC)
+{
+    IniWrite, %VoicemeeterTabC%, %AppSettingsIni%,Tabs,Voicemeeter
+    RestartNeeded := true
+}
+IniRead, DiscordMusicBotTabOld, %AppSettingsIni%, Tabs, DiscordMusicBot
+if(DiscordMusicBotTabOld != DiscordMusicBotTabC)
+{
+    IniWrite, %DiscordMusicBotTabC%, %AppSettingsIni%,Tabs,DiscordMusicBot
+    RestartNeeded := true
+}
+if(RestartNeeded)
+{
+    MsgBox, 4,Restart needed,Restart is needed to settings take effect`nRestart now?
+    IfMsgBox Yes
+    {
+        Run, %A_ScriptFullPath%
+        ExitApp
+    }
+    Else
+    {
+        Gui 2:Destroy
+    }
 }
 Else
 {
@@ -2535,9 +2597,12 @@ return
 ;//////////////[OtherScripts]///////////////
 GetInstalledOtherScripts(OtherScriptsNames)
 {
+    i := 0
     Loop, parse, OtherScriptsNames, `n, `r
     {
-        IniRead,T_ID,%AppOtherScriptsIni%,%A_LoopField%,ID
+        ;IniRead,T_ID,%AppOtherScriptsIni%,%A_LoopField%,ID
+        T_ID = %A_LoopField%
+        ;T_ID := % i
         T_OtherScript = %AppOtherScriptsFolder%\%T_ID%.ahk
         if(FileExist(T_OtherScript))
         {
@@ -2550,16 +2615,26 @@ GetInstalledOtherScripts(OtherScriptsNames)
                 GuiControl,1:,% "Pin" . T_ID . "IMG",%GuiPictureFolder%\removepin.png
             }
         }
+        i++
     }
 }
 DownloadOtherScript:
 StringTrimRight,T_DownloadLinkIndex,A_GuiControl,8
-T_DownloadLinkControl := OSID[T_DownloadLinkIndex]
+T_DownloadLinkControl := T_DownloadLinkIndex ;OSID[T_DownloadLinkIndex]
 T_OtherScriptFile = %AppOtherScriptsFolder%\%T_DownloadLinkControl%.ahk
 if(!FileExist(T_OtherScriptFile))
 {
     FileCreateDir, %AppOtherScriptsFolder%
-    T_OtherScriptDownloadLink := OSDownloadLink[T_DownloadLinkIndex]
+    ;T_OtherScriptDownloadLink := OSDownloadLink[T_DownloadLinkIndex]
+    i := 1
+    Loop, parse, OtherScriptsNames, `n, `r
+    {
+        if(A_LoopField == T_DownloadLinkControl)
+        {
+            T_OtherScriptDownloadLink := OSDownloadLink[i]
+        }
+        i++
+    }
     UrlDownloadToFile, %T_OtherScriptDownloadLink%,%T_OtherScriptFile%
     GuiControl,1:, %A_GuiControl%, % Chr(0x25B6) . " Open"
     GuiControl,1:Enable,%T_DownloadLinkControl%Delete
@@ -2577,13 +2652,35 @@ run, %T_GithubLink%
 return
 DeleteOtherScript:
 StringTrimRight,T_OTherScriptControl,A_GuiControl,6
-T_Otherfolder =  %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
-if(FileExist(T_Otherfolder))
-    FileDelete, T_Otherfolder
-GuiControl,1:, %T_OTherScriptControl%Download,Download
-GuiControl,1:Disable,%T_OTherScriptControl%Delete
-GuiControl,1:Hide,Pin%T_OTherScriptControl%IMG
-RemovePinAppOrAction(T_OTherScriptControl)
+T_OtherFile =  %AppOtherScriptsFolder%\%T_OTherScriptControl%.ahk
+ShowDeleteOtherScriptError := false
+if(FileExist(T_OtherFile))
+{
+    try{
+        FileDelete, %T_OtherFile%
+    }
+    Catch{
+        T_adminuninstall = % "Other script delete failed!`nSome files needs admin privilages to delete!"
+        NotAdminError(T_adminuninstall)
+        ;MsgBox,1,Other script delete failed!,Other script delete failed!
+        Return
+    }
+}
+Else
+{
+    ShowDeleteOtherScriptError := true
+}
+if(ShowDeleteOtherScriptError)
+{
+    MsgBox,1,File not found!,File not found!
+}
+Else
+{
+    GuiControl,1:, %T_OTherScriptControl%Download,Download
+    GuiControl,1:Disable,%T_OTherScriptControl%Delete
+    GuiControl,1:Hide,Pin%T_OTherScriptControl%IMG
+    RemovePinAppOrAction(T_OTherScriptControl)
+}
 return
 PinOtherScript:
 StringTrimRight,T_OTherScriptControl,A_GuiControl, 3
@@ -2591,8 +2688,6 @@ StringTrimLeft, T_OTherScriptControl, T_OTherScriptControl, 3
 PinAppOrAction(T_OTherScriptControl)
 return
 BuildOtherScripts:
-; Add 70 to Y
-;Logitech backup tool
 OSYOffsetB = 56 ;Other Scripts Y Offset Button
 OSYOffsetP = 39 ;Other Scripts Y Offset Picture
 OSYOffsetG = 27 ;Other Scripts Y Offset GroupBox
@@ -2622,7 +2717,7 @@ Loop, parse, OtherScriptsNames, `n, `r
     Gui 1:Font
     OSXOffset += 8
     Gui 1:Font, s9, Segoe UI
-    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w131 h23 gDownloadOtherScript v%A_Index%Download, Download
+    Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w131 h23 gDownloadOtherScript v%T_OSID%Download, Download
     OSXOffset += 134
     Gui 1:Add, Button, x%OSXOffset% y%OSYOffsetB% w80 h23 +disabled, Settings
     OSXOffset += 86
