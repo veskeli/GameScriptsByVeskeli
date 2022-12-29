@@ -48,7 +48,7 @@ version = 0.39683
 ;//////////////[Experimental and Pre Release]///////////////
 IsThisExperimental := false
 IsThisPreRelease := false
-TestingGround := true
+TestingGround := false
 PreVersion = 0.397Pre3
 CurrentScriptBranch = Main
 ;//////////////[Action variables]///////////////
