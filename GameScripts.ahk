@@ -838,12 +838,12 @@ GuiControl,1:,XboxOverlayCheckbox1,%XboxOverlayCheckbox%
 if(XboxOverlayCheckbox)
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,1
-    Menu,QuickActions,Check,Xbox Overlay
+    Menu,GameActions,Check,Xbox Overlay
 }
 else
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR,AppCaptureEnabled,0
-    Menu,QuickActions,UnCheck,Xbox Overlay
+    Menu,GameActions,UnCheck,Xbox Overlay
 }
 return
 ToggleGameMode:
@@ -882,12 +882,12 @@ GuiControl,1:,ToggleGameDVRCheckbox1,%ToggleGameDVRCheckbox%
 if(ToggleGameDVRCheckbox)
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,1
-    Menu,QuickActions,Check,Game DVR
+    Menu,GameActions,Check,Game DVR
 }
 else
 {
     regWrite,REG_DWORD,HKEY_CURRENT_USER\System\GameConfigStore,GameDVR_Enabled,0
-    Menu,QuickActions,UnCheck,Game DVR
+    Menu,GameActions,UnCheck,Game DVR
 }
 return
 ClearWindowsTempFolder:
