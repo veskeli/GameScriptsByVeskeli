@@ -362,10 +362,13 @@ Gui 1:Add, Button, x16 y176 w90 h23 gOpenStartupFolder, Startup
 Gui 1:Add, Button, x16 y200 w91 h23 gOpenWindowsTempFolder, Windows Temp
 Gui 1:Add, Button, x16 y224 w89 h23 gOpenMyDocuments, My Documents
 Gui 1:Add, Button, x16 y248 w89 h23 gOpenDesktop, Desktop
-Gui Add, GroupBox, x152 y136 w163 h149, Quick access
-Gui Add, Button, x160 y153 w130 h23 gOpenProgramsAndFeatures, Programs && Features
-Gui Add, GroupBox, x8 y288 w140 h80, System
-Gui Add, Button, x16 y304 w91 h23 gRunSFCScannow, SCF scannow
+Gui 1:Add, GroupBox, x152 y136 w163 h149, Quick access
+Gui 1:Add, Button, x160 y153 w130 h23 gOpenProgramsAndFeatures, Programs && Features
+Gui 1:Add, Button, x160 y177 w130 h23 gOpenSounds, Open Sounds
+Gui 1:Add, Button, x160 y201 w130 h23 gOpenPowerSettings, Open Power Options
+Gui 1:Add, Button, x160 y225 w130 h23 gOpenSystemProperties, Open System Properties
+Gui 1:Add, GroupBox, x8 y288 w140 h80, System
+Gui 1:Add, Button, x16 y304 w91 h23 gRunSFCScannow, SCF scannow
 Gui 1:Add, GroupBox, x456 y32 w372 h200, Advanced Features
 Gui 1:Add, CheckBox, x682 y28 w124 h23 gToggleadvancedWindowsFeatures vToggleadvancedWindowsFeaturesCheckbox,I know what I'm doing.
 Gui 1:Add, CheckBox, x464 y64 w143 h23 +Disabled gToggleClipboardHistory vToggleClipboardHistoryCheckbox, Clipboard histroy Sync
@@ -923,6 +926,12 @@ return
 OpenSounds:
 Run, mmsys.cpl
 return
+OpenPowerSettings:
+Run, powercfg.cpl
+Return
+OpenSystemProperties:
+Run, sysdm.cpl
+Return
 OpenProgramsAndFeatures:
 Run, appwiz.cpl
 Return
@@ -1844,9 +1853,14 @@ UpdateTrayicon()
         Menu,Tray,NoStandard
         Menu,Tray,Add,Show GUI,OpenMainGui
         Menu,Tray,Add
-        Menu,QuickActions,Add,Xbox Overlay,ToggleXboxOverlay2
-        Menu,QuickActions,Add,Game DVR,ToggleGameDVR2
-        Menu,QuickActions,Add,Clear Windows Temp Folder,ClearWindowsTempFolder
+        Menu,GameActions,Add,Xbox Overlay,ToggleXboxOverlay2
+        Menu,GameActions,Add,Game DVR,ToggleGameDVR2
+        Menu,GameActions,Add,Clear Windows Temp Folder,ClearWindowsTempFolder
+        Menu,Tray,Add, Game Actions, :GameActions
+        Menu,QuickActions,Add,Open Programs && Features,OpenProgramsAndFeatures
+        Menu,QuickActions,Add,Open Sounds,OpenSounds
+        Menu,QuickActions,Add,Open Power Options,OpenPowerSettings
+        Menu,QuickActions,Add,Open System Properties,OpenSystemProperties
         Menu,Tray,Add, Quick Actions, :QuickActions
         Menu,Tray,Add
         Menu,Tray,Add,Open Appdata Folder,OpenAppdataFolder
@@ -1870,13 +1884,13 @@ UpdateSettingsFromRegistery()
     {
         GuiControl,1:,XboxOverlayCheckbox,1
         GuiControl,1:,XboxOverlayCheckbox1,1
-        Menu,QuickActions,Check,Xbox Overlay
+        Menu,GameActions,Check,Xbox Overlay
     }
     else
     {
         GuiControl,1:,XboxOverlayCheckbox,0
         GuiControl,1:,XboxOverlayCheckbox1,0
-        Menu,QuickActions,UnCheck,Xbox Overlay
+        Menu,GameActions,UnCheck,Xbox Overlay
     }
     ;Game mode
     regRead,T_GameModeConfig,HKEY_CURRENT_USER\Software\Microsoft\GameBar,AllowAutoGameMode
@@ -1895,13 +1909,13 @@ UpdateSettingsFromRegistery()
     {
         GuiControl,1:,ToggleGameDVRCheckbox,1
         GuiControl,1:,ToggleGameDVRCheckbox1,1
-        Menu,QuickActions,Check,Game DVR
+        Menu,GameActions,Check,Game DVR
     }
     else
     {
         GuiControl,1:,ToggleGameDVRCheckbox,0
         GuiControl,1:,ToggleGameDVRCheckbox1,0
-        Menu,QuickActions,UnCheck,Game DVR
+        Menu,GameActions,UnCheck,Game DVR
     }
 }
 UninstallScript(tName)
