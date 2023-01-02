@@ -362,6 +362,10 @@ Gui 1:Add, Button, x16 y176 w90 h23 gOpenStartupFolder, Startup
 Gui 1:Add, Button, x16 y200 w91 h23 gOpenWindowsTempFolder, Windows Temp
 Gui 1:Add, Button, x16 y224 w89 h23 gOpenMyDocuments, My Documents
 Gui 1:Add, Button, x16 y248 w89 h23 gOpenDesktop, Desktop
+Gui Add, GroupBox, x152 y136 w163 h149, Quick access
+Gui Add, Button, x160 y153 w130 h23 gOpenProgramsAndFeatures, Programs && Features
+Gui Add, GroupBox, x8 y288 w140 h80, System
+Gui Add, Button, x16 y304 w91 h23 gRunSFCScannow, SCF scannow
 Gui 1:Add, GroupBox, x456 y32 w372 h200, Advanced Features
 Gui 1:Add, CheckBox, x682 y28 w124 h23 gToggleadvancedWindowsFeatures vToggleadvancedWindowsFeaturesCheckbox,I know what I'm doing.
 Gui 1:Add, CheckBox, x464 y64 w143 h23 +Disabled gToggleClipboardHistory vToggleClipboardHistoryCheckbox, Clipboard histroy Sync
@@ -905,12 +909,23 @@ return
 RunIpConfig:
 runwait %ComSpec% /k ipconfig
 return
+RunSFCScannow:
+if(!A_IsAdmin)
+{
+    NotAdminError()
+    return
+} 
+runwait %ComSpec% /k SFC /scannow
+return
 ClearAllRecentDocumentsInWordpad:
 regDelete,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\Recent File List
 return
 OpenSounds:
 Run, mmsys.cpl
 return
+OpenProgramsAndFeatures:
+Run, appwiz.cpl
+Return
 ToggleadvancedWindowsFeatures:
 Gui, 1:Submit, Nohide
 if(ToggleadvancedWindowsFeaturesCheckbox)
