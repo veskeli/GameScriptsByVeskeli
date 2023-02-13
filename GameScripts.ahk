@@ -40,6 +40,7 @@ SettingsTAB := true
 OtherScriptsTAB := true
 WindowsTAB := true
 BasicScriptsTAB := true
+GameModeTAB := true
 VoicemeeterTAB := true
 DiscordMusicBotTAB := true
 ;____________________________________________________________
@@ -146,6 +147,7 @@ IniRead, T_SettingsTab, %AppSettingsIni%,Tabs,Settings
 IniRead, T_OtherScriptsTab, %AppSettingsIni%,Tabs,OtherScripts
 IniRead, T_WindowsTab, %AppSettingsIni%,Tabs,Windows
 IniRead, T_BasicScriptsTab, %AppSettingsIni%,Tabs,BasicScripts
+IniRead, T_GameModeTab, %AppSettingsIni%,Tabs,GameMode
 IniRead, T_VoicemeeterTab, %AppSettingsIni%,Tabs,Voicemeeter
 IniRead, T_DiscordMusicBotTab, %AppSettingsIni%,Tabs,DiscordMusicBot
 if(T_HomeTab == "0")
@@ -160,6 +162,8 @@ if(T_BasicScriptsTab == "0")
     BasicScriptsTAB := false
 if(!IsThisExperimental)
     T_VoicemeeterTab := 0
+if(T_GameModeTab == "0")
+    GameModeTAB := false
 if(T_VoicemeeterTab == "0")
     VoicemeeterTAB := false
 if(!IsThisExperimental)
@@ -204,6 +208,8 @@ if(WindowsTAB)
     TabHandle = % TabHandle . "|" . "Windows"
 if(BasicScriptsTAB)
     TabHandle = % TabHandle . "|" . "Basic Scripts"
+if(GameModeTAB)
+    TabHandle = % TabHandle . "|" . "Game Mode[Pre Alpha]"
 if(VoicemeeterTAB)
     TabHandle = % TabHandle . "|" . "Voicemeeter[Alpha]"
 if(DiscordMusicBotTAB)
@@ -377,6 +383,14 @@ Gui 1:Add, CheckBox, x464 y112 w177 h30 +Disabled gClearVirtualMemoryPageFileAtS
 Gui 1:Add, CheckBox, x464 y144 w230 h48 +Disabled vToggleFeaturedAutoInstallCheckbox, Toggle Windows 10 Featured or Suggested Apps from Automatically Installing
 Gui 1:Add, Button, x464 y200 w171 h23 +Disabled gDisableMostOfAds vDisableMostOfAdsButton, Disable Most windows 10 ads
 Gui 1:Add, Button, x648 y200 w169 h23 +Disabled gRestoreMostOfAds vRestoreMostOfAdsButton, Restore Most windows 10 ads
+}
+;____________________________________________________________
+;____________________________________________________________
+;//////////////[Game mode]///////////////
+if(GameModeTAB)
+{
+Gui 1:Tab, Game Mode
+Gui 1:Add, Text, x656 y56 w149 h48, Game mode
 }
 ;____________________________________________________________
 ;____________________________________________________________
@@ -1297,12 +1311,17 @@ IniRead, BasicScriptsTabOld, %AppSettingsIni%, Tabs, BasicScripts
 if (BasicScriptsTabOld = 1)
     GuiControl,2:, BasicScriptsTabC,1
 
-Gui 2:Add, CheckBox, x432 y24 w162 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
+Gui 2:Add, CheckBox, x432 y24 w162 h23 vGameModeTabC, Game Mode[Pre Alpha]
+IniRead, GameModeTabOld, %AppSettingsIni%, Tabs, GameMode
+if (GameModeTabOld = 1 && IsThisExperimental)
+    GuiControl,2:, GameModeTabC,1
+
+Gui 2:Add, CheckBox, x16 y44 w110 h23 vVoicemeeterTabC, Voicemeeter[Alpha]
 IniRead, VoicemeeterTabOld, %AppSettingsIni%, Tabs, Voicemeeter
 if (VoicemeeterTabOld = 1 && IsThisExperimental)
     GuiControl,2:, VoicemeeterTabC,1
 
-Gui 2:Add, CheckBox, x16 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
+Gui 2:Add, CheckBox, x152 y44 w160 h23 vDiscordMusicBotTabC, Discord Music Bot[Pre Alpha]
 IniRead, DiscordMusicBotTabOld, %AppSettingsIni%, Tabs, DiscordMusicBot
 if (DiscordMusicBotTabOld = 1 && IsThisExperimental)
     GuiControl,2:, DiscordMusicBotTabC,1
@@ -1312,6 +1331,8 @@ Gui 2:Add, Button, x520 y64 w80 h23 gCancelCustomize, Cancel
 Gui 2:Show, w609 h96, Customize Tabs
 if(!IsThisExperimental)
 {
+    GuiControl, 2:Disable, GameModeTabC
+    GuiControl, 2:, GameModeTabC,0
     GuiControl, 2:Disable, VoicemeeterTabC
     GuiControl, 2:, VoicemeeterTabC,0
     GuiControl, 2:Disable, DiscordMusicBotTabC
@@ -1354,6 +1375,12 @@ IniRead, BasicScriptsTabOld, %AppSettingsIni%, Tabs, BasicScripts
 if(BasicScriptsTabOld != BasicScriptsTabC)
 {
     IniWrite, %BasicScriptsTabC%, %AppSettingsIni%,Tabs,BasicScripts
+    RestartNeeded := true
+}
+IniRead, GameModeTabOld, %AppSettingsIni%, Tabs, GameMode
+if(GameModeTabOld != GameModeTabC)
+{
+    IniWrite, %GameModeTabC%, %AppSettingsIni%,Tabs,GameMode
     RestartNeeded := true
 }
 IniRead, VoicemeeterTabOld, %AppSettingsIni%, Tabs, Voicemeeter
